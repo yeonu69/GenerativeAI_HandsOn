@@ -3,7 +3,7 @@
 대학 교양(1학년) 15주 교재 「영화관으로 간 생성형 AI 실습」의 장별 웹 실험실(시뮬레이터)입니다.
 모든 실험실은 설치 없이 브라우저에서 바로 실행됩니다.
 
-**바로 열기:** https://yeonu69.github.io/GenerativeAI_HansOn/
+**바로 열기:** https://yeonu69.github.io/GenerativeAI_HandsOn/
 
 | 실험실 | 주소 | 실험 |
 | --- | --- | --- |
