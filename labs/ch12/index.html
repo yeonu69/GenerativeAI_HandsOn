@@ -139,7 +139,16 @@ function show(){let v=(location.hash||"#wave").slice(1);if(!views.includes(v))v=
 addEventListener("hashchange",show);
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 let ac=null;function actx(){if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();return ac}
-function playBuf(arr,rate){try{const a=actx();const b=a.createBuffer(1,arr.length,rate);b.getChannelData(0).set(arr);const s=a.createBufferSource();s.buffer=b;const g=a.createGain();g.gain.value=.25;s.connect(g).connect(a.destination);s.start()}catch(e){}}
+let aud=null,audUrl=null;
+function wav(arr,rate){let m=0;for(let i=0;i<arr.length;i++)m=Math.max(m,Math.abs(arr[i]));const k=m>0?0.8/m:0;const n=arr.length,buf=new ArrayBuffer(44+n*2),d=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)d.setUint8(o+i,s.charCodeAt(i))};
+  w(0,"RIFF");d.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,rate,true);d.setUint32(28,rate*2,true);d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,"data");d.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++)d.setInt16(44+i*2,Math.max(-1,Math.min(1,arr[i]*k))*32767,true);return new Blob([buf],{type:"audio/wav"})}
+function sayErr(msg){document.querySelectorAll(".audmsg").forEach(e=>e.remove());const v=document.querySelector("section.lab:not([hidden]) .panel");if(!v)return;const p=document.createElement("p");p.className="note audmsg";p.textContent=msg;v.appendChild(p)}
+function playWA(arr,rate){const a=actx();const go=()=>{const b=a.createBuffer(1,arr.length,rate);b.getChannelData(0).set(arr);const s=a.createBufferSource();s.buffer=b;const g=a.createGain();g.gain.value=.6;s.connect(g).connect(a.destination);s.start()};if(a.state!=="running")a.resume().then(go,()=>sayErr("브라우저가 소리 재생을 막았습니다. 화면을 한 번 누른 뒤 다시 '듣기'를 누르세요."));else go()}
+function playBuf(arr,rate){document.querySelectorAll(".audmsg").forEach(e=>e.remove());
+  try{if(aud){aud.pause()}if(audUrl)URL.revokeObjectURL(audUrl);audUrl=URL.createObjectURL(wav(arr,rate));aud=new Audio(audUrl);aud.volume=1;
+    const p=aud.play();if(p&&p.catch)p.catch(()=>{try{playWA(arr,rate)}catch(e){sayErr("이 브라우저에서는 소리를 낼 수 없습니다. 기기 볼륨과 무음 모드를 확인하거나 크롬·엣지·사파리 최신 버전으로 열어 보세요.")}})}
+  catch(e){try{playWA(arr,rate)}catch(e2){sayErr("이 브라우저에서는 소리를 낼 수 없습니다. 기기 볼륨과 무음 모드를 확인하세요.")}}}
 /* 12-A */
 const SR=[2000,4000,8000,16000,44100];
 function wRun(){const f=+$("fr").value,sr=SR[+$("sr").value];$("ofr").textContent=f+" Hz";$("osr").textContent=sr.toLocaleString()+"번/초";
@@ -176,7 +185,17 @@ function pRun(){$("orate").textContent=(+$("rate").value).toFixed(2)+"배";$("op
   $("pnote").textContent=("speechSynthesis" in window)?"같은 문장을 프리셋마다 들어 보고 느낌을 비교하세요. AI 음성 도구에서는 '낮고 차분하게, 쉼표에서 잠시 멈추며'처럼 말로 지시합니다.":"이 브라우저는 음성 합성을 지원하지 않습니다. 다른 브라우저에서 열어 보세요."}
 ["rate","pitch"].forEach(id=>$(id).addEventListener("input",pRun));
 document.querySelectorAll("#ppre button").forEach(b=>b.onclick=()=>{const[r,p]=b.dataset.p.split(",");$("rate").value=r;$("pitch").value=p;document.querySelectorAll("#ppre button").forEach(x=>x.classList.toggle("on",x===b));pRun();$("pplay").click()});
-$("pplay").onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($("ptext").value);u.lang="ko-KR";u.rate=+$("rate").value;u.pitch=+$("pitch").value;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ko"));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}};
+function koVoice(){try{return speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().replace("_","-").startsWith("ko"))}catch(e){return null}}
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+$("pplay").onclick=()=>{document.querySelectorAll(".audmsg").forEach(e=>e.remove());
+  if(!("speechSynthesis" in window)){sayErr("이 브라우저는 음성 합성(말하기)을 지원하지 않습니다. 크롬·엣지·사파리 최신 버전으로 열어 보세요.");return}
+  try{speechSynthesis.cancel();speechSynthesis.resume();
+    const u=new SpeechSynthesisUtterance($("ptext").value);u.lang="ko-KR";u.rate=+$("rate").value;u.pitch=+$("pitch").value;u.volume=1;
+    const v=koVoice();if(v)u.voice=v;
+    let started=false;u.onstart=()=>{started=true};u.onerror=e=>{if(e.error!=="canceled"&&e.error!=="interrupted")sayErr("말하기에 실패했습니다("+e.error+"). 기기 볼륨을 확인하거나 다른 브라우저로 열어 보세요.")};
+    setTimeout(()=>speechSynthesis.speak(u),60);
+    setTimeout(()=>{if(!started&&!speechSynthesis.speaking)sayErr(koVoice()?"소리가 나지 않으면 기기 볼륨과 무음 모드를 확인하세요.":"이 기기에 한국어 음성이 설치되어 있지 않아 말하기가 되지 않을 수 있습니다. 윈도우: 설정 → 시간 및 언어 → 음성에서 한국어 음성 추가, 안드로이드: 설정 → 텍스트 음성 변환에서 한국어 데이터 설치. 또는 크롬·엣지로 열어 보세요.")},1800)}
+  catch(e){sayErr("말하기에 실패했습니다. 다른 브라우저로 열어 보세요.")}};
 $("pstop").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}};
 /* 12-D */
 let cues=[["0:00","(내레이션 없음) 빗소리만","음악 없음","빗소리, 멀리 천둥"],["0:05","그해 겨울, 동네의 마지막 극장이 문을 닫기로 했다.","피아노 시작","젖은 발걸음"],["0:15","아무도 오지 않는 극장에, 작은 손님이 찾아왔다.","현악기 더해짐","영사기 돌아가는 소리"],["0:30","(대사 없음)","고조","필름 끊기는 소리"],["0:45","필름이 끊기기 전에, 너를 다시 보고 싶었다.","가장 크게, 그리고 멈춤","정적"],["0:55","마지막 상영.","여운 한 음","없음"]];
