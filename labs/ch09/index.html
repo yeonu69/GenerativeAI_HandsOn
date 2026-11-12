@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>9장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+canvas{max-width:100%;height:auto;display:block;image-rendering:pixelated;border-radius:8px;background:var(--bg)}
+.row2{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.row2>div{flex:1 1 220px;min-width:0}
+.px{font-family:var(--f-mono);font-size:14px;background:var(--bg);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center}
+.px i{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);flex:none}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.strip figure{margin:0;text-align:center;font-size:12px;color:var(--muted)}
+.strip canvas{width:100%}
+.out{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+</style>
+<div class="wrap">
+<header><h1>9장 실험실</h1><p class="sub">「이미지 생성 ① 그림은 어떻게 태어나는가」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#pixel" data-v="pixel"><span class="no">9-A</span>그림은 숫자다</a>
+  <a href="#noise" data-v="noise"><span class="no">9-B</span>잡음 넣고 걷어 내기</a>
+  <a href="#guide" data-v="guide"><span class="no">9-C</span>가이던스 강도</a>
+  <a href="#prompt" data-v="prompt"><span class="no">9-D</span>이미지 프롬프트 빌더</a>
+</nav>
+
+<section class="lab" id="v-pixel">
+  <div class="panel">
+    <h2>그림은 숫자다</h2>
+    <p class="hint">컴퓨터에게 그림은 작은 점(픽셀)의 격자이고, 점마다 빨강·초록·파랑(RGB) 세 숫자가 있습니다. 그림 위를 누르거나 손가락으로 훑어 보세요.</p>
+    <label>해상도 (가로·세로 픽셀 수) <output id="ores"></output></label><input type="range" id="res" min="0" max="4" step="1" value="2">
+    <div class="px" id="pxinfo"><i id="pxsw"></i><span>그림 위를 눌러 보세요.</span></div>
+    <p class="note" id="pxnote"></p>
+  </div>
+  <div class="panel"><canvas id="pcv" width="512" height="512" aria-label="픽셀 그림"></canvas></div>
+</section>
+
+<section class="lab" id="v-noise" hidden>
+  <div class="panel">
+    <h2>잡음 넣고 걷어 내기</h2>
+    <p class="hint">디퓨전 모델은 그림에 잡음을 조금씩 섞어 완전한 잡음으로 만드는 과정(정방향)을 거꾸로 배웁니다. 슬라이더로 잡음의 양을 바꾸고, '생성'을 눌러 잡음에서 그림이 나타나는 과정(역방향)을 보세요.</p>
+    <label>그림</label>
+    <div class="chips" id="nsel"><button data-k="0" class="on">해질녘 바다</button><button data-k="1">눈 덮인 산</button><button data-k="2">밤의 도시</button></div>
+    <label>잡음 단계 t <output id="ot"></output></label><input type="range" id="nt" min="0" max="1000" step="10" value="300">
+    <label>생성 단계 수 <output id="ost"></output></label><input type="range" id="nst" min="1" max="50" step="1" value="20">
+    <div class="btns"><button class="pri" id="ngen">잡음에서 생성</button><button id="nseed">다른 잡음으로</button></div>
+    <p class="note">주의: 이 실험실의 '모델'은 세 그림만 외운 장난감입니다. 실제 모델은 수억 장을 배운 신경망이 매 단계 '여기 섞인 잡음이 무엇인지' 예측합니다. 단계 수를 1~3으로 줄이면 왜 흐릿해지는지도 확인해 보세요.</p>
+  </div>
+  <div class="panel">
+    <canvas id="ncv" width="256" height="256" style="width:100%;max-width:420px" aria-label="잡음 그림"></canvas>
+    <div class="stat" id="nstat"></div>
+    <div class="strip" id="nstrip"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-guide" hidden>
+  <div class="panel">
+    <h2>가이던스 강도</h2>
+    <p class="hint">프롬프트 '<b>파란 하늘 아래 빨간 공</b>'으로 같은 모델에서 여덟 장을 만듭니다. 가이던스 강도는 '프롬프트를 얼마나 고집스럽게 따를지'입니다. 낮으면 제멋대로이고 다양하며, 높으면 프롬프트에 충실하지만 서로 비슷하고 색이 지나치게 진해집니다.</p>
+    <label>가이던스 강도 <output id="og"></output></label><input type="range" id="gs" min="0" max="20" step="0.5" value="7">
+    <div class="btns"><button id="gseed">다른 잡음으로 다시</button></div>
+    <p class="note" id="gnote"></p>
+  </div>
+  <div class="panel"><div class="strip" id="gstrip"></div><div class="stat" id="gstat"></div></div>
+</section>
+
+<section class="lab" id="v-prompt" hidden>
+  <div class="panel">
+    <h2>이미지 프롬프트 빌더</h2>
+    <p class="hint">좋은 이미지 프롬프트는 '무엇을'뿐 아니라 '어떻게 보이게'를 말합니다. 칸을 고르면 프롬프트가 만들어집니다. 10장에서 나노바나나·위스크에 그대로 써 봅니다.</p>
+    <label>① 주제 (누가·무엇이)</label><input type="text" id="q1" value="낡은 영사기 앞에 앉은 로봇">
+    <label>② 장면·행동</label><input type="text" id="q2" value="필름을 손에 들고 빛을 비춰 보고 있다">
+    <label>③ 표현 방식</label><select id="q3"><option>사진처럼 사실적인</option><option>수채화</option><option>유화</option><option>연필 스케치</option><option>3D 렌더링</option><option>평면 일러스트</option><option>흑백 필름 사진</option></select>
+    <label>④ 구도</label><select id="q4"><option>인물 상반신이 보이는 미디엄 숏</option><option>얼굴을 크게 잡은 클로즈업</option><option>배경이 넓게 보이는 와이드 숏</option><option>위에서 내려다본 부감</option><option>아래에서 올려다본 앙각</option></select>
+    <label>⑤ 빛</label><select id="q5"><option>영사기에서 나오는 한 줄기 빛</option><option>해질녘의 따뜻한 역광</option><option>흐린 날의 부드러운 빛</option><option>네온사인의 차가운 빛</option><option>촛불처럼 어두운 실내</option></select>
+    <label>⑥ 색감·분위기</label><select id="q6"><option>따뜻한 주황과 짙은 갈색, 아늑하고 향수 어린</option><option>차가운 파랑과 청록, 고요하고 쓸쓸한</option><option>선명한 원색, 활기찬</option><option>빛바랜 색, 오래된 기억 같은</option></select>
+    <label>⑦ 화면 비율</label><select id="q7"><option>16:9 가로</option><option>9:16 세로</option><option>1:1 정사각형</option><option>2.39:1 시네마스코프</option></select>
+  </div>
+  <div class="panel">
+    <h3>한국어 프롬프트</h3><div class="out" id="qko"></div>
+    <div class="btns"><button class="pri" id="qcopy">복사하기</button><span class="hint" id="qmsg"></span></div>
+    <h3>점검</h3><div class="note" id="qchk"></div>
+  </div>
+</section>
+<footer>9-B와 9-C의 그림은 원리를 보여 주기 위해 코드로 흉내 낸 것으로, 실제 이미지 생성 모델의 결과가 아닙니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["pixel","noise","guide","prompt"];
+function show(){let v=(location.hash||"#pixel").slice(1);if(!views.includes(v))v="pixel";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({pixel:pRun,noise:nRun,guide:gRun,prompt:qRun})[v]()}
+addEventListener("hashchange",show);
+let seed=7;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+function gauss(){let u=rnd()||1e-9,v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283*v)}
+/* scenes: return [r,g,b] 0..1 for u,v in 0..1 */
+const SC=[(u,v)=>{if(v<.55){const t=v/.55;const sd=Math.hypot(u-.5,(v-.5)*1.4);if(sd<.11)return[1,.85,.45];return[.98-.1*t,.55+.2*t,.35+.15*t]}const t=(v-.55)/.45;const glow=Math.max(0,1-Math.abs(u-.5)*4)*(1-t)*.5;return[.1+glow,.2+glow*.6,.4-.15*t+glow*.2]},
+(u,v)=>{const m=.35+.25*Math.abs(Math.sin(u*5.2))*(1-Math.abs(u-.5));if(v<m)return[.55+.3*v,.72+.2*v,.95];const snow=v<m+.08;if(snow)return[.97,.98,1];if(v>.82)return[.85,.88,.92];return[.35+.2*v,.42+.2*v,.55+.1*v]},
+(u,v)=>{const bx=Math.floor(u*8),h=.3+.45*((bx*37%11)/11);if(v<1-h){const st=((Math.floor(u*97)*13+Math.floor(v*97)*7)%53===0);return st?[1,1,.9]:[.05,.06,.18+v*.15]}const w=(Math.floor(u*40)%3===1)&&(Math.floor(v*60)%3===1)&&((Math.floor(u*40)*7+Math.floor(v*60)*3)%5<3);return w?[1,.85,.4]:[.1,.1,.16]}];
+function sceneImg(k,N){const a=new Float32Array(N*N*3);for(let y=0;y<N;y++)for(let x=0;x<N;x++){const c=SC[k]((x+.5)/N,(y+.5)/N);a.set(c,(y*N+x)*3)}return a}
+function put(cv,a,N){const c=cv.getContext("2d");const id=c.createImageData(N,N);for(let i=0;i<N*N;i++){for(let j=0;j<3;j++)id.data[i*4+j]=Math.max(0,Math.min(255,Math.round(a[i*3+j]*255)));id.data[i*4+3]=255}
+  const t=document.createElement("canvas");t.width=t.height=N;t.getContext("2d").putImageData(id,0,0);c.imageSmoothingEnabled=false;c.clearRect(0,0,cv.width,cv.height);c.drawImage(t,0,0,cv.width,cv.height)}
+/* 9-A */
+const RES=[4,8,16,32,64];let pa=null,pN=16;
+function pRun(){pN=RES[+$("res").value];$("ores").textContent=pN+" × "+pN;pa=sceneImg(0,pN);put($("pcv"),pa,pN);
+  const n=pN*pN;$("pxnote").textContent=`픽셀 ${n.toLocaleString()}개 × 숫자 3개 = ${ (n*3).toLocaleString()}개의 숫자. 휴대폰 사진(약 4000 × 3000)이라면 3,600만 개입니다. 이미지 생성 모델은 이 숫자들을 한꺼번에 만들어 내야 합니다.`}
+function pick(e){const r=$("pcv").getBoundingClientRect();const p=e.touches?e.touches[0]:e;const x=Math.floor((p.clientX-r.left)/r.width*pN),y=Math.floor((p.clientY-r.top)/r.height*pN);if(x<0||y<0||x>=pN||y>=pN)return;
+  const i=(y*pN+x)*3,c=[0,1,2].map(j=>Math.round(pa[i+j]*255));$("pxsw").style.background=`rgb(${c})`;$("pxinfo").lastChild.textContent=`(${x}, ${y}) → R ${c[0]}, G ${c[1]}, B ${c[2]}`}
+$("pcv").addEventListener("pointerdown",pick);$("pcv").addEventListener("pointermove",e=>{if(e.buttons)pick(e)});$("res").addEventListener("input",pRun);
+/* 9-B */
+const NN=64;let nk=0,eps=null,anim=0;
+function newEps(){eps=new Float32Array(NN*NN*3);for(let i=0;i<eps.length;i++)eps[i]=gauss()}
+function abar(t){const s=.008,f=x=>Math.cos((x/1000+s)/(1+s)*Math.PI/2)**2;return f(t)/f(0)}
+function mix(x0,t){const a=abar(t),o=new Float32Array(x0.length);for(let i=0;i<o.length;i++)o[i]=Math.sqrt(a)*(x0[i]-.5)*2/2+.5+Math.sqrt(1-a)*eps[i]*.33;return o}
+function nRun(){cancelAnimationFrame(anim);const t=+$("nt").value;$("ot").textContent=t+" / 1000";$("ost").textContent=$("nst").value+"단계";
+  const x0=sceneImg(nk,NN);put($("ncv"),mix(x0,t),NN);$("nstat").innerHTML=`남은 원래 그림의 비율 <b>${Math.round(Math.sqrt(abar(t))*100)}%</b> · 잡음의 비율 <b>${Math.round(Math.sqrt(1-abar(t))*100)}%</b>`;
+  const st=$("nstrip");st.innerHTML="";[0,250,500,750,1000].forEach(tt=>{const f=document.createElement("figure");const cv=document.createElement("canvas");cv.width=cv.height=128;put(cv,mix(x0,tt),NN);f.appendChild(cv);f.append("t = "+tt);st.appendChild(f)})}
+function nGen(){cancelAnimationFrame(anim);const S=+$("nst").value,x0=sceneImg(nk,NN);
+  /* toy denoiser: predicts x0 imperfectly; error shrinks as t falls */
+  let x=new Float32Array(eps.length);for(let i=0;i<x.length;i++)x[i]=.5+eps[i]*.33;
+  const blur=(a)=>{const o=new Float32Array(a.length);for(let y=0;y<NN;y++)for(let xx=0;xx<NN;xx++)for(let c=0;c<3;c++){let s=0,n=0;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const yy=y+dy,x2=xx+dx;if(yy>=0&&yy<NN&&x2>=0&&x2<NN){s+=a[(yy*NN+x2)*3+c];n++}}o[(y*NN+xx)*3+c]=s/n}return o};
+  const x0b=blur(blur(x0));let k=0;
+  function step(){const t=1000*(1-k/S),tn=1000*(1-(k+1)/S);const qual=Math.min(1,(1-t/1000)*1.0+ (S>=10?.25:0));
+    const pred=new Float32Array(x0.length);for(let i=0;i<pred.length;i++)pred[i]=x0b[i]*(1-qual)+x0[i]*qual;
+    const a=abar(tn);for(let i=0;i<x.length;i++)x[i]=Math.sqrt(a)*(pred[i]-.5)+.5+Math.sqrt(1-a)*eps[i]*.33;
+    put($("ncv"),x,NN);k++;$("nstat").innerHTML=`생성 중: <b>${k}</b> / ${S} 단계`;
+    if(k<S)anim=setTimeout(()=>requestAnimationFrame(step),Math.max(30,600/S));else $("nstat").innerHTML=`완성: ${S}단계`+(S<4?" · 단계가 너무 적어 흐릿합니다. 한 번에 너무 큰 걸음을 걸었기 때문입니다.":"")}
+  step()}
+$("nt").addEventListener("input",nRun);$("nst").addEventListener("input",()=>{$("ost").textContent=$("nst").value+"단계"});
+$("ngen").onclick=nGen;$("nseed").onclick=()=>{newEps();nRun()};
+document.querySelectorAll("#nsel button").forEach(b=>b.onclick=()=>{nk=+b.dataset.k;document.querySelectorAll("#nsel button").forEach(x=>x.classList.toggle("on",x===b));nRun()});
+newEps();
+/* 9-C */
+let gseed=11;
+function gImg(w,s){seed=s;const N=48,a=new Float32Array(N*N*3);
+  const sky=[.2+rnd()*.6,.2+rnd()*.6,.2+rnd()*.6],ball=[rnd(),rnd(),rnd()],bx=.2+rnd()*.6,by=.3+rnd()*.5,br=.08+rnd()*.25;
+  const tSky=[.35,.6,.95],tBall=[.9,.12,.12],tx=.5,ty=.62,tr=.18;const m=Math.min(1,w/9)*.85+Math.max(0,(w-9)/11)*.15,over=Math.max(0,(w-9)/11),jit=(1-over)*(1-m*.6);
+  const lerp=(p,q)=>p.map((v,i)=>v*(1-m)+q[i]*m);let S=lerp(sky,tSky),B=lerp(ball,tBall);const X=bx*(1-m)+tx*m+(rnd()-.5)*.35*jit,Y=by*(1-m)+ty*m+(rnd()-.5)*.25*jit,R=Math.max(.06,br*(1-m)+tr*m+(rnd()-.5)*.12*jit);
+  const sat=c=>{const g=(c[0]+c[1]+c[2])/3;return c.map(v=>Math.max(0,Math.min(1,g+(v-g)*(1+over*2.2)+ (v>g?over*.25:-over*.2))))};S=sat(S);B=sat(B);
+  const noise=Math.max(0,.18-w*.02);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const u=(x+.5)/N,v=(y+.5)/N;const inB=Math.hypot(u-X,v-Y)<R;let c=inB?B:(v>.85?[.3,.5,.3]:S);const i=(y*N+x)*3;for(let j=0;j<3;j++)a[i+j]=c[j]+(rnd()-.5)*noise*2}
+  return {a,N,ok:Math.hypot(B[0]-.9,B[1]-.12,B[2]-.12)<.35&&S[2]>S[0]}}
+function gRun(){const w=+$("gs").value;$("og").textContent=w;const st=$("gstrip");st.innerHTML="";let ok=0;
+  for(let k=0;k<8;k++){const r=gImg(w,gseed*100+k*17);ok+=r.ok;const f=document.createElement("figure");const cv=document.createElement("canvas");cv.width=cv.height=144;put(cv,r.a,r.N);f.appendChild(cv);f.append(r.ok?"✓ 맞음":"✗ 어긋남");st.appendChild(f)}
+  $("gstat").innerHTML=`프롬프트와 맞는 그림 <b>${ok}</b> / 8`;
+  $("gnote").textContent=w<2?"가이던스가 거의 없으면 모델은 프롬프트를 무시하고 '그럴듯한 아무 그림'을 그립니다.":w<=9?"알맞은 범위입니다. 프롬프트를 따르면서도 그림마다 조금씩 다릅니다. 많은 도구가 이 근처를 기본값으로 씁니다.":"너무 높으면 모든 그림이 거의 똑같아지고, 색이 과하게 진해지며 부자연스러워집니다."}
+$("gs").addEventListener("input",gRun);$("gseed").onclick=()=>{gseed++;gRun()};
+/* 9-D */
+function qRun(){const v=[1,2,3,4,5,6,7].map(i=>$("q"+i).value.trim());
+  $("qko").textContent=`${v[0]}${v[1]?", "+v[1]:""}. ${v[2]} 스타일, ${v[3]}. ${v[4]}. ${v[5]} 분위기. 화면 비율 ${v[6]}.`;
+  const warn=[];const all=v.join(" ");if(/[A-Z][a-z]+ [A-Z][a-z]+/.test(all))warn.push("실제 인물 이름처럼 보이는 표현이 있습니다. 실존 인물의 얼굴은 만들지 않습니다(13장).");
+  if(/디즈니|픽사|마블|포켓몬|지브리|미키|스파이더맨|해리 포터/.test(all))warn.push("특정 회사나 작품의 캐릭터·화풍을 이름으로 부르면 저작권 문제가 생길 수 있습니다(14장).");
+  if(v[0].length<4)warn.push("주제가 너무 짧습니다. 누가, 무엇을, 어떤 모습인지 더 구체적으로 써 보세요.");
+  $("qchk").textContent=warn.length?warn.join("\n"):"좋습니다. 일곱 요소가 모두 들어 있습니다. 한 요소씩 바꿔 가며 결과를 비교해 보세요."}
+[1,2,3,4,5,6,7].forEach(i=>{$("q"+i).addEventListener("input",qRun);$("q"+i).addEventListener("change",qRun)});
+$("qcopy").onclick=()=>{const t=$("qko").textContent;navigator.clipboard.writeText(t).then(()=>$("qmsg").textContent="복사했습니다.").catch(()=>{const r=document.createRange();r.selectNodeContents($("qko"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("qmsg").textContent="선택해 두었습니다. Ctrl+C(⌘+C)로 복사하세요."})};
+show();
+})();
+</script>
+
+</body>
+</html>
