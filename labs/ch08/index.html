@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>8장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.kpi{background:var(--bg);border-radius:8px;padding:8px 10px}
+.kpi b{display:block;font-size:20px;font-family:var(--f-mono);color:var(--accent)}
+.kpi span{font-size:12.5px;color:var(--muted)}
+canvas{width:100%;max-width:100%;height:auto;border-radius:10px;background:var(--bg);display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.out{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.checks{display:flex;flex-direction:column;gap:5px;font-size:14px}
+.checks div{display:flex;gap:8px;padding:5px 8px;border-radius:6px}
+.checks div.ok{background:var(--good-soft)} .checks div.ng{background:var(--warn-soft)}
+.switch{display:flex;gap:8px;flex-wrap:wrap}
+.switch button.on{border-color:var(--accent);background:var(--accent-soft)}
+</style>
+<div class="wrap">
+<header><h1>8장 실험실</h1><p class="sub">「바이브코딩 ② 시뮬레이터 만들기」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#sir" data-v="sir"><span class="no">8-A</span>SIR 감염병 모형</a>
+  <a href="#agent" data-v="agent"><span class="no">8-B</span>점으로 보는 확산</a>
+  <a href="#spec" data-v="spec"><span class="no">8-C</span>시뮬레이터 요청서</a>
+  <a href="#bug" data-v="bug"><span class="no">8-D</span>시뮬레이터 점검하기</a>
+</nav>
+
+<section class="lab" id="v-sir">
+  <div class="panel">
+    <h2>SIR 감염병 모형</h2>
+    <p class="hint">인구 1만 명을 감염될 수 있는 사람(S), 감염된 사람(I), 회복한 사람(R)으로 나누고 하루씩 계산합니다. 슬라이더를 움직이면 바로 다시 계산합니다.</p>
+    <label>전파율 β (감염자 한 명이 하루에 옮기는 정도) <output id="ob"></output></label><input type="range" id="sb" min="0.05" max="0.8" step="0.01" value="0.3">
+    <label>회복률 γ (하루에 회복하는 비율) <output id="og"></output></label><input type="range" id="sg" min="0.03" max="0.5" step="0.01" value="0.1">
+    <label>처음 감염자 <output id="oi"></output></label><input type="range" id="si" min="1" max="200" step="1" value="10">
+    <label>백신 접종률 (처음부터 면역) <output id="ov"></output></label><input type="range" id="sv" min="0" max="0.9" step="0.05" value="0">
+    <label>거리두기 시작일 (β를 절반으로) <output id="od"></output></label><input type="range" id="sd" min="0" max="200" step="1" value="200">
+    <div class="btns"><button id="sreset">처음 값으로</button></div>
+    <p class="note" id="snote"></p>
+  </div>
+  <div class="panel">
+    <div class="kpis" id="skpi"></div>
+    <canvas id="scv" width="1200" height="620" aria-label="SIR 곡선"></canvas>
+    <div class="legend"><span><i style="background:var(--cool)"></i>S 감염될 수 있는 사람</span><span><i style="background:var(--warn)"></i>I 감염된 사람</span><span><i style="background:var(--good)"></i>R 회복한 사람</span></div>
+  </div>
+</section>
+
+<section class="lab" id="v-agent" hidden>
+  <div class="panel">
+    <h2>점으로 보는 확산</h2>
+    <p class="hint">점 하나가 사람 한 명입니다. 감염된 점(빨강)과 가까이 스치면 정해진 확률로 감염되고, 일정 시간이 지나면 회복(초록)합니다. SIR 모형의 규칙을 사람 하나하나에 적용한 것입니다.</p>
+    <label>사람 수 <output id="on"></output></label><input type="range" id="an" min="50" max="400" step="10" value="200">
+    <label>움직이는 사람 비율 <output id="om"></output></label><input type="range" id="am" min="0" max="1" step="0.05" value="1">
+    <label>스칠 때 감염 확률 <output id="op"></output></label><input type="range" id="ap" min="0.05" max="1" step="0.05" value="0.4">
+    <div class="btns"><button class="pri" id="arun">시작</button><button id="areset">다시</button></div>
+    <p class="note">'움직이는 사람 비율'을 0.25로 낮추면(거리두기) 곡선이 어떻게 바뀌는지 비교해 보세요.</p>
+  </div>
+  <div class="panel">
+    <canvas id="acv" width="1200" height="700" aria-label="확산 시뮬레이션"></canvas>
+    <canvas id="ach" width="1200" height="220" aria-label="감염자 수 곡선"></canvas>
+    <div class="stat" id="astat"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-spec" hidden>
+  <div class="panel">
+    <h2>시뮬레이터 요청서</h2>
+    <p class="hint">Claude에게 시뮬레이터를 부탁할 때 들어가야 할 네 요소를 채우면 요청서가 만들어집니다. 오른쪽 결과를 복사해 Claude에 붙여 넣으세요.</p>
+    <div class="btns"><button id="pex1">예: 감염병</button><button id="pex2">예: 온도와 다음 단어</button><button id="pex3">예: 교통 체증</button></div>
+    <label>① 무엇을 보여 줄까 (주제와 대상)</label><textarea id="p1" rows="2"></textarea>
+    <label>② 규칙 (시간이 한 칸 흐를 때 무엇이 어떻게 바뀌나)</label><textarea id="p2" rows="3"></textarea>
+    <label>③ 바꿀 수 있는 값과 화면 (슬라이더, 그래프, 버튼)</label><textarea id="p3" rows="3"></textarea>
+    <label>④ 확인할 것 (맞게 돌아가는지 알 수 있는 기준)</label><textarea id="p4" rows="3"></textarea>
+  </div>
+  <div class="panel">
+    <h3>요청서</h3>
+    <div class="out" id="pout"></div>
+    <div class="btns"><button class="pri" id="pcopy">복사하기</button><span class="hint" id="pmsg"></span></div>
+  </div>
+</section>
+
+<section class="lab" id="v-bug" hidden>
+  <div class="panel">
+    <h2>시뮬레이터 점검하기</h2>
+    <p class="hint">AI가 만든 SIR 시뮬레이터에 흔한 실수 하나를 일부러 넣었습니다. 실수를 고르면 그래프와 점검표가 어떻게 바뀌는지 보세요. 점검표는 AI가 만든 시뮬레이터를 받을 때 직접 확인할 항목입니다.</p>
+    <div class="switch" id="bsel"><button data-b="none" class="on">실수 없음</button><button data-b="leak">R을 더하지 않음</button><button data-b="neg">음수를 막지 않음</button><button data-b="pct">비율과 명수 혼동</button></div>
+    <p class="note" id="bnote"></p>
+  </div>
+  <div class="panel">
+    <canvas id="bcv" width="1200" height="560" aria-label="점검용 SIR 곡선"></canvas>
+    <div class="checks" id="bchk"></div>
+  </div>
+</section>
+<footer>모든 모형은 원리를 보여 주기 위해 단순화한 것입니다. 실제 감염병 예측에는 훨씬 많은 요인이 들어갑니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["sir","agent","spec","bug"];
+let agentStop=()=>{};
+function show(){let v=(location.hash||"#sir").slice(1);if(!views.includes(v))v="sir";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));if(v!=="agent")agentStop();if(v==="sir")sRun();if(v==="bug")bRun()}
+addEventListener("hashchange",show);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt=n=>Math.round(n).toLocaleString("ko-KR");
+function sir(b,g,i0,vac,dday,days,bug){const N=10000;let S=N*(1-vac)-i0,I=i0,R=N*vac;const out=[[S,I,R]];
+  for(let t=1;t<=days;t++){const bb=t>=dday?b/2:b;let inf=bug==="pct"?bb*S*I:bb*S*I/N;let rec=g*I;
+    if(bug!=="neg"){inf=Math.min(inf,S)}
+    S-=inf;I+=inf-rec;if(bug!=="leak")R+=rec;out.push([S,I,R])}return out}
+function plot(cv,series,days,opts={}){const c=cv.getContext("2d"),W=cv.width,H=cv.height,pl=90,pb=60,pt=30,pr=30;c.clearRect(0,0,W,H);
+  let mx=opts.max||10000,mn=opts.min||0;series.forEach(s=>s.d.forEach(v=>{if(v>mx)mx=v;if(v<mn)mn=v}));
+  const X=t=>pl+t/days*(W-pl-pr),Y=v=>H-pb-(v-mn)/(mx-mn)*(H-pb-pt);
+  c.font="24px "+getComputedStyle(document.body).fontFamily;c.fillStyle=css("--muted");c.strokeStyle=css("--line");c.lineWidth=1;
+  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4;c.beginPath();c.moveTo(pl,Y(v));c.lineTo(W-pr,Y(v));c.stroke();c.textAlign="right";c.fillText(fmt(v),pl-10,Y(v)+8)}
+  c.textAlign="center";for(let t=0;t<=days;t+=days/5)c.fillText(Math.round(t)+"일",X(t),H-pb+34);
+  if(mn<0){c.strokeStyle=css("--warn");c.lineWidth=2;c.beginPath();c.moveTo(pl,Y(0));c.lineTo(W-pr,Y(0));c.stroke()}
+  series.forEach(s=>{c.strokeStyle=s.col;c.lineWidth=5;c.beginPath();s.d.forEach((v,t)=>{const x=X(t),y=Y(v);t?c.lineTo(x,y):c.moveTo(x,y)});c.stroke()});
+  if(opts.mark){c.strokeStyle=css("--accent");c.setLineDash([10,8]);c.lineWidth=2;c.beginPath();c.moveTo(X(opts.mark),pt);c.lineTo(X(opts.mark),H-pb);c.stroke();c.setLineDash([])}}
+/* 8-A */
+const D=200;
+function sRun(){const b=+$("sb").value,g=+$("sg").value,i0=+$("si").value,v=+$("sv").value,dd=+$("sd").value;
+  $("ob").textContent=b.toFixed(2);$("og").textContent=g.toFixed(2)+" (평균 "+(1/g).toFixed(0)+"일 앓음)";$("oi").textContent=i0+"명";$("ov").textContent=Math.round(v*100)+"%";$("od").textContent=dd>=200?"안 함":dd+"일째";
+  const r=sir(b,g,i0,v,dd,D);const I=r.map(x=>x[1]);let pk=0;I.forEach((x,t)=>{if(x>I[pk])pk=t});
+  plot($("scv"),[{d:r.map(x=>x[0]),col:css("--cool")},{d:I,col:css("--warn")},{d:r.map(x=>x[2]),col:css("--good")}],D,{mark:dd<200?dd:0});
+  const R0=b/g,herd=Math.max(0,1-1/R0),tot=10000*(1-v)-r[D][0];
+  $("skpi").innerHTML=[["기초감염재생산수 R₀",R0.toFixed(2)],["최고 감염자",fmt(I[pk])+"명"],["최고점",pk+"일째"],["한 번이라도 감염",fmt(tot)+"명"]].map(([a,b])=>`<div class="kpi"><b>${b}</b><span>${a}</span></div>`).join("");
+  $("snote").textContent=R0<1?"R₀가 1보다 작으면 감염자 한 명이 평균 한 명도 옮기지 못해 유행이 커지지 않고 사라집니다.":v>=herd?`백신 접종률(${Math.round(v*100)}%)이 집단면역 기준(1 − 1/R₀ ≈ ${Math.round(herd*100)}%)을 넘어서 유행이 크게 번지지 못합니다.`:`R₀ = β ÷ γ = ${R0.toFixed(2)}. 감염자 한 명이 앓는 동안 평균 ${R0.toFixed(1)}명에게 옮깁니다. 집단면역 기준은 약 ${Math.round(herd*100)}%입니다.`+(dd<200?" 거리두기를 시작하면 곡선의 봉우리가 낮아지고 늦춰지는지 보세요.":"")}
+["sb","sg","si","sv","sd"].forEach(id=>$(id).addEventListener("input",sRun));
+$("sreset").onclick=()=>{$("sb").value=0.3;$("sg").value=0.1;$("si").value=10;$("sv").value=0;$("sd").value=200;sRun()};
+/* 8-B */
+let A=[],hist=[],raf=0,running=false,tick=0;
+function aInit(){const n=+$("an").value,mv=+$("am").value;A=[];for(let i=0;i<n;i++){const m=Math.random()<mv;const ang=Math.random()*6.283;A.push({x:Math.random()*1160+20,y:Math.random()*660+20,vx:m?Math.cos(ang)*3:0,vy:m?Math.sin(ang)*3:0,s:i<3?1:0,t:0})}hist=[];tick=0;aDraw()}
+function aStep(){const p=+$("ap").value,REC=420;for(const a of A){a.x+=a.vx;a.y+=a.vy;if(a.x<10||a.x>1190)a.vx*=-1;if(a.y<10||a.y>690)a.vy*=-1;if(a.s===1&&++a.t>REC)a.s=2}
+  for(const a of A)if(a.s===1)for(const b of A)if(b.s===0){const dx=a.x-b.x,dy=a.y-b.y;if(dx*dx+dy*dy<400&&Math.random()<p*0.05)b.s=1}
+  tick++;if(tick%5===0)hist.push(A.filter(a=>a.s===1).length)}
+function aDraw(){const c=$("acv").getContext("2d");c.clearRect(0,0,1200,700);const col=[css("--cool"),css("--warn"),css("--good")];
+  for(const a of A){c.fillStyle=col[a.s];c.beginPath();c.arc(a.x,a.y,a.vx===0&&a.vy===0?7:8,0,6.283);c.fill()}
+  const h=$("ach").getContext("2d");h.clearRect(0,0,1200,220);h.fillStyle=css("--warn");const n=A.length;const w=Math.max(2,1200/Math.max(240,hist.length));
+  hist.forEach((v,i)=>{const hh=v/n*200;h.fillRect(i*w,210-hh,w,hh)});
+  const s=[0,0,0];A.forEach(a=>s[a.s]++);const pk=Math.max(0,...hist);
+  $("astat").innerHTML=`감염될 수 있는 사람 <b>${s[0]}</b> · 감염 <b>${s[1]}</b> · 회복 <b>${s[2]}</b> · 최고 동시 감염 <b>${pk}</b>명 (${Math.round(pk/n*100)}%)`}
+function loop(){for(let k=0;k<2;k++)aStep();aDraw();if(A.some(a=>a.s===1)&&running)raf=requestAnimationFrame(loop);else{running=false;$("arun").textContent="시작"}}
+agentStop=()=>{running=false;cancelAnimationFrame(raf);$("arun").textContent="시작"};
+$("arun").onclick=()=>{if(running){agentStop()}else{if(!A.some(a=>a.s===1))aInit();running=true;$("arun").textContent="멈춤";loop()}};
+$("areset").onclick=()=>{agentStop();aInit()};
+[["an","on",v=>v+"명"],["am","om",v=>Math.round(v*100)+"%"],["ap","op",v=>Math.round(v*100)+"%"]].forEach(([i,o,f])=>{const u=()=>$(o).textContent=f(+$(i).value);$(i).addEventListener("input",()=>{u();if(i!=="ap"){agentStop();aInit()}});u()});
+aInit();
+/* 8-C */
+const EX={1:["대학 교양 수업에서 쓸 감염병 확산(SIR) 시뮬레이터. 대상은 수학을 잘 모르는 1학년.","인구 10,000명을 S(감염될 수 있음), I(감염), R(회복)으로 나눈다. 하루마다 새 감염자 = β × S × I ÷ 전체 인구, 새 회복자 = γ × I. S는 새 감염자만큼 줄고, I는 새 감염자만큼 늘고 새 회복자만큼 줄며, R은 새 회복자만큼 는다. 200일을 계산한다.","슬라이더: β(0.05~0.8), γ(0.03~0.5), 처음 감염자(1~200명), 백신 접종률(0~90%), 거리두기 시작일(그날부터 β 절반). 화면: S·I·R 꺾은선 그래프(색 구분, 범례), 최고 감염자 수와 그날, R₀ = β ÷ γ 표시. '처음 값으로' 버튼. 휴대폰에서도 보기 좋게.","매일 S + I + R = 10,000이 유지되는지 화면 구석에 표시. 어떤 값도 음수가 되지 않게. β를 0으로 하면 감염자가 늘지 않아야 함. R₀가 1보다 작으면 유행이 커지지 않아야 함."],
+2:["4장의 '온도' 개념을 보여 주는 시뮬레이터. 대상은 생성형 AI를 처음 배우는 학생.","후보 낱말 8개에 점수(로짓)를 미리 정해 둔다. 확률 = exp(점수 ÷ 온도)를 모두 더한 값으로 나눈 것. '뽑기'를 누르면 이 확률대로 하나를 뽑는다.","슬라이더: 온도(0~2). 화면: 후보별 확률 막대그래프, '10번 뽑기' 버튼과 결과 목록, 서로 다른 결과 개수.","확률의 합이 늘 100%인지 표시. 온도 0에 가까우면 1등만 나와야 함. 온도가 높을수록 결과의 가짓수가 늘어야 함."],
+3:["도로의 교통 체증이 생기는 원리를 보여 주는 시뮬레이터. 대상은 고등학생.","원형 도로에 차 30대가 있다. 매 순간 각 차는 앞차와의 거리가 충분하면 속도를 조금 올리고, 가까우면 줄인다. 일정 확률로 이유 없이 살짝 브레이크를 밟는다.","슬라이더: 차 대수(10~60), 무작위 브레이크 확률(0~30%), 최고 속도. 화면: 위에서 본 원형 도로 애니메이션(느린 차는 빨간색), 평균 속도 그래프. 시작·멈춤 버튼.","차끼리 겹치지 않는지, 속도가 음수가 되지 않는지 확인. 무작위 브레이크를 0%로 하면 체증이 거의 생기지 않아야 함."]};
+function pRender(){const v=[1,2,3,4].map(i=>$("p"+i).value.trim());
+  $("pout").textContent=`다음 조건으로 웹 페이지 하나짜리 시뮬레이터를 만들어 줘(아티팩트, HTML 한 파일).
+
+[무엇을 보여 줄까]
+${v[0]||"(①을 채워 주세요)"}
+
+[규칙]
+${v[1]||"(②를 채워 주세요)"}
+
+[바꿀 수 있는 값과 화면]
+${v[2]||"(③을 채워 주세요)"}
+
+[확인할 것]
+${v[3]||"(④를 채워 주세요)"}
+
+규칙을 코드에서 어디에 구현했는지 짧게 설명해 주고, 내가 직접 확인할 수 있는 시험 방법 두 가지를 알려 줘.`}
+[1,2,3,4].forEach(i=>$("p"+i).addEventListener("input",pRender));
+[1,2,3].forEach(k=>$("pex"+k).onclick=()=>{EX[k].forEach((t,i)=>$("p"+(i+1)).value=t);pRender()});
+$("pcopy").onclick=()=>{const t=$("pout").textContent;navigator.clipboard.writeText(t).then(()=>$("pmsg").textContent="복사했습니다.").catch(()=>{const r=document.createRange();r.selectNodeContents($("pout"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("pmsg").textContent="선택해 두었습니다. Ctrl+C(⌘+C)로 복사하세요."})};
+EX[1].forEach((t,i)=>$("p"+(i+1)).value=t);pRender();
+/* 8-D */
+let bug="none";
+const NOTE={none:"정상입니다. 매일 S + I + R이 10,000명으로 유지되고, 음수가 없고, 감염자는 한 번 올랐다가 내려옵니다.",leak:"회복한 사람을 R에 더하는 줄이 빠졌습니다. 회복한 사람이 그냥 사라져서 전체 인구가 줄어듭니다. 그래프만 보면 그럴듯해 보이지만 합계 점검에서 바로 드러납니다.",neg:"새 감염자가 남은 S보다 많아질 수 있는데 막지 않았습니다. 이 화면에서는 β를 3.0으로 크게 했더니 S가 0 아래로 내려갔습니다(빨간 가로선이 0). '사람 수가 음수'는 현실에서 불가능하므로 반드시 점검합니다.",pct:"인구로 나누는 것을 빠뜨려 비율과 명수가 섞였습니다. 첫날부터 감염이 폭발하고 숫자가 말이 안 됩니다. AI 코드에서 아주 흔한 단위 실수입니다."};
+function bRun(){const b=bug==="neg"?3:0.3;const r=sir(b,0.1,10,0,999,120,bug);plot($("bcv"),[{d:r.map(x=>x[0]),col:css("--cool")},{d:r.map(x=>x[1]),col:css("--warn")},{d:r.map(x=>x[2]),col:css("--good")}],120,{min:0});
+  const sums=r.map(x=>x[0]+x[1]+x[2]);const keep=sums.every(s=>Math.abs(s-10000)<1);const nonneg=r.every(x=>x.every(v=>v>-0.5));const sane=r.every(x=>x.every(v=>v<=10000.5));const I=r.map(x=>x[1]);let pk=0;I.forEach((x,t)=>{if(x>I[pk])pk=t});const rises=pk>3;
+  $("bchk").innerHTML=[["매일 S + I + R = 10,000 (사람이 생기거나 사라지지 않음)",keep,`마지막 날 합계 ${fmt(sums[sums.length-1])}명`],["어떤 값도 음수가 아님",nonneg,""],["어떤 값도 전체 인구보다 크지 않음",sane,""],["감염자가 처음 며칠은 서서히 늘어남 (첫날 폭발 없음)",rises,`최고점 ${pk}일째`]].map(([t,ok,d])=>`<div class="${ok?"ok":"ng"}"><span>${ok?"✓":"✗"}</span><span>${t}${d?` <span class="hint">· ${d}</span>`:""}</span></div>`).join("");
+  $("bnote").textContent=NOTE[bug]}
+document.querySelectorAll("#bsel button").forEach(b=>b.onclick=()=>{bug=b.dataset.b;document.querySelectorAll("#bsel button").forEach(x=>x.classList.toggle("on",x===b));bRun()});
+show();
+})();
+</script>
+
+</body>
+</html>
