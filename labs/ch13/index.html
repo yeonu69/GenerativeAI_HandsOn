@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>13장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+canvas{max-width:100%;height:auto;display:block;border-radius:8px;background:var(--bg)}
+.card2{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--bg)}
+.post{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel)}
+.post .who{font-weight:700}.post .meta{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;font-size:14px;text-align:center}
+.cm div{padding:10px;border-radius:8px;background:var(--bg)}
+.cm .h{background:transparent;font-weight:700;color:var(--muted)}
+.cm .g{background:var(--good-soft)} .cm .b{background:var(--warn-soft)}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chain .node{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13.5px;background:var(--bg)}
+.chain .node.ok{border-color:var(--good)} .chain .node.cut{border-color:var(--warn);opacity:.6;text-decoration:line-through}
+.res{display:flex;flex-direction:column;gap:8px}
+.res div{border-left:4px solid var(--accent);padding:6px 10px;background:var(--bg);border-radius:0 8px 8px 0}
+</style>
+<div class="wrap">
+<header><h1>13장 실험실</h1><p class="sub">「딥페이크와 탐지」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#sift" data-v="sift"><span class="no">13-A</span>멈추고 확인하기</a>
+  <a href="#detect" data-v="detect"><span class="no">13-B</span>탐지기의 한계</a>
+  <a href="#prov" data-v="prov"><span class="no">13-C</span>출처 기록 따라가기</a>
+  <a href="#help" data-v="help"><span class="no">13-D</span>피해를 입었을 때</a>
+</nav>
+
+<section class="lab" id="v-sift">
+  <div class="panel">
+    <h2>멈추고 확인하기 (SIFT)</h2>
+    <p class="hint">아래 게시물은 모두 수업용으로 꾸며 낸 것입니다. 각 게시물을 보고 네 단계 가운데 무엇을 먼저 할지 고르세요. ① 멈춘다 ② 출처를 조사한다 ③ 더 나은 보도를 찾는다 ④ 원본을 추적한다</p>
+    <div class="chips" id="slist"></div>
+  </div>
+  <div class="panel"><div id="spost"></div><div class="chips" id="sact" style="margin-top:10px"></div><div class="note" id="sfb" style="margin-top:10px"></div></div>
+</section>
+
+<section class="lab" id="v-detect" hidden>
+  <div class="panel">
+    <h2>탐지기의 한계</h2>
+    <p class="hint">딥페이크 탐지기는 영상마다 '가짜일 가능성' 점수를 냅니다. 기준선을 넘으면 '가짜'로 판정합니다. 기준선을 움직이며 진짜를 가짜로 잘못 판정하는 경우와 가짜를 놓치는 경우가 어떻게 바뀌는지 보세요.</p>
+    <label>판정 기준선 <output id="othr"></output></label><input type="range" id="thr" min="0" max="100" value="50">
+    <label>새로 나온 생성 도구 (탐지기가 배운 적 없음) <output id="onew"></output></label><input type="range" id="newg" min="0" max="100" value="0">
+    <p class="note" id="dnote"></p>
+  </div>
+  <div class="panel"><canvas id="dcv" width="800" height="300" aria-label="점수 분포"></canvas>
+    <div class="cm" style="margin-top:10px"><div class="h"></div><div class="h">실제 진짜 (1,000개)</div><div class="h">실제 가짜 (1,000개)</div><div class="h">'진짜' 판정</div><div class="g" id="tn"></div><div class="b" id="fn"></div><div class="h">'가짜' 판정</div><div class="b" id="fp"></div><div class="g" id="tp"></div></div></div>
+</section>
+
+<section class="lab" id="v-prov" hidden>
+  <div class="panel">
+    <h2>출처 기록 따라가기</h2>
+    <p class="hint">사진과 영상에 '누가, 언제, 어떤 도구로 만들고 고쳤는지'를 서명과 함께 붙여 두는 표준이 있습니다(콘텐츠 자격 증명, C2PA). 단계를 켜고 끄며 기록이 어떻게 이어지거나 끊기는지 보세요.</p>
+    <div class="chips" id="psteps"></div>
+  </div>
+  <div class="panel"><div class="chain" id="pchain"></div><div class="card2" id="pmanifest" style="margin-top:12px;white-space:pre-wrap;font-family:var(--f-mono);font-size:13px"></div><div class="note" id="pnote" style="margin-top:10px"></div></div>
+</section>
+
+<section class="lab" id="v-help" hidden>
+  <div class="panel">
+    <h2>피해를 입었을 때</h2>
+    <p class="hint">나나 친구의 얼굴·목소리가 합성되어 퍼졌다면, 혼자 해결하려 하지 말고 아래 순서로 도움을 받습니다. 피해자는 잘못한 것이 없습니다.</p>
+    <div class="res">
+      <div><b>1. 증거 남기기</b><br>게시물 주소(URL), 화면 캡처, 올린 계정, 날짜와 시간을 기록합니다. 직접 퍼뜨리거나 다시 올리지 않습니다.</div>
+      <div><b>2. 믿을 만한 어른과 함께</b><br>보호자, 선생님, 학교 상담실에 알립니다.</div>
+      <div><b>3. 전문 기관에 연락</b><br>디지털성범죄피해자지원센터 02-735-8994 (상담·삭제 지원, 무료)<br>긴급하거나 협박을 받고 있다면 경찰 112</div>
+      <div><b>4. 플랫폼에 신고</b><br>각 서비스의 신고 기능으로 삭제를 요청합니다.</div>
+    </div>
+    <p class="note">연락처는 2026년 11월 기준입니다. 바뀔 수 있으니 기관 누리집에서 확인하세요.</p>
+  </div>
+  <div class="panel"><h3>내가 지키는 것</h3><div class="res">
+    <div>다른 사람의 얼굴·목소리를 동의 없이 합성하지 않는다. 장난도 범죄가 될 수 있다.</div>
+    <div>받은 합성물을 퍼뜨리지 않는다. 보는 것, 저장하는 것도 처벌 대상이 될 수 있다.</div>
+    <div>친구가 피해를 입었다면 탓하지 않고, 위의 순서를 함께 밟는다.</div>
+    <div>의심스러운 영상을 보면 멈추고 확인한다(13-A).</div></div></div>
+</section>
+<footer>13-A의 게시물과 13-B의 점수는 수업용으로 만든 가상의 자료입니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["sift","detect","prov","help"];
+function show(){let v=(location.hash||"#sift").slice(1);if(!views.includes(v))v="sift";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({sift:sRun,detect:dRun,prov:pRun,help:()=>{}})[v]()}
+addEventListener("hashchange",show);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+/* 13-A */
+const POSTS=[
+{t:"시장 발언 영상",who:"@news_flash_24h",meta:"가입 3일 · 팔로워 12명 · 2분 전",body:"[속보] ○○시장 \"내일부터 모든 버스 무료\" 발표 영상 (첨부 영상 23초)",best:1,fb:["멈춘다: 좋습니다. 놀랍고 감정을 자극하는 소식일수록 먼저 멈춥니다. 그다음 할 일은 출처 조사입니다.","출처를 조사한다: 정답입니다. 가입 3일, 팔로워 12명인 계정이 '속보'를 올렸습니다. 시청 공식 계정이나 언론사에도 같은 소식이 있는지 봅니다.","더 나은 보도: 좋은 선택입니다. 이렇게 큰 정책이면 여러 언론이 보도했을 것입니다. 다만 먼저 이 계정이 믿을 만한지 보는 것이 빠릅니다.","원본 추적: 영상이 어디서 처음 나왔는지 찾는 것도 좋지만, 이 경우 계정 자체가 가장 큰 단서입니다."]},
+{t:"유명 배우 광고",who:"@invest_tips_daily",meta:"광고 · 후원됨",body:"배우 ○○○가 직접 추천! \"이 앱으로 한 달에 300만 원 벌었어요\" (배우가 말하는 영상)",best:0,fb:["멈춘다: 정답입니다. '쉽게 큰돈'과 '유명인 추천'이 함께 나오면 가장 먼저 멈춥니다. 유명인 얼굴과 목소리를 합성한 투자 사기 광고가 많습니다.","출처 조사: 좋습니다. 그 배우의 공식 계정이나 소속사에 이런 광고가 있는지 봅니다.","더 나은 보도: '배우 이름 + 사기 광고'로 검색하면 이미 경고 기사가 있을 수 있습니다.","원본 추적: 원래 영상(인터뷰 등)을 찾으면 입 모양과 말이 바뀐 것을 확인할 수 있습니다."]},
+{t:"재난 현장 사진",who:"@weather_watcher",meta:"30분 전 · 공유 1.2만",body:"지금 ○○대교가 무너지는 중!! 사진 보세요 (다리가 반으로 꺾인 사진)",best:2,fb:["멈춘다: 좋습니다. 공유가 빠르게 늘고 있을수록 한 번 더 멈춥니다.","출처 조사: 계정도 보아야 하지만, 재난 소식은 보도로 확인하는 편이 더 빠릅니다.","더 나은 보도를 찾는다: 정답입니다. 실제 재난이라면 방송, 재난 문자, 지자체 발표가 곧바로 나옵니다. 아무 곳에도 없다면 의심합니다.","원본 추적: 이미지 역검색으로 예전 다른 나라 사고 사진이나 AI 그림인지 확인할 수 있습니다."]},
+{t:"친구 단톡방 음성",who:"단톡방 '3반'",meta:"음성 메시지 0:41",body:"\"야 이거 들어 봐, ○○가 선생님 욕하는 녹음이래\" (친구 목소리의 음성 파일)",best:3,fb:["멈춘다: 좋습니다. 친구의 평판이 걸린 일이니 퍼뜨리기 전에 반드시 멈춥니다.","출처 조사: 누가 처음 올렸는지 물어보는 것도 방법입니다.","더 나은 보도: 이런 일은 보도가 없습니다. 다른 방법이 필요합니다.","원본을 추적한다: 정답입니다. 처음 녹음이 어디서, 누구에게서 나왔는지 따라가 봅니다. 목소리는 몇 초만으로 흉내 낼 수 있습니다(12장). 확인되지 않은 파일은 퍼뜨리지 않고, 당사자에게 직접 묻습니다."]}];
+const ACTS=["① 멈춘다","② 출처를 조사한다","③ 더 나은 보도를 찾는다","④ 원본을 추적한다"];let cur=0;
+function sRun(){const l=$("slist");if(!l.children.length)POSTS.forEach((p,i)=>{const b=document.createElement("button");b.textContent=`게시물 ${i+1}`;b.onclick=()=>{cur=i;sShow()};l.appendChild(b)});sShow()}
+function sShow(){document.querySelectorAll("#slist button").forEach((b,i)=>b.classList.toggle("on",i===cur));const p=POSTS[cur];
+  $("spost").innerHTML=`<div class="post"><div class="who">${p.who}</div><div class="meta">${p.meta}</div><p>${p.body}</p></div>`;$("sfb").textContent="";
+  const a=$("sact");a.innerHTML="";ACTS.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{a.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));$("sfb").textContent=(i===p.best?"✓ ":"")+p.fb[i]};a.appendChild(b)})}
+/* 13-B */
+let seed=5;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}function g(){return Math.sqrt(-2*Math.log(rnd()||1e-9))*Math.cos(6.283*rnd())}
+seed=5;const REAL=Array.from({length:1000},()=>Math.max(0,Math.min(100,30+g()*13)));const FAKE0=Array.from({length:1000},()=>Math.max(0,Math.min(100,72+g()*13)));const FAKEN=Array.from({length:1000},()=>Math.max(0,Math.min(100,42+g()*14)));
+function dRun(){const th=+$("thr").value,nw=+$("newg").value/100;$("othr").textContent=th+"점";$("onew").textContent=Math.round(nw*100)+"%";
+  const FAKE=FAKE0.map((v,i)=>i<nw*1000?FAKEN[i]:v);const tn=REAL.filter(v=>v<th).length,fp=1000-tn,tp=FAKE.filter(v=>v>=th).length,fn=1000-tp;
+  $("tn").textContent=`맞음 ${tn}`;$("fp").textContent=`진짜를 가짜로 ${fp}`;$("tp").textContent=`맞음 ${tp}`;$("fn").textContent=`가짜를 놓침 ${fn}`;
+  const c=$("dcv").getContext("2d");c.fillStyle=css("--bg");c.fillRect(0,0,800,300);const hist=a=>{const h=new Array(50).fill(0);a.forEach(v=>h[Math.min(49,Math.floor(v/2))]++);return h};
+  const hr=hist(REAL),hf=hist(FAKE),mx=Math.max(...hr,...hf);[[hr,css("--cool")],[hf,css("--warn")]].forEach(([h,col])=>{c.globalAlpha=.6;c.fillStyle=col;h.forEach((v,i)=>{const bh=v/mx*240;c.fillRect(20+i*15.2,270-bh,14,bh)})});c.globalAlpha=1;
+  c.strokeStyle=css("--ink");c.lineWidth=3;c.setLineDash([8,6]);c.beginPath();c.moveTo(20+th/2*15.2,20);c.lineTo(20+th/2*15.2,272);c.stroke();c.setLineDash([]);
+  c.fillStyle=css("--muted");c.font="13px system-ui";c.fillText("0점",14,292);c.fillText("100점 (가짜 가능성)",660,292);c.fillStyle=css("--cool");c.fillText("■ 진짜 영상",30,24);c.fillStyle=css("--warn");c.fillText("■ 가짜 영상",130,24);
+  $("dnote").textContent=(nw>0.3?"탐지기가 배운 적 없는 새 도구로 만든 가짜는 점수가 낮게 나와 많이 놓칩니다. 생성과 탐지는 쫓고 쫓기는 경주입니다. ":"")+(th<35?"기준선을 낮추면 가짜는 잘 잡지만 진짜를 가짜로 몰아붙이는 일이 늘어납니다. 억울한 사람이 생깁니다.":th>65?"기준선을 높이면 진짜를 덜 의심하지만 가짜를 많이 놓칩니다.":"어느 기준선에서도 두 가지 실수를 모두 0으로 만들 수는 없습니다. 탐지기의 판정은 '참고'이지 '판결'이 아닙니다.")}
+["thr","newg"].forEach(id=>$(id).addEventListener("input",dRun));
+/* 13-C */
+const ST=[["cam","카메라로 촬영","서명: 카메라 제조사 · 2026-11-02 18:20 · 위치 정보 있음",1],["edit","밝기 보정 (편집 앱)","편집: 밝기 +10 · 편집 앱 서명",1],["ai","AI로 배경 바꾸기","편집: 생성형 AI로 배경 교체 · AI 도구 서명",0],["shot","화면 캡처해서 다시 올림","(기록 없음: 캡처는 새 그림으로 저장됨)",0],["sns","SNS에 게시","게시: 플랫폼이 '자격 증명 있음' 표시",1]];
+let on={cam:1,edit:1,ai:0,shot:0,sns:1};
+function pRun(){const l=$("psteps");if(!l.children.length)ST.forEach(s=>{const b=document.createElement("button");b.textContent=s[1];b.onclick=()=>{on[s[0]]=on[s[0]]?0:1;pRun()};b.dataset.k=s[0];l.appendChild(b)});
+  l.querySelectorAll("button").forEach(b=>b.classList.toggle("on",!!on[b.dataset.k]));
+  let broken=false;const nodes=[],man=[];ST.forEach(s=>{if(!on[s[0]])return;if(s[0]==="shot")broken=true;nodes.push(`<span class="node ${broken&&s[0]!=="shot"?"cut":"ok"}">${s[1]}</span>`);if(!broken)man.push("✓ "+s[2]);else if(s[0]==="shot")man.push("✗ "+s[2])});
+  $("pchain").innerHTML=nodes.join(" → ");$("pmanifest").textContent="[출처 기록]\n"+(man.join("\n")||"(없음)");
+  $("pnote").textContent=broken?"화면 캡처 단계에서 기록이 끊겼습니다. 그 뒤의 게시물에는 '어디서 왔는지' 정보가 없습니다. 기록이 없다고 가짜라는 뜻은 아니지만, 확인할 길이 사라집니다.":on.ai?"AI로 배경을 바꾼 사실이 기록에 남아 있습니다. 보는 사람은 이 사진의 어느 부분이 AI로 바뀌었는지 알 수 있습니다.":"촬영부터 게시까지 기록이 이어져 있습니다. 탐지(가짜를 찾기)보다 출처(진짜를 증명하기)가 더 믿을 만한 방법으로 주목받는 이유입니다."}
+show();
+})();
+</script>
+
+</body>
+</html>
