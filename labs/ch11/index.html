@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>11장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,input[type=text]{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+canvas{max-width:100%;height:auto;display:block;border-radius:8px;background:var(--bg)}
+.out{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+.film{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.film canvas{width:72px;flex:none;border:2px solid var(--line)}
+.film canvas.cur{border-color:var(--accent)}
+.shots{display:flex;flex-direction:column;gap:8px}
+.shot{display:grid;grid-template-columns:32px 1fr 130px 80px 40px;gap:6px;align-items:center}
+@media (max-width:640px){.shot{grid-template-columns:28px 1fr 1fr}.shot .sd{grid-column:2}.shot .sc{grid-column:3}}
+.shot b{font-family:var(--f-mono);color:var(--accent)}
+.bar{height:14px;border-radius:7px;background:var(--bg);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+</style>
+<div class="wrap">
+<header><h1>11장 실험실</h1><p class="sub">「영상 생성」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#frames" data-v="frames"><span class="no">11-A</span>영상은 그림의 묶음</a>
+  <a href="#consist" data-v="consist"><span class="no">11-B</span>시간의 일관성</a>
+  <a href="#camera" data-v="camera"><span class="no">11-C</span>카메라 움직임 사전</a>
+  <a href="#shots" data-v="shots"><span class="no">11-D</span>예고편 샷 리스트</a>
+</nav>
+
+<section class="lab" id="v-frames">
+  <div class="panel">
+    <h2>영상은 그림의 묶음</h2>
+    <p class="hint">영화는 1초에 24장의 그림(프레임)을 빠르게 넘겨 움직임을 만듭니다. 초당 프레임 수를 바꿔 보세요. 아래 필름 띠는 1초 동안의 프레임입니다.</p>
+    <label>초당 프레임 수 (fps) <output id="ofps"></output></label><input type="range" id="fps" min="1" max="30" value="24">
+    <div class="btns"><button class="pri" id="fplay">멈춤</button></div>
+    <p class="note" id="fnote"></p>
+  </div>
+  <div class="panel"><canvas id="fcv" width="640" height="360" aria-label="움직이는 공"></canvas><div class="film" id="film"></div></div>
+</section>
+
+<section class="lab" id="v-consist" hidden>
+  <div class="panel">
+    <h2>시간의 일관성</h2>
+    <p class="hint">그림 생성 모델로 프레임을 한 장씩 따로 만들면 어떻게 될까요? 왼쪽은 프레임마다 따로 만든 '영상', 오른쪽은 모든 프레임을 함께 만든 영상을 흉내 낸 것입니다.</p>
+    <label>프레임마다 달라지는 정도 <output id="ojit"></output></label><input type="range" id="jit" min="0" max="1" step=".05" value=".6">
+    <p class="note">영상 생성 모델은 여러 프레임을 한꺼번에 다루며 '앞 프레임과 이어지는가'를 함께 배웁니다. 그래도 긴 영상에서는 옷 색이나 얼굴이 조금씩 바뀌는 일이 아직 생깁니다.</p>
+  </div>
+  <div class="panel"><div class="row2" style="display:flex;gap:10px;flex-wrap:wrap">
+    <figure style="margin:0;flex:1 1 240px"><canvas id="ca" width="320" height="320"></canvas><figcaption class="hint">프레임마다 따로 만듦: 깜빡임</figcaption></figure>
+    <figure style="margin:0;flex:1 1 240px"><canvas id="cb" width="320" height="320"></canvas><figcaption class="hint">함께 만듦: 이어짐</figcaption></figure></div></div>
+</section>
+
+<section class="lab" id="v-camera" hidden>
+  <div class="panel">
+    <h2>카메라 움직임 사전</h2>
+    <p class="hint">영상 프롬프트에서 카메라를 어떻게 움직일지 말하면 같은 장면도 전혀 다른 느낌이 됩니다. 하나씩 눌러 보세요.</p>
+    <div class="chips" id="cam"></div>
+    <div class="out" id="camdesc" style="margin-top:10px"></div>
+  </div>
+  <div class="panel"><canvas id="ccv" width="640" height="360" aria-label="카메라 움직임"></canvas></div>
+</section>
+
+<section class="lab" id="v-shots" hidden>
+  <div class="panel" style="grid-column:1/-1">
+    <h2>예고편 샷 리스트</h2>
+    <p class="hint">예고편은 짧은 샷을 이어 붙여 만듭니다. 생성 도구는 한 번에 몇 초짜리 영상만 만들기 때문에, 샷마다 따로 만들고 편집에서 잇습니다. 샷을 채우면 전체 길이와 샷별 프롬프트가 만들어집니다.</p>
+    <label>공통: 주인공과 세계 (모든 샷에 붙음)</label><input type="text" id="sbase" value="작은 주황색 로봇(둥근 머리, 안테나 하나), 비가 자주 오는 낡은 도시, 오래된 필름 사진 같은 색감">
+    <div class="shots" id="slist" style="margin-top:10px"></div>
+    <div class="btns"><button id="sadd">샷 추가</button><button id="sdel">마지막 샷 지우기</button></div>
+    <div class="bar" id="sbar" style="margin-top:8px"></div><div class="stat" id="sstat"></div>
+    <h3>샷별 프롬프트</h3><div class="out" id="sout"></div>
+    <div class="btns"><button class="pri" id="scopy">복사하기</button><span class="hint" id="smsg"></span></div>
+  </div>
+</section>
+<footer>모든 움직임은 원리를 보여 주기 위해 코드로 그린 것입니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["frames","consist","camera","shots"];let stopAll=()=>{};
+function show(){let v=(location.hash||"#frames").slice(1);if(!views.includes(v))v="frames";stopAll();views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({frames:fRun,consist:cRun,camera:kRun,shots:sRun})[v]()}
+addEventListener("hashchange",show);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let timers=[];stopAll=()=>{timers.forEach(clearInterval);timers=[]};
+/* 11-A */
+function ballAt(t){const x=60+((t%2)<1?(t%1):(1-(t%1)))*520;const y=300-Math.abs(Math.sin(t*Math.PI*2))*220;return[x,y]}
+function drawBall(c,t,W,H,sc){c.fillStyle=css("--bg");c.fillRect(0,0,W,H);c.fillStyle=css("--line");c.fillRect(0,320*sc,W,4*sc);const[x,y]=ballAt(t);c.fillStyle=css("--accent");c.beginPath();c.arc(x*sc,y*sc,22*sc,0,6.3);c.fill()}
+let fplaying=true,ft=0;
+function fRun(){const fps=+$("fps").value;$("ofps").textContent=fps+"장/초";const film=$("film");film.innerHTML="";
+  for(let i=0;i<fps;i++){const cv=document.createElement("canvas");cv.width=128;cv.height=72;drawBall(cv.getContext("2d"),i/fps,128,72,.2);film.appendChild(cv)}
+  $("fnote").textContent=fps<8?"움직임이 뚝뚝 끊깁니다. 우리 눈은 초당 10장 안팎부터 연속된 움직임으로 느끼기 시작합니다.":fps>=24?`영화의 표준(24장)입니다. 10초짜리 영상이면 ${fps*10}장의 그림을 서로 어긋나지 않게 만들어야 합니다.`:"부드러워지기 시작합니다. 옛 무성영화는 초당 16~18장 정도였습니다.";
+  stopAll();let k=0;timers.push(setInterval(()=>{if(!fplaying)return;ft+=1/fps;k=(k+1)%fps;drawBall($("fcv").getContext("2d"),ft*0.5,640,360,1);[...film.children].forEach((c,i)=>c.classList.toggle("cur",i===k))},1000/fps))}
+$("fps").addEventListener("input",fRun);$("fplay").onclick=()=>{fplaying=!fplaying;$("fplay").textContent=fplaying?"멈춤":"재생"};
+/* 11-B */
+let seed=3;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+function robot(c,t,j,W){c.fillStyle=css("--bg");c.fillRect(0,0,W,W);const s=W/320;
+  const hue=j?20+(rnd()-.5)*160*j:20,sz=1+(j?(rnd()-.5)*.5*j:0),dx=j?(rnd()-.5)*40*j:0,ant=j?rnd()<.5*j:false;
+  const x=160+Math.sin(t*2)*60+dx,y=200;c.fillStyle=`hsl(${hue},75%,55%)`;c.fillRect((x-35*sz)*s,(y)*s,70*sz*s,80*sz*s);c.beginPath();c.arc(x*s,(y-30*sz)*s,40*sz*s,0,6.3);c.fill();
+  c.fillStyle="#fff7e0";c.beginPath();c.arc((x-14*sz)*s,(y-34*sz)*s,7*s,0,6.3);c.arc((x+14*sz)*s,(y-34*sz)*s,7*s,0,6.3);c.fill();
+  c.strokeStyle=`hsl(${hue},75%,45%)`;c.lineWidth=4*s;c.beginPath();c.moveTo(x*s,(y-70*sz)*s);c.lineTo(x*s,(y-95*sz)*s);if(ant){c.moveTo((x+20)*s,(y-65*sz)*s);c.lineTo((x+35)*s,(y-90*sz)*s)}c.stroke();
+  c.fillStyle=css("--line");c.fillRect(0,282*s,W,3*s)}
+function cRun(){$("ojit").textContent=Math.round(+$("jit").value*100)+"%";stopAll();let t=0;timers.push(setInterval(()=>{t+=1/12;robot($("ca").getContext("2d"),t,+$("jit").value,320);robot($("cb").getContext("2d"),t,0,320)},1000/12))}
+$("jit").addEventListener("input",()=>{$("ojit").textContent=Math.round(+$("jit").value*100)+"%"});
+/* 11-C */
+const CAM={"고정(픽스)":["카메라가 움직이지 않는다. 인물의 연기나 대사에 집중하게 한다.","fixed"],"팬":["카메라가 제자리에서 좌우로 고개를 돌린다. 넓은 공간을 훑거나 인물을 따라간다.","pan"],"틸트":["카메라가 제자리에서 위아래로 고개를 든다. 높은 건물이나 거인을 올려다볼 때.","tilt"],"돌리 인":["카메라 자체가 앞으로 다가간다. 긴장이 높아지거나 인물의 마음속으로 들어갈 때.","dolly"],"줌 인":["카메라는 그대로, 렌즈만 당긴다. 돌리와 달리 배경의 원근이 바뀌지 않아 납작해 보인다.","zoom"],"트래킹":["카메라가 인물과 나란히 움직인다. 달리는 장면, 추격 장면.","track"],"궤도(오비트)":["카메라가 인물 주위를 돈다. 결심의 순간, 영웅의 등장.","orbit"],"크레인 업":["카메라가 위로 솟구치며 멀어진다. 장면의 끝, 인물이 세상 속에 작아질 때.","crane"]};
+let cmode="fixed";
+function scene(c,cx,cy,sc,rot){c.save();c.fillStyle=css("--bg");c.fillRect(0,0,640,360);c.translate(320,180);c.scale(sc,sc);c.rotate(rot||0);c.translate(-cx,-cy);
+  for(let i=-6;i<12;i++){c.fillStyle=i%2?"#3b4a6b":"#2b3756";c.fillRect(i*120,-300,110,240+((i*37)%5)*30)}
+  c.fillStyle="#555e70";c.fillRect(-800,120,2400,400);c.fillStyle=css("--accent");c.beginPath();c.arc(320,40,30,0,6.3);c.fill();c.fillRect(292,66,56,60);c.restore()}
+function kRun(){const box=$("cam");if(!box.children.length)Object.keys(CAM).forEach(k=>{const b=document.createElement("button");b.textContent=k;b.onclick=()=>{cmode=CAM[k][1];box.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));$("camdesc").textContent=k+": "+CAM[k][0]+"\n프롬프트 예: '"+({fixed:"고정된 카메라로",pan:"카메라가 왼쪽에서 오른쪽으로 천천히 팬하며",tilt:"카메라가 발끝에서 얼굴까지 천천히 틸트 업하며",dolly:"카메라가 인물을 향해 천천히 다가가며(돌리 인)",zoom:"렌즈가 천천히 줌 인하며",track:"카메라가 인물 옆에서 나란히 따라가며(트래킹)",orbit:"카메라가 인물 주위를 반 바퀴 돌며",crane:"카메라가 위로 솟아오르며 멀어지는(크레인 업)"})[cmode]+"'"};box.appendChild(b)});
+  if(!box.querySelector(".on"))box.children[0].click();stopAll();let t=0;
+  timers.push(setInterval(()=>{t=(t+1/30)%4;const p=t/4,e=.5-.5*Math.cos(p*Math.PI*2);const c=$("ccv").getContext("2d");
+    const m=cmode;if(m==="fixed")scene(c,320,40,1);else if(m==="pan")scene(c,120+e*400,40,1);else if(m==="tilt")scene(c,320,-140+e*200,1);else if(m==="dolly")scene(c,320,40+e*20,1+e*1.4);else if(m==="zoom")scene(c,320,40,1+e*1.4);else if(m==="track")scene(c,320+(p*800%800)-400+0,40,1.2);else if(m==="orbit")scene(c,320,40,1.3,Math.sin(p*Math.PI*2)*.25);else scene(c,320,40-e*120,1.6-e*1.0);
+    if(m==="track"){c.fillStyle=css("--accent");}},1000/30))}
+/* 11-D */
+const DEF=[["오프닝: 비 내리는 빈 극장 앞, 꺼진 간판","크레인 업",4],["주인공 소개: 로봇이 젖은 필름 통을 품에 안고 걷는다","트래킹",5],["사건: 극장 안 영사기가 혼자 켜지며 빛이 쏟아진다","돌리 인",4],["갈등: 철거 공지문이 붙은 극장 문을 로봇이 올려다본다","틸트",4],["절정: 빈 객석에서 로봇이 스크린을 바라보고, 화면에 빛이 번진다","궤도(오비트)",6],["타이틀: 검은 화면에 제목 '마지막 상영'","고정(픽스)",3]];
+let shots=DEF.map(x=>x.slice());
+function sRun(){const l=$("slist");l.innerHTML="";const cams=Object.keys(CAM);
+  shots.forEach((s,i)=>{const r=document.createElement("div");r.className="shot";r.innerHTML=`<b>${i+1}</b><input type="text" value="${s[0].replace(/"/g,"&quot;")}"><select class="sc">${cams.map(c=>`<option${c===s[1]?" selected":""}>${c}</option>`).join("")}</select><select class="sd">${[2,3,4,5,6,8,10].map(d=>`<option value="${d}"${d==s[2]?" selected":""}>${d}초</option>`).join("")}</select><span class="hint">${(s[0].match(/대사|말한다/))?"대사":""}</span>`;
+    r.querySelector("input").oninput=e=>{s[0]=e.target.value;sOut()};r.querySelector(".sc").onchange=e=>{s[1]=e.target.value;sOut()};r.querySelector(".sd").onchange=e=>{s[2]=+e.target.value;sOut()};l.appendChild(r)});sOut()}
+function sOut(){const tot=shots.reduce((a,s)=>a+s[2],0);const cols=[css("--accent"),css("--cool"),css("--good"),css("--warn")];
+  $("sbar").innerHTML=shots.map((s,i)=>`<i style="width:${s[2]/Math.max(tot,30)*100}%;background:${cols[i%4]}"></i>`).join("");
+  $("sstat").innerHTML=`샷 <b>${shots.length}</b>개 · 전체 <b>${tot}</b>초 · 평균 ${ (tot/shots.length).toFixed(1)}초`+(tot>60?" · 1분을 넘었습니다. 수업 예고편은 30~60초를 권합니다.":tot<20?" · 조금 짧습니다.":"");
+  $("sout").textContent=shots.map((s,i)=>`[샷 ${i+1} · ${s[2]}초 · ${s[1]}]\n${$("sbase").value}. ${s[0]}. 카메라: ${s[1]}. 영화 예고편 장면, 16:9.`).join("\n\n")}
+$("sbase").addEventListener("input",sOut);$("sadd").onclick=()=>{shots.push(["새 장면을 적어 주세요","고정(픽스)",4]);sRun()};$("sdel").onclick=()=>{if(shots.length>1){shots.pop();sRun()}};
+$("scopy").onclick=()=>{const t=$("sout").textContent;navigator.clipboard.writeText(t).then(()=>$("smsg").textContent="복사했습니다.").catch(()=>{const r=document.createRange();r.selectNodeContents($("sout"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("smsg").textContent="선택해 두었습니다. Ctrl+C(⌘+C)로 복사하세요."})};
+show();
+})();
+</script>
+
+</body>
+</html>
