@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>생성형 AI 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 영화관 매표소처럼 위쪽 탭(상영관) → 아래 한 실험만 크게. 조작부 왼쪽, 결과 오른쪽(좁으면 세로). */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161f; --panel:#1a202c; --ink:#e8ebf1; --muted:#a2abbb; --line:#2c3445;
+  --accent:#f0a24a; --accent-soft:#3a2a17; --cool:#6cc1dd; --cool-soft:#16313b; --warn:#f08a85; --warn-soft:#3b1f1f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161f; --panel:#1a202c; --ink:#e8ebf1; --muted:#a2abbb; --line:#2c3445;
+  --accent:#f0a24a; --accent-soft:#3a2a17; --cool:#6cc1dd; --cool-soft:#16313b; --warn:#f08a85; --warn-soft:#3b1f1f; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;font-weight:700;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;gap:0;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:150px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.06em}
+nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+nav a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0}
+h3{font-size:14px;margin:0;color:var(--muted);font-weight:500;letter-spacing:.02em}
+p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px}
+label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.pri{color:#1b1206}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.pri{color:#1b1206}}
+button:hover{border-color:var(--accent)}
+.sentence{font-size:20px;font-weight:500;padding:12px 14px;border-radius:10px;background:var(--bg);min-height:52px;word-break:keep-all}
+.sentence .new{background:var(--accent-soft);color:var(--ink);border-radius:4px;padding:0 3px}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(72px,120px) minmax(0,1fr) 52px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:18px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar .fill{height:100%;background:var(--cool);border-radius:4px;transition:width .25s}
+.bar.odd .fill{background:var(--warn)}
+.bar .pct{font-family:var(--f-mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.bar.pick .w{font-weight:700;color:var(--accent)}
+.log{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow:auto;font-size:14px}
+.log div{padding:3px 8px;border-radius:6px}
+.log .odd{background:var(--warn-soft)}
+.stat{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
+.stat b{font-family:var(--f-mono);font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.svgbox{overflow-x:auto}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.canvasrow{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+canvas.main{width:288px;height:288px;max-width:100%;border-radius:10px;border:1px solid var(--line);image-rendering:auto;background:#000}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;width:100%}
+.strip figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.strip canvas{width:64px;height:64px;border-radius:6px;border:1px solid var(--line)}
+.meter{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.bar .fill{transition:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>생성형 AI 실험실</h1>
+  <p class="sub">「영화관으로 간 생성형 AI 실습」 시뮬레이터 S1~S3</p>
+</header>
+<nav aria-label="시뮬레이터">
+  <a href="#s1" data-v="s1"><span class="no">S1 · 4·5·6주</span>다음 단어 예측</a>
+  <a href="#s2" data-v="s2"><span class="no">S2 · 4주</span>어텐션</a>
+  <a href="#s3" data-v="s3"><span class="no">S3 · 9·10주</span>디퓨전</a>
+</nav>
+
+<!-- S1 -->
+<section class="lab" id="v-s1">
+  <div class="panel">
+    <h2>S1 다음 단어 예측 실험실</h2>
+    <p class="hint">언어 모델은 앞 문맥을 보고 다음 단어의 확률을 계산한 뒤, 그 확률대로 하나를 뽑습니다. 온도를 바꾸면 뽑는 방식이 달라집니다.</p>
+    <label for="s1start">시작 문장</label>
+    <select id="s1start"></select>
+    <label for="s1temp">온도(temperature) <output id="s1tempv">1.0</output></label>
+    <input id="s1temp" type="range" min="0.1" max="2" step="0.1" value="1">
+    <p class="hint">0.1에 가까우면 거의 늘 1등 단어, 2에 가까우면 엉뚱한 단어도 자주 뽑힙니다.</p>
+    <div class="btns">
+      <button class="pri" id="s1step">한 단어 뽑기</button>
+      <button id="s1reset">처음부터</button>
+    </div>
+    <div class="btns">
+      <button id="s1gen10">문장 10개 생성</button>
+      <button id="s1clear">기록 지우기</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>지금까지 만든 문장</h3>
+    <div class="sentence" id="s1sent" aria-live="polite"></div>
+    <h3 id="s1barsTitle">다음 단어 후보와 확률</h3>
+    <div class="bars" id="s1bars"></div>
+    <div class="legend"><span><i style="background:var(--cool)"></i>말이 되는 후보</span><span><i style="background:var(--warn)"></i>말이 안 되는 후보 (환각의 씨앗)</span></div>
+    <h3>생성 기록</h3>
+    <div class="stat"><span>만든 문장 <b id="s1n">0</b></span><span>서로 다른 문장 <b id="s1u">0</b></span><span>엉뚱한 문장 <b id="s1o">0</b></span></div>
+    <div class="log" id="s1log"></div>
+  </div>
+</section>
+
+<!-- S2 -->
+<section class="lab" id="v-s2" hidden>
+  <div class="panel">
+    <h2>S2 어텐션 실험실</h2>
+    <p class="hint">트랜스포머는 문장 속 단어마다 '다른 단어에 얼마나 주목할지'를 계산합니다. 같은 단어도 주변 단어에 따라 뜻이 정해집니다.</p>
+    <label for="s2sent">문장</label>
+    <select id="s2sent"></select>
+    <h3>주목도를 볼 단어를 누르세요</h3>
+    <div class="words" id="s2words"></div>
+    <div class="note" id="s2note"></div>
+  </div>
+  <div class="panel">
+    <h3>선의 굵기 = 주목도</h3>
+    <div class="svgbox"><svg id="s2svg" role="img" aria-label="단어 사이 어텐션 연결선" width="640" height="230"></svg></div>
+    <h3>주목도 순위</h3>
+    <div class="bars" id="s2bars"></div>
+    <p class="hint">실제 모델은 이런 계산을 여러 개의 '헤드'와 수십 개 층에서 동시에 합니다. 여기 값은 원리를 보여 주려고 만든 예시입니다.</p>
+  </div>
+</section>
+
+<!-- S3 -->
+<section class="lab" id="v-s3" hidden>
+  <div class="panel">
+    <h2>S3 디퓨전 실험실</h2>
+    <p class="hint">디퓨전 모델은 완전한 잡음에서 시작해, 잡음을 조금씩 걷어 내며 프롬프트에 맞는 그림을 꺼냅니다.</p>
+    <label for="s3prompt">프롬프트</label>
+    <select id="s3prompt">
+      <option value="sunset">해 질 녘의 산과 해</option>
+      <option value="night">밤하늘의 달과 별</option>
+      <option value="robot">웃는 로봇 얼굴</option>
+    </select>
+    <label for="s3steps">잡음 제거 단계 수 <output id="s3stepsv">20</output></label>
+    <input id="s3steps" type="range" min="5" max="50" step="5" value="20">
+    <label for="s3seed">시드(출발 잡음 번호) <output id="s3seedv">7</output></label>
+    <input id="s3seed" type="range" min="1" max="30" step="1" value="7">
+    <div class="btns">
+      <button class="pri" id="s3play">역방향: 그림 꺼내기</button>
+      <button id="s3fwd">순방향: 잡음 섞기</button>
+    </div>
+    <label for="s3t">지금 단계 <output id="s3tv">0 / 20</output></label>
+    <input id="s3t" type="range" min="0" max="20" step="1" value="20">
+    <p class="hint">단계 수가 적으면 마지막 그림이 흐립니다. 시드가 바뀌면 같은 프롬프트에서도 다른 그림이 나옵니다.</p>
+  </div>
+  <div class="panel">
+    <div class="canvasrow">
+      <canvas class="main" id="s3c" width="96" height="96" aria-label="디퓨전 생성 과정 이미지"></canvas>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
+        <h3>지금 상태</h3>
+        <p class="meter" id="s3meter"></p>
+        <p class="note" id="s3note"></p>
+      </div>
+    </div>
+    <h3>단계별 스냅샷</h3>
+    <div class="strip" id="s3strip"></div>
+  </div>
+</section>
+
+<footer>예시 확률·주목도·그림은 원리를 보여 주려고 만든 값이며 실제 모델의 수치가 아닙니다.</footer>
+</div>
+
+<script>
+(function(){
+/* ---------- 라우팅 ---------- */
+const views=["s1","s2","s3"];
+function show(){
+  let v=(location.hash||"#s1").slice(1); if(!views.includes(v)) v="s1";
+  views.forEach(k=>{document.getElementById("v-"+k).hidden=(k!==v)});
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
+}
+addEventListener("hashchange",show); show();
+
+/* ---------- 공통 ---------- */
+function softmax(obj,T){
+  const ks=Object.keys(obj); const m=Math.max(...ks.map(k=>obj[k]/T));
+  const e=ks.map(k=>Math.exp(obj[k]/T-m)); const s=e.reduce((a,b)=>a+b,0);
+  return ks.map((k,i)=>({w:k,p:e[i]/s,logit:obj[k]}));
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+
+/* ---------- S1 ---------- */
+const LM={
+  "영화관에서":{"팝콘을":3.0,"영화를":2.6,"친구를":2.2,"잠을":0.6,"우주선을":-1.2},
+  "팝콘을":{"먹었다.":3.2,"샀다.":2.5,"쏟았다.":1.0,"던졌다.":-0.4,"노래했다.":-2.5},
+  "영화를":{"봤다.":3.4,"예매했다.":2.0,"찍었다.":0.5,"끝냈다.":0.2,"마셨다.":-3.0},
+  "친구를":{"만났다.":3.0,"기다렸다.":2.4,"놓쳤다.":0.8,"그렸다.":-0.8,"먹었다.":-3.0},
+  "잠을":{"잤다.":3.0,"참았다.":1.5,"설쳤다.":1.2,"팔았다.":-2.5},
+  "우주선을":{"봤다.":1.8,"탔다.":1.6,"만들었다.":0.5,"주웠다.":-1.0},
+  "인공지능은":{"데이터로":3.0,"사람을":1.8,"창작을":1.6,"꿈을":0.4,"김치를":-1.5},
+  "데이터로":{"배운다.":3.3,"예측한다.":2.6,"그림을 그린다.":1.2,"춤춘다.":-1.5},
+  "사람을":{"돕는다.":3.0,"대신한다.":1.6,"닮아 간다.":1.5,"먹는다.":-3.0},
+  "창작을":{"돕는다.":2.8,"흉내 낸다.":2.0,"즐긴다.":0.3,"굽는다.":-2.5},
+  "꿈을":{"꾼다.":1.8,"그린다.":1.4,"분석한다.":1.0,"마신다.":-2.0},
+  "김치를":{"추천한다.":1.2,"분류한다.":1.0,"담근다.":0.8,"작곡한다.":-1.0},
+  "그녀는":{"테오도르에게":2.6,"편지를":2.2,"노래를":1.8,"냉장고에게":-1.2},
+  "테오도르에게":{"말을 걸었다.":3.0,"웃어 주었다.":2.2,"시를 읽어 주었다.":1.6,"세금을 냈다.":-2.0},
+  "편지를":{"고쳐 주었다.":2.8,"읽었다.":2.6,"정리했다.":1.6,"구웠다.":-2.6},
+  "노래를":{"만들었다.":2.8,"불렀다.":2.6,"들려주었다.":2.0,"심었다.":-2.4},
+  "냉장고에게":{"말을 걸었다.":1.0,"사과했다.":0.6,"투표했다.":-1.5}
+};
+const STARTS=["영화관에서","인공지능은","그녀는"];
+let s1words=[], s1last=null, s1hist=[];
+const $=id=>document.getElementById(id);
+STARTS.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s+" …";$("s1start").appendChild(o)});
+function s1T(){return parseFloat($("s1temp").value)}
+function isOdd(logit){return logit<0}
+function sample(dist){let r=Math.random(),c=0;for(const d of dist){c+=d.p;if(r<=c)return d}return dist[dist.length-1]}
+function s1cur(){return s1words.length?s1words[s1words.length-1].w:$("s1start").value}
+function s1render(){
+  const start=$("s1start").value;
+  $("s1sent").innerHTML=esc(start)+" "+s1words.map((x,i)=>i===s1words.length-1?'<span class="new">'+esc(x.w)+'</span>':esc(x.w)).join(" ");
+  const cur=s1cur(); const nexts=LM[cur];
+  const box=$("s1bars"); box.innerHTML="";
+  if(!nexts||cur.endsWith(".")){
+    $("s1barsTitle").textContent="문장이 끝났습니다. '처음부터'를 누르세요.";
+    return;
+  }
+  $("s1barsTitle").textContent="'"+cur+"' 다음 단어 후보와 확률 (온도 "+s1T().toFixed(1)+")";
+  const dist=softmax(nexts,s1T()).sort((a,b)=>b.p-a.p);
+  dist.forEach(d=>{
+    const el=document.createElement("div");
+    el.className="bar"+(isOdd(d.logit)?" odd":"")+(s1last===d.w?" pick":"");
+    el.innerHTML='<span class="w">'+esc(d.w)+'</span><span class="track"><span class="fill" style="width:'+(d.p*100).toFixed(1)+'%;display:block"></span></span><span class="pct">'+(d.p*100).toFixed(1)+'%</span>';
+    box.appendChild(el);
+  });
+}
+function s1step(){
+  const cur=s1cur(); const nexts=LM[cur]; if(!nexts||cur.endsWith("."))return null;
+  const d=sample(softmax(nexts,s1T())); s1words.push(d); s1last=null; return d;
+}
+function s1full(){
+  let w=$("s1start").value, words=[w], odd=false, guard=0;
+  while(LM[w]&&!w.endsWith(".")&&guard++<6){const d=sample(softmax(LM[w],s1T()));if(isOdd(d.logit))odd=true;w=d.w;words.push(w)}
+  return {text:words.join(" "),odd};
+}
+function s1log(){
+  const box=$("s1log"); box.innerHTML="";
+  s1hist.slice().reverse().forEach(h=>{const d=document.createElement("div");if(h.odd)d.className="odd";d.textContent=h.text;box.appendChild(d)});
+  $("s1n").textContent=s1hist.length;
+  $("s1u").textContent=new Set(s1hist.map(h=>h.text)).size;
+  $("s1o").textContent=s1hist.filter(h=>h.odd).length;
+}
+$("s1step").onclick=()=>{
+  const d=s1step();
+  if(d){s1render(); const cur=s1cur();
+    if(cur.endsWith(".")||!LM[cur]){const t=$("s1start").value+" "+s1words.map(x=>x.w).join(" ");s1hist.push({text:t,odd:s1words.some(x=>isOdd(x.logit))});s1log()}}
+};
+$("s1reset").onclick=()=>{s1words=[];s1render()};
+$("s1start").onchange=()=>{s1words=[];s1render()};
+$("s1temp").oninput=()=>{$("s1tempv").textContent=s1T().toFixed(1);s1render()};
+$("s1gen10").onclick=()=>{for(let i=0;i<10;i++)s1hist.push(s1full());s1log()};
+$("s1clear").onclick=()=>{s1hist=[];s1log()};
+// 예시 상태: 한 단어 진행 + 기록 10개
+s1words=[]; s1render();
+for(let i=0;i<10;i++)s1hist.push(s1full()); s1log();
+
+/* ---------- S2 ---------- */
+const SENTS=[
+  {words:["바다에","떠 있는","배가","항구로","들어왔다"],focus:2,boost:{"2-0":2.4,"2-3":2.0,"2-4":1.0,"1-0":1.2,"4-3":1.2},
+   note:{2:"'배'가 '바다에'와 '항구로'에 크게 주목합니다. 그래서 모델은 이 배를 물 위를 다니는 배로 이해합니다."}},
+  {words:["점심을","걸렀더니","배가","너무","고프다"],focus:2,boost:{"2-4":2.5,"2-0":1.9,"2-1":1.2,"4-3":1.0,"1-0":1.4},
+   note:{2:"'배'가 '고프다'와 '점심을'에 주목합니다. 이 배는 사람의 몸, 즉 배 속입니다."}},
+  {words:["과일","가게에서","배를","깎아","먹었다"],focus:2,boost:{"2-0":2.4,"2-3":2.0,"2-4":1.6,"0-1":1.5,"3-4":1.0},
+   note:{2:"'배'가 '과일', '깎아', '먹었다'에 주목합니다. 이 배는 먹는 과일입니다."}},
+  {words:["그는","은행에","돈을","맡기고","나왔다"],focus:1,boost:{"1-2":2.6,"1-3":2.0,"3-2":1.4,"4-0":1.2,"3-0":1.0},
+   note:{1:"'은행'이 '돈을'과 '맡기고'에 주목합니다. 은행나무가 아니라 금융 기관이라는 뜻이 정해집니다."}}
+];
+let s2i=0, s2sel=SENTS[0].focus;
+SENTS.forEach((s,i)=>{const o=document.createElement("option");o.value=i;o.textContent=s.words.join(" ");$("s2sent").appendChild(o)});
+function s2weights(s,i){
+  const n=s.words.length, sc=[];
+  for(let j=0;j<n;j++){
+    let v=-0.9*Math.abs(i-j); if(i===j)v=0.3;
+    const b=s.boost[i+"-"+j]??s.boost[j+"-"+i]; if(b)v+=b+0.9*Math.abs(i-j)*0.6;
+    sc.push(v);
+  }
+  const m=Math.max(...sc), e=sc.map(v=>Math.exp(v-m)), t=e.reduce((a,b)=>a+b,0);
+  return e.map(v=>v/t);
+}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function s2render(){
+  const s=SENTS[s2i], n=s.words.length;
+  const wb=$("s2words"); wb.innerHTML="";
+  s.words.forEach((w,i)=>{const b=document.createElement("button");b.textContent=w;if(i===s2sel)b.className="on";b.onclick=()=>{s2sel=i;s2render()};wb.appendChild(b)});
+  const W=s2weights(s,s2sel);
+  const svg=$("s2svg"); const width=640, gap=width/n, y=180;
+  let out="";
+  W.forEach((p,j)=>{ if(j===s2sel)return;
+    const x1=gap*(s2sel+.5), x2=gap*(j+.5), h=40+Math.abs(x2-x1)*0.35;
+    out+='<path d="M'+x1+' '+(y-18)+' Q'+((x1+x2)/2)+' '+(y-18-h)+' '+x2+' '+(y-18)+'" fill="none" stroke="'+css("--accent")+'" stroke-opacity="'+(0.25+p*0.75).toFixed(2)+'" stroke-width="'+(1+p*22).toFixed(1)+'" stroke-linecap="round"/>';
+  });
+  s.words.forEach((w,j)=>{
+    const x=gap*(j+.5);
+    out+='<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="17" font-weight="'+(j===s2sel?700:500)+'" fill="'+(j===s2sel?css("--accent"):css("--ink"))+'" font-family="IBM Plex Sans KR, sans-serif">'+esc(w)+'</text>';
+    out+='<text x="'+x+'" y="'+(y+24)+'" text-anchor="middle" font-size="12" fill="'+css("--muted")+'" font-family="IBM Plex Mono, monospace">'+(W[j]*100).toFixed(0)+'%</text>';
+  });
+  svg.innerHTML=out;
+  const bars=$("s2bars"); bars.innerHTML="";
+  W.map((p,j)=>({p,w:s.words[j]})).sort((a,b)=>b.p-a.p).forEach(d=>{
+    const el=document.createElement("div"); el.className="bar";
+    el.innerHTML='<span class="w">'+esc(d.w)+'</span><span class="track"><span class="fill" style="width:'+(d.p*100).toFixed(1)+'%;display:block;background:var(--accent)"></span></span><span class="pct">'+(d.p*100).toFixed(1)+'%</span>';
+    bars.appendChild(el);
+  });
+  $("s2note").textContent=s.note[s2sel]||("'"+s.words[s2sel]+"'은 주로 가까운 단어에 주목합니다. 문장의 핵심 단어(주황색 굵은 글씨로 시작한 단어)를 눌러 비교해 보세요.");
+}
+$("s2sent").onchange=e=>{s2i=+e.target.value;s2sel=SENTS[s2i].focus;s2render()};
+s2render();
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>s2render());
+new MutationObserver(()=>s2render()).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* ---------- S3 ---------- */
+const N=96;
+function rng(seed){let s=seed*9301+49297;return()=>{s=(s*1103515245+12345)%2147483648;return s/2147483648}}
+function gauss(r){let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function target(kind,seed){
+  const r=rng(seed+101), img=new Float32Array(N*N*3);
+  const set=(x,y,c)=>{const i=(y*N+x)*3;img[i]=c[0];img[i+1]=c[1];img[i+2]=c[2]};
+  if(kind==="sunset"){
+    const sx=20+r()*56, sy=26+r()*20, sr=9+r()*6, m1=40+r()*20, m2=50+r()*16, ph=r()*6;
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const t=y/N; let c=[0.98-0.25*t,0.55+0.1*(1-t)-0.2*t,0.35+0.25*t];
+      if(Math.hypot(x-sx,y-sy)<sr)c=[1,0.86,0.45];
+      const h1=m1+10*Math.sin(x/11+ph), h2=m2+6*Math.sin(x/7+ph*2);
+      if(y>h1)c=[0.36,0.22,0.36];
+      if(y>h2)c=[0.18,0.12,0.24];
+      set(x,y,c);
+    }
+  }else if(kind==="night"){
+    const mx=18+r()*60, my=16+r()*30, stars=[];
+    for(let k=0;k<26;k++)stars.push([r()*N|0,r()*70|0]);
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const t=y/N; let c=[0.05+0.08*t,0.07+0.12*t,0.2+0.22*t];
+      const d=Math.hypot(x-mx,y-my); if(d<11)c=[0.97,0.95,0.82]; if(Math.hypot(x-mx-5,y-my-3)<9&&d<11)c=[0.06,0.09,0.24];
+      if(y>78+3*Math.sin(x/9))c=[0.03,0.05,0.1];
+      set(x,y,c);
+    }
+    stars.forEach(([x,y])=>{if(y<76)set(x,y,[1,1,0.9])});
+  }else{
+    const hue=r(), eye=6+r()*3, mouth=0.5+r()*0.5;
+    const face=[0.45+0.3*hue,0.62,0.78-0.3*hue];
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      let c=[0.92,0.9,0.86];
+      if(x>18&&x<78&&y>22&&y<82)c=face;
+      if(x>44&&x<52&&y>8&&y<22)c=[0.4,0.4,0.45];
+      if(Math.hypot(x-48,y-8)<5)c=[0.95,0.4,0.3];
+      if(Math.hypot(x-36,y-44)<eye||Math.hypot(x-60,y-44)<eye)c=[0.1,0.12,0.16];
+      const mx=x-48,my=y-62; if(Math.abs(mx)<16&&my>-2&&my<4+mouth*6&&my>(mx*mx)/(40/mouth)-4)c=[0.1,0.12,0.16];
+      if(x<=18&&x>12&&y>40&&y<60||x>=78&&x<84&&y>40&&y<60)c=[0.4,0.4,0.45];
+      set(x,y,c);
+    }
+  }
+  return img;
+}
+function blur(src,rad){
+  if(rad<0.5)return src;
+  const r=Math.round(rad), tmp=new Float32Array(src.length), out=new Float32Array(src.length);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)for(let ch=0;ch<3;ch++){let s=0,c=0;for(let k=-r;k<=r;k++){const xx=x+k;if(xx<0||xx>=N)continue;s+=src[(y*N+xx)*3+ch];c++}tmp[(y*N+x)*3+ch]=s/c}
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)for(let ch=0;ch<3;ch++){let s=0,c=0;for(let k=-r;k<=r;k++){const yy=y+k;if(yy<0||yy>=N)continue;s+=tmp[(yy*N+x)*3+ch];c++}out[(y*N+x)*3+ch]=s/c}
+  return out;
+}
+let S3={frames:[],steps:20};
+function abar(t,T){const u=t/T;return Math.max(0.0005,Math.cos(u*Math.PI/2)**2)}
+function build(){
+  const kind=$("s3prompt").value, seed=+$("s3seed").value, T=+$("s3steps").value;
+  const x0=target(kind,seed), r=rng(seed), eps=new Float32Array(N*N*3);
+  for(let i=0;i<eps.length;i++)eps[i]=gauss(r)*0.5;
+  const frames=[];
+  // frames[k]: 상태 x_t, t = T-k (k=0 완전 잡음, k=T 결과)
+  let x=eps.map(v=>v+0.5);
+  frames.push(x);
+  for(let t=T;t>=1;t--){
+    const ab=abar(t,T), abPrev=t-1===0?1:abar(t-1,T);
+    // 잡음이 많을수록 디노이저의 x0 예측이 흐림 (단계가 적을수록 마지막 예측도 흐림)
+    const noiseLevel=Math.sqrt(1-ab);
+    const x0p=blur(x0,noiseLevel*9);
+    const nx=new Float32Array(x0.length);
+    const keep=t-1===0?0:Math.sqrt(1-abPrev);
+    for(let i=0;i<nx.length;i++)nx[i]=Math.sqrt(abPrev)*x0p[i]+keep*eps[i]+ (t-1===0?0:0.5*(1-Math.sqrt(abPrev)));
+    if(t-1===0){ // 마지막: 직전 단계 잡음 수준의 예측을 그대로 결과로
+      const fin=blur(x0,Math.sqrt(1-abar(1,T))*9); frames.push(fin);
+    } else frames.push(nx);
+  }
+  S3={frames,steps:T,x0,eps};
+  $("s3t").max=T; $("s3t").value=T; drawStrip();
+}
+const ctx=$("s3c").getContext("2d");
+function draw(arr,c2){
+  const id=c2.createImageData(N,N);
+  for(let i=0;i<N*N;i++){for(let ch=0;ch<3;ch++)id.data[i*4+ch]=Math.max(0,Math.min(255,arr[i*3+ch]*255));id.data[i*4+3]=255}
+  c2.putImageData(id,0,0);
+}
+let mode="rev";
+function showStep(k){
+  const T=S3.steps; k=Math.max(0,Math.min(T,k)); $("s3t").value=k;
+  let arr, noise;
+  if(mode==="rev"){arr=S3.frames[k]; noise=k===T?Math.sqrt(1-abar(1,T)):Math.sqrt(1-abar(T-k,T));}
+  else{ const t=k, ab=abar(t,T); arr=new Float32Array(S3.x0.length); for(let i=0;i<arr.length;i++)arr[i]=Math.sqrt(ab)*S3.x0[i]+Math.sqrt(1-ab)*S3.eps[i]+0.5*(1-Math.sqrt(ab)); noise=Math.sqrt(1-ab);}
+  draw(arr,ctx);
+  $("s3tv").textContent=k+" / "+T;
+  const pct=Math.round(noise*100);
+  $("s3meter").textContent=(mode==="rev"?"역방향(생성) ":"순방향(학습) ")+k+"단계 · 남은 잡음 약 "+pct+"%";
+  $("s3note").textContent = mode==="rev"
+    ? (k===0?"완전한 잡음입니다. 여기서부터 신경망이 '잡음이 얼마나 섞였는지'를 예측해 조금씩 뺍니다."
+      : k<T?"단계마다 잡음을 조금 걷어 내자 큰 덩어리(하늘, 땅, 얼굴 윤곽)부터 드러납니다. 세부는 마지막에 생깁니다."
+      : (T<=10?"단계가 "+T+"번뿐이라 결과가 흐립니다. 단계 수를 늘려 다시 해 보세요.":"완성입니다. 시드를 바꾸면 같은 프롬프트에서 다른 그림이 나옵니다."))
+    : (k===0?"원본 그림입니다. 학습 때는 이 그림에 잡음을 단계별로 더합니다.":"그림에 잡음을 더하는 중입니다. 신경망은 각 단계에서 '더해진 잡음'을 맞히는 법을 배웁니다.");
+}
+function drawStrip(){
+  const box=$("s3strip"); box.innerHTML=""; const T=S3.steps;
+  const picks=[...new Set([0,1,2,3,4,5,6,7].map(i=>Math.round(i*T/7)))];
+  picks.forEach(k=>{const f=document.createElement("figure");const c=document.createElement("canvas");c.width=N;c.height=N;draw(S3.frames[k],c.getContext("2d"));f.appendChild(c);const cap=document.createElement("figcaption");cap.textContent=k+"단계";f.appendChild(cap);box.appendChild(f)});
+}
+let timer=null;
+function play(dir){
+  clearInterval(timer); mode=dir; const T=S3.steps; let k=0;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){showStep(T);return}
+  showStep(0);
+  timer=setInterval(()=>{k++;showStep(k);if(k>=T)clearInterval(timer)},Math.max(40,1600/T));
+}
+$("s3play").onclick=()=>play("rev");
+$("s3fwd").onclick=()=>play("fwd");
+$("s3t").oninput=e=>{clearInterval(timer);showStep(+e.target.value)};
+["s3prompt","s3steps","s3seed"].forEach(id=>$(id).addEventListener("input",()=>{
+  $("s3stepsv").textContent=$("s3steps").value; $("s3seedv").textContent=$("s3seed").value;
+  clearInterval(timer); mode="rev"; build(); showStep(S3.steps);
+}));
+build(); mode="rev"; showStep(S3.steps);
+})();
+</script>
+
+</body>
+</html>

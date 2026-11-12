@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>영화관으로 간 생성형 AI 실습 · 실험실</title>
+<meta name="description" content="대학 교양 「영화관으로 간 생성형 AI 실습」 교재의 장별 웹 실험실(시뮬레이터) 모음">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--ink:#1b2333;--muted:#5d6676;--line:#dfe3ea;--accent:#c2700f;--accent-soft:#fbeedd;--cool:#1f6f8b;--cool-soft:#e2f0f5;
+--f:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--m:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--f)}
+.wrap{max-width:1080px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:6px;margin-bottom:28px}
+.kicker{font-family:var(--m);font-size:12.5px;color:var(--accent);letter-spacing:.06em}
+h1{font-size:clamp(24px,4vw,34px);margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+h2{font-size:15px;color:var(--muted);font-weight:500;margin:28px 0 10px;letter-spacing:.02em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card .no{font-family:var(--m);font-size:12px;color:var(--muted)}
+.card h3{margin:0;font-size:18px}
+.card h3 a{color:var(--ink);text-decoration:none}
+.card h3 a:hover{color:var(--accent)}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs a{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--cool-soft);color:var(--ink);text-decoration:none;border:1px solid transparent}
+.tabs a:hover{border-color:var(--cool)}
+.card.soon{opacity:.6}
+.card.soon .tabs span{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px dashed var(--line)}
+footer{margin-top:36px;font-size:13px;color:var(--muted)}
+a:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="kicker">GENERATIVE AI · HANDS-ON</span>
+  <h1>영화관으로 간 생성형 AI 실습 · 웹 실험실</h1>
+  <p class="lead">교재 각 장의 원리를 브라우저에서 직접 만져 보는 시뮬레이터 모음입니다. 설치할 것도, 로그인할 것도 없습니다. 장을 고르고 실험 탭을 눌러 시작하세요.</p>
+</header>
+
+<h2>공통 실험실</h2>
+<div class="grid">
+  <article class="card"><span class="no">4·5·6·9·10주</span><h3><a href="labs/genai/">생성형 AI 실험실</a></h3><p>다음 단어 예측과 온도, 어텐션, 디퓨전을 한곳에서.</p>
+  <div class="tabs"><a href="labs/genai/#s1">S1 다음 단어 예측</a><a href="labs/genai/#s2">S2 어텐션</a><a href="labs/genai/#s3">S3 디퓨전</a></div></article>
+</div>
+
+<h2>장별 실험실</h2>
+<div class="grid">
+  <article class="card"><span class="no">1장 · 1부</span><h3><a href="labs/ch01/">4차 산업혁명과 인공지능</a></h3>
+  <div class="tabs"><a href="labs/ch01/#video">오프닝 영상</a><a href="labs/ch01/#loop">1-A 데이터 순환 고리</a><a href="labs/ch01/#timeline">1-B AI 역사 탐험</a><a href="labs/ch01/#gpu">1-C CPU와 GPU 경주</a></div></article>
+  <article class="card"><span class="no">2장 · 1부</span><h3><a href="labs/ch02/">인공지능은 어떻게 배우는가</a></h3>
+  <div class="tabs"><a href="labs/ch02/#reg">2-A 직선 맞추기</a><a href="labs/ch02/#perc">2-B 퍼셉트론</a><a href="labs/ch02/#gd">2-C 산 내려가기</a><a href="labs/ch02/#fit">2-D 과적합</a><a href="labs/ch02/#cnn">2-E CNN 필터</a></div></article>
+  <article class="card"><span class="no">3장 · 2부</span><h3><a href="labs/ch03/">생성형 AI의 발전 과정</a></h3>
+  <div class="tabs"><a href="labs/ch03/#eliza">3-A 엘리자와 대화</a><a href="labs/ch03/#ngram">3-B n-gram 문장 생성기</a><a href="labs/ch03/#vec">3-C 단어 벡터 산수</a><a href="labs/ch03/#quiz">3-D 순서 맞히기</a></div></article>
+  <article class="card"><span class="no">4장 · 3부</span><h3><a href="labs/ch04/">텍스트 생성 AI ① 거대 언어 모델의 원리</a></h3>
+  <div class="tabs"><a href="labs/ch04/#token">4-A 토큰으로 쪼개기</a><a href="labs/ch04/#bpe">4-B BPE 병합</a><a href="labs/ch04/#sample">4-C 다음 토큰 고르기</a><a href="labs/ch04/#ctx">4-D 컨텍스트 창</a></div></article>
+  <article class="card"><span class="no">5장 · 3부</span><h3><a href="labs/ch05/">텍스트 생성 AI ② Claude로 프롬프트 설계</a></h3>
+  <div class="tabs"><a href="labs/ch05/#build">5-A 프롬프트 조립기</a><a href="labs/ch05/#check">5-B 프롬프트 진단기</a><a href="labs/ch05/#inject">5-C 프롬프트 인젝션 체험</a></div></article>
+  <article class="card"><span class="no">6장 · 3부</span><h3><a href="labs/ch06/">텍스트 생성 AI ③ 환각과 노트북LM</a></h3>
+  <div class="tabs"><a href="labs/ch06/#hallu">6-A 환각은 언제 생길까</a><a href="labs/ch06/#fact">6-B 팩트체크 게임</a><a href="labs/ch06/#rag">6-C RAG 따라가기</a></div></article>
+  <article class="card soon"><span class="no">7~15장</span><h3>준비 중</h3><p>바이브코딩, 이미지·영상·음성 생성, 딥페이크, 저작권과 AI 기본법 실험실이 차례로 추가됩니다.</p><div class="tabs"><span>7장 데이터 분석</span><span>8장 시뮬레이터 만들기</span><span>9~13장 멀티미디어 생성</span></div></article>
+</div>
+
+<footer>각 실험실의 예시 데이터와 수치는 원리를 보여 주기 위해 만든 모형입니다. 실제 AI 모델의 값과 다를 수 있습니다.<br>교재: 「영화관으로 간 생성형 AI 실습」 · 연계 도서 「영화관으로 간 AI 리터러시」</footer>
+</div>
+</body>
+</html>

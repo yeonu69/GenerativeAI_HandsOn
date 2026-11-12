@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>3장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+</style>
+<div class="wrap">
+<header><h1>3장 실험실</h1><p class="sub">「생성형 AI의 발전 과정」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#eliza" data-v="eliza"><span class="no">3-A · 1966</span>엘리자와 대화</a>
+  <a href="#ngram" data-v="ngram"><span class="no">3-B · 1948~</span>n-gram 문장 생성기</a>
+  <a href="#vec" data-v="vec"><span class="no">3-C · 2013</span>단어 벡터 산수</a>
+  <a href="#quiz" data-v="quiz"><span class="no">3-D · 연표</span>순서 맞히기</a>
+</nav>
+
+<section class="lab" id="v-eliza">
+  <div class="panel">
+    <h2>엘리자와 대화하기</h2>
+    <p class="hint">1966년 챗봇 엘리자를 한국어로 흉내 냈습니다. 엘리자는 문장 속 낱말을 찾아 미리 적어 둔 틀에 끼워 넣을 뿐, 뜻을 이해하지 않습니다.</p>
+    <p class="hint">답 밑의 회색 글씨는 어떤 규칙이 쓰였는지 보여 줍니다. 엘리자가 엉뚱하게 답하는 문장을 찾아보세요.</p>
+    <div class="btns"><button id="eex1">예: 요즘 너무 우울해</button><button id="eex2">예: 엄마랑 싸웠어</button><button id="eex3">예: 내일 날씨 알려 줘</button></div>
+    <div class="btns"><button id="eclr">대화 지우기</button></div>
+  </div>
+  <div class="panel">
+    <div class="chat" id="echat" aria-live="polite"></div>
+    <form class="row" id="eform"><input id="ein" type="text" placeholder="엘리자에게 말을 걸어 보세요" autocomplete="off"><button class="pri" type="submit">보내기</button></form>
+    <p class="note">같은 질문을 Claude에게도 해 보고 답을 비교해 보세요. 규칙으로 흉내 내는 대화와, 수많은 글에서 확률을 배운 대화는 무엇이 다른가요?</p>
+  </div>
+</section>
+
+<section class="lab" id="v-ngram" hidden>
+  <div class="panel">
+    <h2>n-gram 문장 생성기</h2>
+    <p class="hint">아래 '학습 문장'에서 앞 낱말 n−1개 다음에 무엇이 왔는지 세어, 그 비율대로 다음 낱말을 뽑습니다. 섀넌이 1948년에 보여 준 방법입니다.</p>
+    <label for="nn">n (보는 범위) <output id="nnv">2</output></label>
+    <select id="nn"><option value="1">1-gram: 앞을 전혀 보지 않음</option><option value="2" selected>2-gram: 바로 앞 낱말 1개</option><option value="3">3-gram: 앞 낱말 2개</option></select>
+    <div class="btns"><button class="pri" id="ngen">문장 5개 만들기</button><button id="nstep">한 낱말씩</button><button id="nreset">처음부터</button></div>
+    <details><summary class="hint">학습 문장 보기 (40문장)</summary><p class="hint" id="ncorpus"></p></details>
+  </div>
+  <div class="panel">
+    <h3>지금 만들고 있는 문장</h3>
+    <div class="note" id="ncur"></div>
+    <h3 id="nctx">다음 낱말 후보</h3>
+    <div class="bars" id="nbars"></div>
+    <h3>만든 문장 (빨간 칸: 학습 문장을 그대로 베낀 것)</h3>
+    <div class="gen" id="nout"></div>
+    <p class="hint" id="nnote"></p>
+  </div>
+</section>
+
+<section class="lab" id="v-vec" hidden>
+  <div class="panel">
+    <h2>단어 벡터 산수</h2>
+    <p class="hint">word2vec 같은 모델은 낱말을 숫자 묶음(벡터)으로 바꿉니다. 뜻이 비슷한 낱말은 가까이, 관계가 같은 짝은 같은 방향으로 놓입니다. 여기서는 이해를 돕기 위해 2차원으로 줄인 예시를 씁니다.</p>
+    <label for="va">A</label><select id="va"></select>
+    <label for="vb">− B</label><select id="vb"></select>
+    <label for="vc">+ C</label><select id="vc"></select>
+    <div class="btns"><button class="pri" id="vgo">계산하기</button><button id="vp1">왕 − 남자 + 여자</button><button id="vp2">도쿄 − 일본 + 한국</button></div>
+  </div>
+  <div class="panel">
+    <div class="chart"><svg id="vsvg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="2차원 단어 벡터 지도"></svg></div>
+    <p class="note" id="vnote"></p>
+  </div>
+</section>
+
+<section class="lab" id="v-quiz" hidden>
+  <div class="panel">
+    <h2>생성형 AI 연표 순서 맞히기</h2>
+    <p class="hint">오른쪽 카드를 일어난 순서대로 하나씩 누르세요. 다 고르면 정답과 비교해 줍니다.</p>
+    <div class="btns"><button class="pri" id="qcheck">채점하기</button><button id="qreset">다시 섞기</button></div>
+    <div class="order" id="qorder"></div>
+    <div class="stat" id="qscore"></div>
+  </div>
+  <div class="panel">
+    <h3>사건 카드</h3>
+    <div class="cards" id="qcards"></div>
+    <p class="note" id="qnote">처음 누른 카드가 가장 오래된 사건입니다.</p>
+  </div>
+</section>
+<footer>예시 데이터와 규칙은 원리를 보여 주기 위해 만든 것입니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["eliza","ngram","vec","quiz"];
+function show(){let v=(location.hash||"#eliza").slice(1);if(!views.includes(v))v="eliza";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v))}
+addEventListener("hashchange",show);show();
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+/* ELIZA */
+const RULES=[
+ {re:/(우울|슬퍼|슬프|힘들|외로)/,ans:["그런 마음이 드시는군요. 언제부터 그렇게 느끼셨나요?","그런 기분이 들 때 주로 무엇을 하나요?","그 마음을 조금 더 이야기해 줄래요?"],name:"감정 낱말 → 감정 묻기"},
+ {re:/(엄마|아빠|부모|가족|형|누나|동생|언니|오빠)/,ans:["{0}에 대해 더 이야기해 주세요.","{0}와(과)의 관계는 평소에 어떤가요?"],name:"가족 낱말 → 가족 묻기"},
+ {re:/^나는\s*(.+?)(이야|야|이다|다|예요|이에요)?[.!?]?$/,ans:["왜 당신이 {1}라고 생각하나요?","{1}라는 것이 당신에게 어떤 의미인가요?"],name:"'나는 X' → 'X라고 생각하는 이유'"},
+ {re:/(왜|어째서)/,ans:["왜라고 묻는 이유가 궁금하네요.","그 답이 무엇이라고 생각하나요?"],name:"'왜' → 되묻기"},
+ {re:/(꿈|미래|진로)/,ans:["{0}에 대해 생각하면 어떤 느낌이 드나요?"],name:"꿈·미래 낱말"},
+ {re:/(컴퓨터|AI|인공지능|로봇|기계)/i,ans:["기계 이야기가 나오니 불안한가요?","{0}에 대해 어떻게 생각하나요?"],name:"기계 낱말"},
+ {re:/(네|응|그래|맞아)$/,ans:["확신이 있으신 것 같네요.","조금 더 자세히 말해 줄래요?"],name:"짧은 동의"},
+ {re:/(아니|싫어|안 해)/,ans:["왜 아니라고 생각하나요?","조금 부정적으로 들리네요."],name:"부정 낱말"}
+];
+const DEFAULT=["계속 말씀해 보세요.","그렇군요. 그래서 어떻게 되었나요?","흥미롭네요. 더 들려주세요.","그 이야기를 하니 어떤 느낌이 드나요?"];
+let dc=0;
+function eliza(t){t=t.trim();for(const r of RULES){const m=t.match(r.re);if(m){const a=r.ans[Math.floor(Math.random()*r.ans.length)];return{text:a.replace("{0}",m[1]||"").replace("{1}",(m[1]||"").trim()),rule:r.name}}}
+  return{text:DEFAULT[dc++%DEFAULT.length],rule:"맞는 규칙 없음 → 기본 문장"}}
+function addMsg(who,text,rule){const d=document.createElement("div");d.className="msg "+who;d.textContent=text;if(rule){const s=document.createElement("span");s.className="rule";s.textContent="규칙: "+rule;d.appendChild(s)}$("echat").appendChild(d);$("echat").scrollTop=1e6}
+function say(t){if(!t.trim())return;addMsg("me",t);const r=eliza(t);setTimeout(()=>addMsg("bot",r.text,r.rule),250)}
+$("eform").onsubmit=e=>{e.preventDefault();say($("ein").value);$("ein").value=""};
+$("eex1").onclick=()=>say("요즘 너무 우울해");$("eex2").onclick=()=>say("엄마랑 싸웠어");$("eex3").onclick=()=>say("내일 날씨 알려 줘");
+$("eclr").onclick=()=>{$("echat").innerHTML="";addMsg("bot","안녕하세요. 무엇이 고민인가요?","시작 인사")};
+addMsg("bot","안녕하세요. 무엇이 고민인가요?","시작 인사");say("나는 요즘 너무 외로워");
+
+/* n-gram */
+const CORPUS=`영화관에서 팝콘을 먹으며 영화를 봤다
+영화관에서 친구를 만나 영화를 봤다
+친구와 함께 팝콘을 샀다
+친구와 함께 영화를 예매했다
+나는 영화를 좋아한다
+나는 팝콘을 좋아한다
+나는 친구와 영화관에 갔다
+인공지능은 데이터로 배운다
+인공지능은 다음 낱말을 예측한다
+인공지능은 그림을 그린다
+인공지능은 사람을 돕는다
+생성형 인공지능은 글을 쓴다
+생성형 인공지능은 그림을 그린다
+생성형 인공지능은 음악을 만든다
+기계는 데이터로 규칙을 배운다
+기계는 사람의 말을 흉내 낸다
+사람은 기계에게 질문을 한다
+사람은 영화를 보며 웃는다
+우리는 인공지능과 함께 공부한다
+우리는 영화관에서 팝콘을 먹었다
+그녀는 사만다와 대화를 했다
+그녀는 편지를 쓰며 웃었다
+사만다는 음악을 만들었다
+사만다는 편지를 고쳐 주었다
+로봇은 사람의 말을 배운다
+로봇은 영화관에서 길을 찾았다
+학생은 인공지능에게 질문을 한다
+학생은 데이터로 그림을 그린다
+데이터가 많으면 기계는 잘 배운다
+데이터가 적으면 기계는 실수를 한다
+다음 낱말을 예측하면 문장이 된다
+다음 장면을 예측하면 영화가 된다
+글을 쓰는 기계는 다음 낱말을 고른다
+그림을 그리는 기계는 잡음을 지운다
+우리는 기계와 함께 영화를 만든다
+친구는 인공지능에게 편지를 부탁했다
+선생님은 학생에게 질문을 한다
+선생님은 인공지능과 함께 수업을 한다
+영화는 사람의 꿈을 보여 준다
+인공지능은 사람의 꿈을 보여 준다`.split("\n").map(s=>s.trim()).filter(Boolean);
+$("ncorpus").textContent=CORPUS.join(" / ");
+const S="<s>",E="</s>";
+function counts(n){const m=new Map();CORPUS.forEach(line=>{const w=[...Array(n-1).fill(S),...line.split(" "),E];for(let i=n-1;i<w.length;i++){const k=w.slice(i-n+1,i).join(" ");if(!m.has(k))m.set(k,new Map());const mm=m.get(k);mm.set(w[i],(mm.get(w[i])||0)+1)}});return m}
+let N=2,M=counts(2),cur=[];
+function ctxKey(){const w=[...Array(N-1).fill(S),...cur];return w.slice(w.length-(N-1)).join(" ")}
+function dist(){const mm=M.get(N===1?"":ctxKey());if(!mm)return[];const tot=[...mm.values()].reduce((a,b)=>a+b,0);return[...mm.entries()].map(([w,c])=>({w,p:c/tot})).sort((a,b)=>b.p-a.p)}
+function pick(d){let r=Math.random(),c=0;for(const x of d){c+=x.p;if(r<=c)return x.w}return d[d.length-1].w}
+function drawN(){
+  $("ncur").textContent=cur.length?cur.join(" "):"(아직 비어 있음)";
+  const d=dist();const done=cur[cur.length-1]===E;
+  $("nctx").textContent=done?"문장이 끝났습니다":`'${N===1?"(앞을 보지 않음)":ctxKey().replaceAll(S,"⟨시작⟩")}' 다음 낱말 후보`;
+  $("nbars").innerHTML=done?"":d.slice(0,8).map(x=>`<div class="bar"><span>${x.w===E?"⟨끝⟩":esc(x.w)}</span><span class="track"><span class="fill" style="width:${(x.p*100).toFixed(0)}%"></span></span><span class="pct">${(x.p*100).toFixed(0)}%</span></div>`).join("");
+}
+function genOne(){const out=[];for(let g=0;g<25;g++){const w=[...Array(N-1).fill(S),...out];const k=N===1?"":w.slice(w.length-(N-1)).join(" ");const mm=M.get(k);if(!mm)break;const tot=[...mm.values()].reduce((a,b)=>a+b,0);const d=[...mm.entries()].map(([x,c])=>({w:x,p:c/tot}));const nx=pick(d);if(nx===E)break;out.push(nx)}return out.join(" ")}
+$("nn").onchange=()=>{N=+$("nn").value;$("nnv").textContent=N;M=counts(N);cur=[];drawN();$("nout").innerHTML=""};
+$("ngen").onclick=()=>{const html=[];let copies=0;for(let i=0;i<5;i++){const s=genOne();const c=CORPUS.includes(s);if(c)copies++;html.push(`<div class="${c?"copy":""}">${esc(s)||"(빈 문장)"}</div>`)}$("nout").innerHTML=html.join("");
+  $("nnote").textContent=N===1?"1-gram은 앞을 보지 않으니 낱말을 아무렇게나 늘어놓습니다. 자주 나온 낱말만 많이 나올 뿐입니다."
+   :N===2?`2-gram은 바로 앞 낱말만 보고 고릅니다. 앞부분은 그럴듯하지만 전체 뜻은 어긋나기 쉽습니다. 5문장 가운데 ${copies}개가 학습 문장과 똑같았습니다.`
+   :`3-gram은 더 자연스럽지만, 데이터가 적어 학습 문장을 그대로 베끼는 경우가 늘어납니다(5문장 중 ${copies}개). 보는 범위를 넓히려면 데이터가 훨씬 많아야 하는 것, 이것이 n-gram의 한계이자 신경망 언어 모델이 나온 이유입니다.`};
+$("nstep").onclick=()=>{if(cur[cur.length-1]===E)return;const d=dist();if(!d.length)return;cur.push(pick(d));drawN()};
+$("nreset").onclick=()=>{cur=[];drawN()};drawN();$("ngen").click();
+
+/* vectors */
+const V={"왕":[3.2,4.2],"여왕":[3.2,1.6],"남자":[0.6,4.0],"여자":[0.6,1.4],"왕자":[2.2,4.6],"공주":[2.2,2.0],"한국":[6.0,4.2],"서울":[8.2,4.6],"일본":[6.3,2.6],"도쿄":[8.5,3.0],"프랑스":[6.6,1.0],"파리":[8.8,1.4],"아빠":[1.0,4.8],"엄마":[1.0,2.2]};
+const words=Object.keys(V);["va","vb","vc"].forEach(id=>{words.forEach(w=>{const o=document.createElement("option");o.textContent=w;$(id).appendChild(o)})});
+$("va").value="왕";$("vb").value="남자";$("vc").value="여자";
+function drawV(){
+  const a=$("va").value,b=$("vb").value,c=$("vc").value;const r=[V[a][0]-V[b][0]+V[c][0],V[a][1]-V[b][1]+V[c][1]];
+  let best=null,bd=1e9;words.forEach(w=>{if([a,b,c].includes(w))return;const d=Math.hypot(V[w][0]-r[0],V[w][1]-r[1]);if(d<bd){bd=d;best=w}});
+  const W=640,H=400,x=v=>40+v*60,y=v=>H-30-v*68;
+  let s=`<defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${css("--accent")}"/></marker><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${css("--cool")}"/></marker></defs>`;
+  s+=`<line x1="${x(V[b][0])}" y1="${y(V[b][1])}" x2="${x(V[a][0])}" y2="${y(V[a][1])}" stroke="${css("--cool")}" stroke-width="2.5" marker-end="url(#m2)" opacity=".8"/>`;
+  s+=`<line x1="${x(V[c][0])}" y1="${y(V[c][1])}" x2="${x(r[0])}" y2="${y(r[1])}" stroke="${css("--accent")}" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#m1)"/>`;
+  words.forEach(w=>{const hi=[a,b,c].includes(w),isB=w===best;s+=`<circle cx="${x(V[w][0])}" cy="${y(V[w][1])}" r="${isB?8:5}" fill="${isB?css("--accent"):hi?css("--cool"):css("--muted")}"/><text x="${x(V[w][0])+10}" y="${y(V[w][1])+5}" font-size="14" font-weight="${hi||isB?700:400}" fill="${css("--ink")}">${w}</text>`});
+  s+=`<circle cx="${x(r[0])}" cy="${y(r[1])}" r="12" fill="none" stroke="${css("--accent")}" stroke-width="2"/>`;
+  $("vsvg").innerHTML=s;
+  $("vnote").textContent=`${a} − ${b} + ${c} 의 자리(주황 동그라미)에 가장 가까운 낱말은 '${best}'입니다. 파란 화살표(${b} → ${a})와 같은 방향·길이의 화살표를 ${c}에서 출발해 그린 것과 같습니다. 실제 word2vec은 수백 차원 공간에서 이런 관계를 데이터만으로 배웠습니다(2013).`;
+}
+$("vgo").onclick=drawV;["va","vb","vc"].forEach(id=>$(id).onchange=drawV);
+$("vp1").onclick=()=>{$("va").value="왕";$("vb").value="남자";$("vc").value="여자";drawV()};
+$("vp2").onclick=()=>{$("va").value="도쿄";$("vb").value="일본";$("vc").value="한국";drawV()};
+drawV();new MutationObserver(drawV).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* quiz */
+const EV=[[1913,"마르코프, 소설 속 글자 연쇄를 확률로 분석"],[1948,"섀넌, 낱말 연쇄 확률로 문장 만들기 실험"],[1966,"챗봇 엘리자 등장"],[1997,"LSTM 발표 (긴 문장을 기억하는 순환 신경망)"],[2013,"word2vec, 낱말을 벡터로"],[2014,"GAN, 위조범과 감별사의 대결"],[2017,"트랜스포머 발표"],[2020,"GPT-3, 1,750억 매개변수"],[2022,"ChatGPT 공개"],[2024,"추론 모델과 텍스트-영상 생성의 확산"]];
+let deck=[],picked=[];
+function shuffle(){deck=EV.map((e,i)=>({e,i,r:Math.random()})).sort((a,b)=>a.r-b.r);picked=[];drawQ();$("qscore").textContent="";$("qnote").textContent="처음 누른 카드가 가장 오래된 사건입니다."}
+function drawQ(){$("qcards").innerHTML="";deck.forEach(d=>{const b=document.createElement("button");b.textContent=d.e[1];if(picked.includes(d.i)){b.classList.add("picked");b.disabled=true}b.onclick=()=>{picked.push(d.i);drawQ()};$("qcards").appendChild(b)});
+  $("qorder").innerHTML=picked.map((i,k)=>`<div id="qo${k}"><span>${k+1}. ${esc(EV[i][1])}</span><span class="mono"></span></div>`).join("")}
+$("qcheck").onclick=()=>{if(picked.length<EV.length){$("qnote").textContent=`아직 ${EV.length-picked.length}장이 남았습니다.`;return}let ok=0;
+  picked.forEach((i,k)=>{const el=$("qo"+k);const right=i===k;if(right)ok++;el.classList.add(right?"ok":"ng");el.lastChild.textContent=EV[i][0]});
+  $("qscore").innerHTML=`<span>맞힌 자리 <b class="mono">${ok} / ${EV.length}</b></span>`;$("qnote").textContent="초록은 제자리, 빨강은 다른 자리입니다. 오른쪽 숫자가 실제 연도입니다."};
+$("qreset").onclick=shuffle;shuffle();
+})();
+</script>
+
+</body>
+</html>

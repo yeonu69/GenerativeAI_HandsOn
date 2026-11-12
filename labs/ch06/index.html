@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>6장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text]{font:inherit}
+.out{white-space:pre-wrap;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.switch{display:flex;gap:8px;flex-wrap:wrap}
+.switch button.on{border-color:var(--accent);background:var(--accent-soft)}
+.facts{display:flex;flex-direction:column;gap:8px}
+.fact{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.fact .q{font-size:14.5px}
+.fact .why{font-size:13.5px;color:var(--muted)}
+.fact.ok{background:var(--good-soft)} .fact.ng{background:var(--warn-soft)}
+.fact .btns button.on{border-color:var(--accent);background:var(--accent-soft)}
+.chunks{display:flex;flex-direction:column;gap:6px}
+.chunk{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.chunk.hit{border-color:var(--cool);background:var(--cool-soft)}
+.chunk .meta{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.big{font-size:26px;font-weight:700;font-family:var(--f-mono);color:var(--accent)}
+.ans{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+.ans div{padding:6px 10px;border-radius:8px;font-size:14px;background:var(--bg)}
+.ans div.ok{background:var(--good-soft)} .ans div.ng{background:var(--warn-soft)} .ans div.idk{background:var(--cool-soft)}
+</style>
+<div class="wrap">
+<header><h1>6장 실험실</h1><p class="sub">「환각과 노트북LM」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#hallu" data-v="hallu"><span class="no">6-A</span>환각은 언제 생길까</a>
+  <a href="#fact" data-v="fact"><span class="no">6-B</span>팩트체크 게임</a>
+  <a href="#rag" data-v="rag"><span class="no">6-C</span>RAG 따라가기</a>
+</nav>
+
+<section class="lab" id="v-hallu">
+  <div class="panel">
+    <h2>환각은 언제 생길까</h2>
+    <p class="hint">언어 모델에게 같은 종류의 질문을 20번 했다고 해 봅시다. 그 사실이 학습 데이터에 얼마나 자주 나왔는지, 모델이 '모르면 모른다'고 답하도록 훈련되었는지, 자료를 찾아보고 답하는지에 따라 결과가 달라집니다.</p>
+    <label>학습 데이터에 그 사실이 나온 정도 <output id="ofreq"></output></label>
+    <input type="range" id="hfreq" min="0" max="4" step="1" value="2">
+    <h3>모델의 태도</h3>
+    <div class="switch" id="hpol"><button data-p="guess" class="on">늘 답하려 함</button><button data-p="idk">모르면 모른다고 함</button></div>
+    <h3>자료 찾기(RAG)</h3>
+    <div class="switch" id="hrag"><button data-r="off" class="on">끔</button><button data-r="on">켬: 관련 문서를 찾아 넣음</button></div>
+    <div class="btns"><button class="pri" id="hrun">20번 물어보기</button></div>
+    <p class="note" id="hnote"></p>
+  </div>
+  <div class="panel">
+    <h3>질문: <span id="hq"></span></h3>
+    <div class="ans" id="hans"></div>
+    <div class="stat" id="hstat"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-fact" hidden>
+  <div class="panel">
+    <h2>팩트체크 게임</h2>
+    <p class="hint">AI가 생성형 AI의 역사에 대해 쓴 문장 10개입니다. 몇 개는 그럴듯하게 틀렸습니다. 각 문장이 맞는지 판단하고 '채점하기'를 누르세요. 3장 본문을 찾아봐도 좋습니다.</p>
+    <div class="btns"><button class="pri" id="fgrade">채점하기</button><button id="freset">다시 하기</button></div>
+    <div class="big" id="fscore"></div>
+    <p class="note">틀린 문장은 이름, 연도, 기관처럼 '바꿔치기 쉬운 세부 정보'에 숨어 있는 경우가 많습니다. 환각도 같은 곳에 잘 숨습니다.</p>
+  </div>
+  <div class="panel"><div class="facts" id="flist"></div></div>
+</section>
+
+<section class="lab" id="v-rag" hidden>
+  <div class="panel">
+    <h2>RAG 따라가기</h2>
+    <p class="hint">질문이 들어오면 ① 자료 조각들 중 질문과 비슷한 조각을 찾고 ② 찾은 조각을 프롬프트에 넣은 뒤 ③ 그 조각에 근거해 답합니다. 노트북LM이 출처 번호를 달아 답하는 원리입니다.</p>
+    <div class="btns"><button id="rq1">상영회는 언제 해?</button><button id="rq2">회비는 얼마야?</button><button id="rq3">동아리 방 비밀번호는?</button></div>
+    <input type="text" id="rin" value="상영회는 언제 해?">
+    <h3>방식</h3>
+    <div class="switch" id="rmode"><button data-m="rag" class="on">자료 찾아 답하기 (RAG)</button><button data-m="plain">자료 없이 답하기</button></div>
+  </div>
+  <div class="panel">
+    <h3>① 찾은 자료 조각 (점수 = 질문과 겹치는 낱말 수)</h3>
+    <div class="chunks" id="rchunks"></div>
+    <h3>③ 답</h3>
+    <div class="out" id="rout"></div>
+  </div>
+</section>
+<footer>확률과 답은 원리를 보여 주기 위한 모형입니다. 실제 모델의 수치가 아닙니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["hallu","fact","rag"];
+function show(){let v=(location.hash||"#hallu").slice(1);if(!views.includes(v))v="hallu";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v))}
+addEventListener("hashchange",show);show();
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+/* 6-A */
+const LV=[{n:"한 번도 없음",q:"우리 대학 영화 동아리의 첫 회장 이름은?",acc:0,conf:0.75},
+{n:"아주 드묾",q:"어느 지역 소극장의 개관 연도는?",acc:0.25,conf:0.7},
+{n:"가끔",q:"영화 〈그녀〉의 촬영 감독은?",acc:0.55,conf:0.7},
+{n:"자주",q:"영화 〈그녀〉의 감독은?",acc:0.9,conf:0.85},
+{n:"아주 자주",q:"영화 〈타이타닉〉의 감독은?",acc:0.99,conf:0.95}];
+const RIGHT=["(정답) 맞는 이름","(정답) 맞는 답"];
+const WRONG=["그럴듯하게 지어낸 이름","다른 사람과 헷갈린 이름","틀린 연도","있을 법한 가짜 출처를 붙인 답"];
+let pol="guess",rag="off";
+function hRun(){const L=LV[+$("hfreq").value];$("ofreq").textContent=L.n;$("hq").textContent=L.q;
+  let acc=L.acc;if(rag==="on")acc=Math.max(acc,0.92);
+  const out=[];let ok=0,ng=0,idk=0;
+  for(let i=0;i<20;i++){const r=Math.random();
+    if(r<acc){out.push(["ok",RIGHT[i%2]]);ok++}
+    else if(pol==="idk"&&Math.random()<0.8){out.push(["idk","잘 모르겠습니다. 확인할 수 있는 자료가 있으면 알려 주세요."]);idk++}
+    else{out.push(["ng",WRONG[Math.floor(Math.random()*WRONG.length)]+" (확신하는 말투)"]);ng++}}
+  $("hans").innerHTML=out.map((o,i)=>`<div class="${o[0]}">${i+1}. ${esc(o[1])}</div>`).join("");
+  $("hstat").innerHTML=`맞음 <b>${ok}</b> · 틀림(환각) <b>${ng}</b> · 모른다고 함 <b>${idk}</b>`;
+  $("hnote").textContent=rag==="on"?"관련 문서를 찾아 넣으면, 데이터에 드문 사실도 문서에 근거해 답할 수 있습니다. 단, 문서가 틀렸거나 엉뚱한 문서를 찾으면 그대로 틀립니다.":pol==="idk"?"'모른다'는 답이 늘면 환각은 줄지만, 사용자는 답을 얻지 못합니다. 정직함과 도움 사이의 균형 문제입니다.":+$("hfreq").value<=1?"데이터에 거의 없는 사실인데도 모델은 확신하는 말투로 답합니다. 말투의 자신감과 정확성은 별개입니다.":+$("hfreq").value===2?"가끔 나온 사실은 절반쯤 맞히고 절반쯤 지어냅니다. 맞는 답과 틀린 답의 말투가 똑같아서 겉으로는 구별할 수 없습니다.":"자주 나온 사실은 대체로 잘 맞힙니다. 그래도 가끔 틀리므로 중요한 사실은 확인합니다."}
+$("hfreq").addEventListener("input",hRun);
+document.querySelectorAll("#hpol button").forEach(b=>b.onclick=()=>{pol=b.dataset.p;document.querySelectorAll("#hpol button").forEach(x=>x.classList.toggle("on",x===b));hRun()});
+document.querySelectorAll("#hrag button").forEach(b=>b.onclick=()=>{rag=b.dataset.r;document.querySelectorAll("#hrag button").forEach(x=>x.classList.toggle("on",x===b));hRun()});
+$("hrun").onclick=hRun;hRun();
+
+/* 6-B */
+const F=[["트랜스포머를 처음 제안한 논문 「Attention Is All You Need」는 2017년 구글 연구진이 발표했다.",true,"맞습니다. 2017년 6월 구글 브레인·구글 리서치 연구진이 발표했습니다."],
+["챗봇 엘리자(ELIZA)는 1976년 스탠퍼드 대학교에서 만들어졌다.",false,"틀렸습니다. 1966년 MIT의 요제프 바이첸바움이 만들었습니다. 연도와 기관을 바꿔치기한 전형적인 오류입니다."],
+["GPT-3의 매개변수는 약 1,750억 개다.",true,"맞습니다. 2020년 오픈AI가 발표했습니다."],
+["ChatGPT는 2021년 11월에 처음 공개되었다.",false,"틀렸습니다. 2022년 11월 30일에 공개되었습니다."],
+["앨런 튜링은 1950년 논문에서 '모방 게임'을 제안했다.",true,"맞습니다. 「계산 기계와 지능」(1950)입니다."],
+["word2vec은 2013년 구글의 토마스 미콜로프 연구진이 발표했다.",true,"맞습니다."],
+["생성적 적대 신경망(GAN)은 2014년 얀 르쿤이 제안했다.",false,"틀렸습니다. 2014년 이언 굿펠로와 동료들이 제안했습니다. 유명한 다른 연구자의 이름으로 바꿔치기한 오류입니다."],
+["BPE(바이트 쌍 인코딩)는 원래 데이터 압축 방법으로 만들어졌다.",true,"맞습니다. 1994년 필립 게이지가 발표한 압축 기법입니다."],
+["'인공지능'이라는 말은 1956년 다트머스 회의를 계기로 널리 쓰이기 시작했다.",true,"맞습니다. 존 매카시 등이 제안한 여름 연구 모임입니다."],
+["2023년 미국의 한 변호사는 ChatGPT가 만든 판례를 그대로 제출했다가, 그 판례들이 실제로 있는 것으로 확인되어 승소했다.",false,"틀렸습니다. 판례들은 존재하지 않는 가짜였고, 변호사들은 법원에서 제재를 받았습니다."]];
+let pick={};
+function fRender(graded){$("flist").innerHTML=F.map((f,i)=>{const p=pick[i];const cls=graded&&p!==undefined?(p===f[1]?"ok":"ng"):"";
+  return `<div class="fact ${cls}"><div class="q">${i+1}. ${esc(f[0])}</div><div class="btns"><button data-i="${i}" data-v="1" class="${p===true?"on":""}">맞다</button><button data-i="${i}" data-v="0" class="${p===false?"on":""}">틀리다</button></div>${graded?`<div class="why">${esc(f[2])}</div>`:""}</div>`}).join("");
+  document.querySelectorAll("#flist button").forEach(b=>b.onclick=()=>{pick[+b.dataset.i]=b.dataset.v==="1";fRender(false)})}
+$("fgrade").onclick=()=>{let s=0;F.forEach((f,i)=>{if(pick[i]===f[1])s++});$("fscore").textContent=`${s} / ${F.length}`;fRender(true)};
+$("freset").onclick=()=>{pick={};$("fscore").textContent="";fRender(false)};fRender(false);
+
+/* 6-C */
+const DOCS=[["동아리 회칙 1조","상영회는 매주 금요일 저녁 7시 학생회관 소극장에서 연다. 시험 기간에는 쉰다."],
+["동아리 회칙 2조","회비는 한 학기 1만 원이며, 상영권과 간식 비용에 쓴다."],
+["신입생 안내문","신입 회원은 언제든 가입할 수 있다. 가입 신청은 회장에게 메시지로 한다."],
+["이번 학기 계획","이번 학기 주제는 'AI와 인간'이다. 첫 상영작은 〈그녀〉, 둘째는 〈블레이드 러너 2049〉다."],
+["토론 규칙","상영 뒤 30분 동안 토론한다. 스포일러는 상영 전에 말하지 않는다."]];
+const STOP=new Set(["은","는","이","가","을","를","에","의","야","해","언제","얼마","뭐","무엇","어디"]);
+function toks(s){return s.replace(/[?.,'〈〉!]/g," ").split(/\s+/).filter(Boolean).map(w=>w.replace(/(은|는|이|가|을|를|에|의|야|에서|으로|로)$/,"")).filter(w=>w&&!STOP.has(w))}
+let rmode="rag";
+function rRun(){const q=$("rin").value;const qt=toks(q);
+  const sc=DOCS.map((d,i)=>{const dt=toks(d[0]+" "+d[1]);let s=0;qt.forEach(w=>{if(dt.some(x=>x.includes(w)||w.includes(x)))s++});return [i,s]}).sort((a,b)=>b[1]-a[1]);
+  const top=sc.filter(x=>x[1]>0).slice(0,2).map(x=>x[0]);
+  $("rchunks").innerHTML=rmode==="plain"?'<div class="chunk">자료를 찾지 않습니다. 모델은 학습한 내용만으로 답합니다.</div>':sc.map(([i,s])=>`<div class="chunk ${top.includes(i)?"hit":""}"><span class="meta">[${i+1}] ${esc(DOCS[i][0])} · 점수 ${s}${top.includes(i)?" · 선택됨":""}</span><span>${esc(DOCS[i][1])}</span></div>`).join("");
+  let out;
+  if(rmode==="plain"){out=/비밀번호/.test(q)?"동아리 방 비밀번호는 보통 0000이나 1234로 정해져 있습니다. (⚠ 근거 없이 지어낸 답)":/언제/.test(q)?"대학 동아리 상영회는 보통 평일 저녁 6시쯤 열립니다. (⚠ 일반론으로 지어낸 답, 우리 동아리와 다를 수 있음)":/회비|얼마/.test(q)?"동아리 회비는 보통 한 학기 2~3만 원입니다. (⚠ 근거 없는 추측)":"일반적으로는 … (⚠ 근거 없는 추측)"}
+  else if(!top.length){out="찾은 자료에서 관련 내용을 찾지 못했습니다. 회장에게 직접 물어보세요. (자료에 없는 것은 답하지 않음)"}
+  else{const d=DOCS[top[0]];out=d[1]+` [${top[0]+1}]`+(top[1]!==undefined&&top[1]!==top[0]?`\n함께 찾은 자료: ${DOCS[top[1]][0]} [${top[1]+1}]`:"")+"\n\n대괄호 숫자는 근거가 된 자료 조각입니다. 눌러서 원문을 확인하는 것이 노트북LM의 '인용'입니다."}
+  if(rmode==="rag"&&/비밀번호/.test(q)&&top.length){out="찾은 자료에 비밀번호에 관한 내용이 없습니다. 비슷해 보이는 조각이 있었지만 질문에 답할 근거가 되지 않습니다."}
+  $("rout").textContent=out}
+$("rin").addEventListener("input",rRun);
+[["rq1","상영회는 언제 해?"],["rq2","회비는 얼마야?"],["rq3","동아리 방 비밀번호는?"]].forEach(([id,t])=>$(id).onclick=()=>{$("rin").value=t;rRun()});
+document.querySelectorAll("#rmode button").forEach(b=>b.onclick=()=>{rmode=b.dataset.m;document.querySelectorAll("#rmode button").forEach(x=>x.classList.toggle("on",x===b));rRun()});
+rRun();
+})();
+</script>
+
+</body>
+</html>

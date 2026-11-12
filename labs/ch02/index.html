@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>2장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:130px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.stat{display:flex;gap:16px;flex-wrap:wrap;font-size:14px} .stat b{font-family:var(--f-mono);font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+table{border-collapse:collapse;font-size:14px;width:100%} th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;font-variant-numeric:tabular-nums}
+th{color:var(--muted);font-weight:500} td.ok{background:var(--good-soft)} td.ng{background:var(--warn-soft)}
+.tablebox{overflow-x:auto}
+.grid{display:grid;gap:2px;touch-action:none;user-select:none}
+.grid div{aspect-ratio:1;border-radius:2px}
+.cnnrow{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.cnnrow figure{margin:0;display:flex;flex-direction:column;gap:6px;width:min(260px,100%)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+</style>
+<div class="wrap">
+<header><h1>2장 실험실</h1><p class="sub">「인공지능은 어떻게 배우는가」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#reg" data-v="reg"><span class="no">2-A · 2.1절</span>직선 맞추기</a>
+  <a href="#perc" data-v="perc"><span class="no">2-B · 2.3절</span>퍼셉트론</a>
+  <a href="#gd" data-v="gd"><span class="no">2-C · 2.3절</span>산 내려가기</a>
+  <a href="#fit" data-v="fit"><span class="no">2-D · 2.4절</span>과적합</a>
+  <a href="#cnn" data-v="cnn"><span class="no">2-E · 2.3절</span>CNN 필터</a>
+</nav>
+
+<!-- 2-A -->
+<section class="lab" id="v-reg">
+  <div class="panel">
+    <h2>아이스크림 판매량 직선 맞추기</h2>
+    <p class="hint">먼저 손으로 기울기와 기본값을 움직여 오차를 줄여 보세요. 그다음 경사하강법 버튼으로 컴퓨터가 어떻게 줄이는지 보세요.</p>
+    <label for="ra">기울기 <output id="rav">2.0</output></label><input id="ra" type="range" min="0" max="6" step="0.1" value="2">
+    <label for="rb">기본값 <output id="rbv">20</output></label><input id="rb" type="range" min="-60" max="60" step="1" value="20">
+    <label for="rlr">학습률 <output id="rlrv">0.02</output></label>
+    <select id="rlr"><option value="0.005">0.005 (조심스럽게)</option><option value="0.02" selected>0.02 (알맞게)</option><option value="0.075">0.075 (너무 크게)</option></select>
+    <div class="btns"><button class="pri" id="rstep">경사하강법 한 걸음</button><button id="r20">20걸음</button><button id="rreset">처음으로</button></div>
+  </div>
+  <div class="panel">
+    <div class="chart"><svg id="rsvg" viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="기온과 판매량 산점도와 예측 직선"></svg></div>
+    <div class="stat"><span>평균 제곱 오차 <b id="rmse">-</b></span><span>걸음 수 <b id="rn">0</b></span><span>31°C 예측 <b id="rpred">-</b></span></div>
+    <div class="chart"><svg id="rloss" viewBox="0 0 640 110" width="640" height="110" role="img" aria-label="걸음별 오차 변화"></svg></div>
+    <p class="note" id="rnote">빨간 세로선이 각 날의 오차입니다. 평균 제곱 오차는 오차를 제곱해 평균 낸 값으로, 학습이 줄이려는 '손실'입니다.</p>
+  </div>
+</section>
+
+<!-- 2-B -->
+<section class="lab" id="v-perc" hidden>
+  <div class="panel">
+    <h2>퍼셉트론 실험실</h2>
+    <p class="hint">'영화 보러 갈까' 뉴런입니다. 가중치와 편향을 바꾸면 여덟 가지 경우의 답이 어떻게 바뀌는지 보세요. 초록은 기록과 일치, 빨강은 불일치입니다.</p>
+    <label for="pw1">날씨 가중치 <output id="pw1v">0.2</output></label><input id="pw1" type="range" min="-1" max="1.5" step="0.1" value="0.2">
+    <label for="pw2">친구 가중치 <output id="pw2v">0.5</output></label><input id="pw2" type="range" min="-1" max="1.5" step="0.1" value="0.5">
+    <label for="pw3">영화 가중치 <output id="pw3v">0.6</output></label><input id="pw3" type="range" min="-1" max="1.5" step="0.1" value="0.6">
+    <label for="pb">편향 <output id="pbv">-0.6</output></label><input id="pb" type="range" min="-1.5" max="1" step="0.1" value="-0.6">
+    <div class="btns"><button class="pri" id="pstep">한 기록 학습</button><button id="pepoch">1회(에포크) 학습</button><button id="preset">처음으로</button></div>
+    <p class="hint">학습 규칙: 틀리면 가중치 += 0.2 × (정답 − 예측) × 입력, 편향 += 0.2 × (정답 − 예측)</p>
+  </div>
+  <div class="panel">
+    <div class="tablebox"><table id="ptable"></table></div>
+    <div class="stat"><span>기록과 맞은 수 <b id="pok">-</b></span><span>학습한 기록 <b id="pcnt">0</b></span><span>에포크 <b id="pep">0</b></span></div>
+    <p class="note" id="pnote">기록 1~6은 학습 데이터(정답이 있음), 7~8은 기록에 없는 경우입니다. 학습 데이터에 없던 경우를 어떻게 예측하는지도 보세요.</p>
+  </div>
+</section>
+
+<!-- 2-C -->
+<section class="lab" id="v-gd" hidden>
+  <div class="panel">
+    <h2>안개 낀 산 내려가기</h2>
+    <p class="hint">공은 지금 자리의 경사만 보고 아래쪽으로 한 걸음씩 움직입니다. 출발점과 걸음 크기(학습률)를 바꿔 보세요. 이 산에는 얕은 골짜기와 깊은 골짜기가 하나씩 있습니다.</p>
+    <label for="gs">출발점 <output id="gsv">-2.6</output></label><input id="gs" type="range" min="-3" max="3" step="0.1" value="-2.6">
+    <label for="glr">학습률 <output id="glrv">0.05</output></label><input id="glr" type="range" min="0.01" max="0.4" step="0.01" value="0.05">
+    <div class="btns"><button class="pri" id="grun">굴려 보기</button></div>
+  </div>
+  <div class="panel">
+    <div class="chart"><svg id="gsvg" viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="손실 곡선 위 경사하강 경로"></svg></div>
+    <div class="stat"><span>도착한 위치 <b id="gend">-</b></span><span>손실 <b id="gloss">-</b></span><span>걸음 <b id="gsteps">-</b></span></div>
+    <p class="note" id="gnote"></p>
+  </div>
+</section>
+
+<!-- 2-D -->
+<section class="lab" id="v-fit" hidden>
+  <div class="panel">
+    <h2>과적합 실험실</h2>
+    <p class="hint">검은 점(학습 데이터)으로 곡선을 맞추고, 흰 점(테스트 데이터)으로 실력을 잽니다. 곡선의 복잡도(다항식 차수)를 높여 보세요.</p>
+    <label for="fd">모델 복잡도(차수) <output id="fdv">3</output></label><input id="fd" type="range" min="1" max="12" step="1" value="3">
+    <label for="fn">학습 데이터 개수 <output id="fnv">12</output></label><input id="fn" type="range" min="8" max="40" step="2" value="12">
+    <div class="btns"><button id="fnew">데이터 새로 뽑기</button></div>
+  </div>
+  <div class="panel">
+    <div class="chart"><svg id="fsvg" viewBox="0 0 640 260" width="640" height="260" role="img" aria-label="데이터와 맞춘 곡선"></svg></div>
+    <div class="stat"><span>학습 오차 <b id="ftr">-</b></span><span>테스트 오차 <b id="fte">-</b></span></div>
+    <h3>복잡도에 따른 오차 (주황: 학습, 파랑: 테스트)</h3>
+    <div class="chart"><svg id="fcurve" viewBox="0 0 640 150" width="640" height="150" role="img" aria-label="차수별 학습 오차와 테스트 오차"></svg></div>
+    <p class="note" id="fnote"></p>
+  </div>
+</section>
+
+<!-- 2-E -->
+<section class="lab" id="v-cnn" hidden>
+  <div class="panel">
+    <h2>CNN 필터 실험실</h2>
+    <p class="hint">왼쪽 칸을 눌러(끌어서) 그림을 그리고, 필터를 골라 보세요. 필터가 찾는 무늬가 있는 곳만 결과 지도에서 밝게 빛납니다.</p>
+    <label for="cf">필터</label>
+    <select id="cf"><option value="v">세로선 찾기</option><option value="h">가로선 찾기</option><option value="d">대각선 찾기</option><option value="b">흐리게 하기</option></select>
+    <div class="btns"><button id="c7">숫자 7</button><button id="cbox">네모</button><button id="cx">X자</button><button id="cclr">지우기</button></div>
+    <p class="hint mono" id="ckernel"></p>
+  </div>
+  <div class="panel">
+    <div class="cnnrow">
+      <figure><h3>입력 그림 (10 × 10)</h3><div class="grid" id="cin" style="grid-template-columns:repeat(10,1fr)"></div></figure>
+      <figure><h3>결과 지도 (8 × 8)</h3><div class="grid" id="cout" style="grid-template-columns:repeat(8,1fr)"></div></figure>
+    </div>
+    <p class="note">3 × 3 필터를 그림 위에서 한 칸씩 옮기며 겹친 칸끼리 곱해서 더합니다(합성곱). 결과가 음수면 0으로 바꿉니다(ReLU 활성화). 실제 CNN은 이런 필터 수십~수백 개를 학습으로 스스로 만듭니다.</p>
+  </div>
+</section>
+<footer>데이터와 수치는 원리를 보여 주기 위한 예시입니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["reg","perc","gd","fit","cnn"];
+function show(){let v=(location.hash||"#reg").slice(1);if(!views.includes(v))v="reg";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v))}
+addEventListener("hashchange",show);show();
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const redrawAll=()=>{drawReg();drawPerc();drawGd(false);drawFit();drawCnn()};
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",redrawAll);
+
+/* 2-A regression */
+const T=[22,25,28,30,33],Y=[61,74,85,92,104];
+let ra=2,rb=20,rsteps=0,rhist=[];
+const mse=(a,b)=>T.reduce((s,t,i)=>s+(Y[i]-(a*t+b))**2,0)/T.length;
+function drawReg(){
+  $("ra").value=ra;$("rb").value=rb;$("rav").textContent=ra.toFixed(2);$("rbv").textContent=rb.toFixed(1);
+  const W=640,H=300,L=46,R=14,Tp=12,B=34,x=v=>L+(v-20)*(W-L-R)/15,y=v=>Tp+(120-v)*(H-Tp-B)/80;
+  let s="";
+  for(let v=40;v<=120;v+=20)s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${css("--line")}"/><text x="${L-6}" y="${y(v)+4}" font-size="11" text-anchor="end" fill="${css("--muted")}">${v}</text>`;
+  for(let v=20;v<=35;v+=5)s+=`<text x="${x(v)}" y="${H-12}" font-size="11" text-anchor="middle" fill="${css("--muted")}">${v}°C</text>`;
+  T.forEach((t,i)=>{const p=ra*t+rb;s+=`<line x1="${x(t)}" x2="${x(t)}" y1="${y(Y[i])}" y2="${y(Math.max(40,Math.min(120,p)))}" stroke="${css("--warn")}" stroke-width="2" opacity="0.7"/>`});
+  const clipY=v=>y(Math.max(40,Math.min(120,v)));
+  s+=`<line x1="${x(20)}" y1="${clipY(ra*20+rb)}" x2="${x(35)}" y2="${clipY(ra*35+rb)}" stroke="${css("--accent")}" stroke-width="3"/>`;
+  T.forEach((t,i)=>s+=`<circle cx="${x(t)}" cy="${y(Y[i])}" r="6" fill="${css("--ink")}"/>`);
+  $("rsvg").innerHTML=s;
+  const m=mse(ra,rb);$("rmse").textContent=m.toFixed(1);$("rn").textContent=rsteps;$("rpred").textContent=(ra*31+rb).toFixed(0)+"개";
+  // loss history
+  const hs=rhist.length?rhist:[m];const mx=Math.max(...hs,1);let p=hs.map((v,i)=>`${10+i*(620/Math.max(20,hs.length-1))},${100-90*Math.log10(1+v)/Math.log10(1+mx)}`).join(" ");
+  $("rloss").innerHTML=`<line x1="10" x2="630" y1="100" y2="100" stroke="${css("--line")}"/><polyline points="${p}" fill="none" stroke="${css("--cool")}" stroke-width="2.5"/><text x="12" y="14" font-size="11" fill="${css("--muted")}">걸음별 오차(로그 눈금)</text>`;
+}
+function gdStep(){
+  // centered parametrization for stability: y = a*(t-28) + c
+  const lr=+$("rlr").value; let c=ra*28+rb, ga=0,gc=0;
+  T.forEach((t,i)=>{const e=Y[i]-(ra*(t-28)+c);ga+=-2*e*(t-28)/T.length;gc+=-2*e/T.length});
+  ra=ra-lr*ga; c=c-lr*10*gc; rb=c-28*ra; rsteps++; rhist.push(mse(ra,rb));
+  if(!isFinite(ra)||Math.abs(ra)>1e4){ra=2;rb=20}
+}
+$("ra").oninput=e=>{ra=+e.target.value;drawReg()};$("rb").oninput=e=>{rb=+e.target.value;drawReg()};
+$("rlr").onchange=()=>{$("rlrv").textContent=$("rlr").value};
+$("rstep").onclick=()=>{if(!rhist.length)rhist.push(mse(ra,rb));gdStep();drawReg();noteReg()};
+$("r20").onclick=()=>{if(!rhist.length)rhist.push(mse(ra,rb));for(let i=0;i<20;i++)gdStep();drawReg();noteReg()};
+$("rreset").onclick=()=>{ra=2;rb=20;rsteps=0;rhist=[];drawReg();$("rnote").textContent="처음 상태입니다. 빨간 세로선이 각 날의 오차입니다."};
+function noteReg(){const m=mse(ra,rb),n=rhist.length;const up=n>2&&rhist[n-1]>rhist[n-2];
+  $("rnote").textContent=up?"오차가 오히려 커지고 있습니다. 학습률이 너무 커서 골짜기를 건너뛰고 있어요. 학습률을 줄여 보세요."
+  :m<2?"오차가 거의 0입니다. 컴퓨터가 찾은 직선은 교재의 '4 × 기온 − 27'과 비슷한가요?":"한 걸음마다 오차가 줄어드는 쪽으로 기울기와 기본값이 조금씩 바뀝니다. 걸음을 더 옮겨 보세요."}
+drawReg();
+
+/* 2-B perceptron */
+const CASES=[[1,0,1,1],[1,1,0,1],[0,1,0,1],[0,0,1,0],[1,0,0,0],[0,0,0,0],[1,1,1,null],[0,1,1,null]];
+let pw=[0.2,0.5,0.6],pbias=-0.6,pidx=0,pcnt=0,pep=0,plast=-1;
+const r1=v=>Math.round(v*10)/10;
+function drawPerc(){
+  ["pw1","pw2","pw3"].forEach((id,i)=>{$(id).value=pw[i];$(id+"v").textContent=pw[i].toFixed(1)});$("pb").value=pbias;$("pbv").textContent=pbias.toFixed(1);
+  let ok=0,h=`<tr><th>기록</th><th>날씨</th><th>친구</th><th>영화</th><th>합</th><th>예측</th><th>정답</th></tr>`;
+  CASES.forEach((c,i)=>{const s=r1(c[0]*pw[0]+c[1]*pw[1]+c[2]*pw[2]+pbias),p=s>0?1:0;const lab=c[3];if(lab!==null&&lab===p)ok++;
+    const cls=lab===null?"":(lab===p?"ok":"ng");
+    h+=`<tr${i===plast?' style="outline:2px solid var(--accent)"':''}><td>${i+1}${lab===null?" (새)":""}</td><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td>${s.toFixed(1)}</td><td class="${cls}">${p?"간다":"집"}</td><td>${lab===null?"?":(lab?"간다":"집")}</td></tr>`});
+  $("ptable").innerHTML=h;$("pok").textContent=ok+" / 6";$("pcnt").textContent=pcnt;$("pep").textContent=pep;
+}
+function pLearn(){const c=CASES[pidx];const s=r1(c[0]*pw[0]+c[1]*pw[1]+c[2]*pw[2]+pbias),p=s>0?1:0,e=c[3]-p;
+  if(e!==0){pw=pw.map((w,k)=>r1(w+0.2*e*c[k]));pbias=r1(pbias+0.2*e)}
+  plast=pidx;pcnt++;pidx=(pidx+1)%6;if(pidx===0)pep++;
+  $("pnote").textContent=e===0?`기록 ${plast+1}: 합 ${s.toFixed(1)}, 예측이 맞아 가중치를 그대로 둡니다.`:`기록 ${plast+1}: 합 ${s.toFixed(1)}, 예측이 틀려 켜져 있던 입력의 가중치와 편향을 ${e>0?"키웠":"줄였"}습니다.`}
+["pw1","pw2","pw3"].forEach((id,i)=>$(id).oninput=e=>{pw[i]=+e.target.value;plast=-1;drawPerc()});
+$("pb").oninput=e=>{pbias=+e.target.value;plast=-1;drawPerc()};
+$("pstep").onclick=()=>{pLearn();drawPerc()};
+$("pepoch").onclick=()=>{const start=pidx;do{pLearn()}while(pidx!==start);drawPerc()};
+$("preset").onclick=()=>{pw=[0.2,0.5,0.6];pbias=-0.6;pidx=0;pcnt=0;pep=0;plast=-1;drawPerc();$("pnote").textContent="처음 가중치로 돌아왔습니다."};
+drawPerc();
+
+/* 2-C gradient descent */
+const Lf=w=>0.25*(w*w-4)**2/4+0.45*w+2.2, dLf=w=>0.25*(w*w-4)*w+0.45;
+function drawGd(run){
+  const W=640,H=300,Lm=30,R=14,Tp=14,B=30,x=v=>Lm+(v+3.2)*(W-Lm-R)/6.4,y=v=>Tp+(7-v)*(H-Tp-B)/7;
+  let s="",p=[];for(let v=-3.2;v<=3.2;v+=0.05)p.push(`${x(v)},${y(Lf(v))}`);
+  s+=`<polyline points="${p.join(" ")}" fill="none" stroke="${css("--ink")}" stroke-width="2.5"/>`;
+  s+=`<text x="${x(-1.9)}" y="${y(Lf(-2.06))+20}" text-anchor="middle" font-size="12" fill="${css("--good")}">깊은 골짜기</text><text x="${x(2)}" y="${y(Lf(1.94))+20}" text-anchor="middle" font-size="12" fill="${css("--warn")}">얕은 골짜기</text>`;
+  let w=+$("gs").value,lr=+$("glr").value,path=[w],steps=0;
+  if(run!==false){for(let i=0;i<60;i++){w=w-lr*dLf(w);if(!isFinite(w)||Math.abs(w)>6)break;path.push(w);steps++;if(Math.abs(lr*dLf(w))<1e-4)break}}
+  const pts=path.filter(v=>Math.abs(v)<=3.2);
+  if(pts.length>1)s+=`<polyline points="${pts.map(v=>`${x(v)},${y(Lf(v))}`).join(" ")}" fill="none" stroke="${css("--accent")}" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+  pts.forEach((v,i)=>s+=`<circle cx="${x(v)}" cy="${y(Lf(v))}" r="${i===pts.length-1?7:3.5}" fill="${i===0?css("--cool"):css("--accent")}"/>`);
+  $("gsvg").innerHTML=s;
+  const end=path[path.length-1];$("gend").textContent=isFinite(end)&&Math.abs(end)<=6?end.toFixed(2):"밖으로!";$("gloss").textContent=isFinite(end)&&Math.abs(end)<=6?Lf(end).toFixed(2):"-";$("gsteps").textContent=run===false?"-":steps;
+  if(run!==false){const last=path.slice(-6);const osc=last.length>4&&Math.max(...last)-Math.min(...last)>0.5;
+    $("gnote").textContent=!isFinite(end)||Math.abs(end)>6?"걸음이 너무 커서 산 밖으로 튕겨 나갔습니다. 학습률을 줄여 보세요."
+    :osc?"골짜기 양쪽을 오가며 출렁이고 있습니다. 학습률이 큰 편입니다."
+    :end>0.5?"얕은 골짜기에 갇혔습니다. 발밑만 보고 움직이니 더 깊은 골짜기가 있는지 알 수 없습니다(지역 최솟값). 출발점이나 학습률을 바꿔 보세요."
+    :"깊은 골짜기(가장 낮은 곳)에 도착했습니다. 이것이 학습이 찾는 '손실이 가장 작은 가중치'입니다."}
+  else $("gnote").textContent="파란 점이 출발점입니다. '굴려 보기'를 누르세요.";
+}
+$("gs").oninput=()=>{$("gsv").textContent=(+$("gs").value).toFixed(1);drawGd(false)};$("glr").oninput=()=>{$("glrv").textContent=(+$("glr").value).toFixed(2)};
+$("grun").onclick=()=>drawGd(true);drawGd(false);
+
+/* 2-D overfitting */
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const gauss=()=>{let u=rnd()||1e-9,v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const truth=x=>Math.sin(2*Math.PI*x);
+let trX=[],trY=[],teX=[],teY=[];
+function sample(){const n=+$("fn").value;trX=[];trY=[];teX=[];teY=[];
+  for(let i=0;i<n;i++){const x=rnd();trX.push(x);trY.push(truth(x)+0.25*gauss())}
+  for(let i=0;i<40;i++){const x=rnd();teX.push(x);teY.push(truth(x)+0.25*gauss())}}
+function fitPoly(X,Yv,d){const m=d+1,A=Array.from({length:m},()=>Array(m+1).fill(0));
+  X.forEach((x,i)=>{const z=2*x-1,pw=[1];for(let k=1;k<m;k++)pw.push(pw[k-1]*z);for(let r=0;r<m;r++){for(let c=0;c<m;c++)A[r][c]+=pw[r]*pw[c];A[r][m]+=pw[r]*Yv[i]}});
+  for(let r=0;r<m;r++)A[r][r]+=1e-9;
+  for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];const v=A[c][c]||1e-12;for(let k=c;k<=m;k++)A[c][k]/=v;for(let r=0;r<m;r++)if(r!==c){const f=A[r][c];for(let k=c;k<=m;k++)A[r][k]-=f*A[c][k]}}
+  const co=A.map(r=>r[m]);return x=>{const z=2*x-1;let s=0,p=1;for(const c of co){s+=c*p;p*=z}return s}}
+const err=(f,X,Yv)=>X.reduce((s,x,i)=>s+(f(x)-Yv[i])**2,0)/X.length;
+function drawFit(){
+  const d=+$("fd").value;$("fdv").textContent=d;$("fnv").textContent=$("fn").value;
+  const f=fitPoly(trX,trY,Math.min(d,trX.length-1));
+  const W=640,H=260,L=10,R=10,Tp=10,B=10,x=v=>L+v*(W-L-R),y=v=>Tp+(2-Math.max(-2,Math.min(2,v)))*(H-Tp-B)/4;
+  let s=`<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="${css("--line")}"/>`;
+  let pt=[],tp=[];for(let v=0;v<=1.0001;v+=0.004){pt.push(`${x(v)},${y(f(v))}`);tp.push(`${x(v)},${y(truth(v))}`)}
+  s+=`<polyline points="${tp.join(" ")}" fill="none" stroke="${css("--muted")}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  s+=`<polyline points="${pt.join(" ")}" fill="none" stroke="${css("--accent")}" stroke-width="2.6"/>`;
+  teX.forEach((v,i)=>s+=`<circle cx="${x(v)}" cy="${y(teY[i])}" r="4.5" fill="${css("--panel")}" stroke="${css("--cool")}" stroke-width="1.6"/>`);
+  trX.forEach((v,i)=>s+=`<circle cx="${x(v)}" cy="${y(trY[i])}" r="5" fill="${css("--ink")}"/>`);
+  $("fsvg").innerHTML=s;
+  const etr=err(f,trX,trY),ete=err(f,teX,teY);$("ftr").textContent=etr.toFixed(3);$("fte").textContent=ete.toFixed(3);
+  // curve over degrees
+  const ds=[...Array(12).keys()].map(k=>k+1),tr=[],te=[];ds.forEach(k=>{const g=fitPoly(trX,trY,Math.min(k,trX.length-1));tr.push(err(g,trX,trY));te.push(Math.min(err(g,teX,teY),3))});
+  const mx=Math.max(...te,...tr,0.2),cx=k=>30+(k-1)*(590/11),cy=v=>130-110*Math.min(v,mx)/mx;
+  let c=`<line x1="30" x2="620" y1="130" y2="130" stroke="${css("--line")}"/>`;
+  ds.forEach(k=>c+=`<text x="${cx(k)}" y="146" font-size="10.5" text-anchor="middle" fill="${css("--muted")}">${k}</text>`);
+  c+=`<polyline points="${ds.map((k,i)=>`${cx(k)},${cy(tr[i])}`).join(" ")}" fill="none" stroke="${css("--accent")}" stroke-width="2.4"/>`;
+  c+=`<polyline points="${ds.map((k,i)=>`${cx(k)},${cy(te[i])}`).join(" ")}" fill="none" stroke="${css("--cool")}" stroke-width="2.4"/>`;
+  c+=`<circle cx="${cx(d)}" cy="${cy(te[d-1])}" r="6" fill="${css("--cool")}"/>`;
+  $("fcurve").innerHTML=c;
+  $("fnote").textContent=d<=2?"너무 단순해서 학습 데이터조차 잘 못 맞힙니다(과소적합). 차수를 올려 보세요."
+   :ete>etr*3&&d>=7?"학습 오차는 아주 작은데 테스트 오차가 커졌습니다. 학습 점을 외워 버린 과적합입니다. 학습 데이터 개수를 늘리면 어떻게 되나요?"
+   :"학습 오차와 테스트 오차가 함께 작습니다. 점선(진짜 규칙)과 비슷한 곡선을 찾았어요.";
+}
+$("fd").oninput=drawFit;$("fn").oninput=()=>{sample();drawFit()};$("fnew").onclick=()=>{sample();drawFit()};
+sample();drawFit();
+
+/* 2-E CNN */
+const K={v:[[-1,0,1],[-1,0,1],[-1,0,1]],h:[[-1,-1,-1],[0,0,0],[1,1,1]],d:[[1,0,-1],[0,1,0],[-1,0,1]].map(r=>r.map(v=>v)),b:[[1,1,1],[1,1,1],[1,1,1]].map(r=>r.map(v=>v/9))};
+K.d=[[2,-1,-1],[-1,2,-1],[-1,-1,2]];
+let img=Array.from({length:10},()=>Array(10).fill(0));
+function preset(name){img=img.map(r=>r.map(()=>0));
+  if(name==="7"){for(let c=2;c<8;c++)img[1][c]=1;for(let r=2;r<9;r++)img[r][Math.round(7-(r-1)*0.6)]=1}
+  if(name==="box"){for(let i=2;i<8;i++){img[2][i]=img[7][i]=img[i][2]=img[i][7]=1}}
+  if(name==="x"){for(let i=1;i<9;i++){img[i][i]=1;img[i][9-i]=1}}
+  drawCnn()}
+const cin=$("cin"),cout=$("cout");let painting=false,paintVal=1;
+for(let r=0;r<10;r++)for(let c=0;c<10;c++){const d=document.createElement("div");d.dataset.r=r;d.dataset.c=c;cin.appendChild(d)}
+for(let i=0;i<64;i++)cout.appendChild(document.createElement("div"));
+cin.addEventListener("pointerdown",e=>{const t=e.target.closest("[data-r]");if(!t)return;painting=true;paintVal=img[t.dataset.r][t.dataset.c]?0:1;img[t.dataset.r][t.dataset.c]=paintVal;drawCnn();cin.setPointerCapture?.(e.pointerId)});
+cin.addEventListener("pointermove",e=>{if(!painting)return;const el=document.elementFromPoint(e.clientX,e.clientY);const t=el&&el.closest?.("#cin [data-r]");if(t&&img[t.dataset.r][t.dataset.c]!==paintVal){img[t.dataset.r][t.dataset.c]=paintVal;drawCnn()}});
+addEventListener("pointerup",()=>painting=false);
+function drawCnn(){
+  const k=K[$("cf").value];
+  [...cin.children].forEach(d=>{const v=img[d.dataset.r][d.dataset.c];d.style.background=v?css("--ink"):css("--bg");d.style.border="1px solid "+css("--line")});
+  const out=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){let s=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++)s+=img[r+i][c+j]*k[i][j];out.push(Math.max(0,s))}
+  const mx=Math.max(...out,0.0001);
+  [...cout.children].forEach((d,i)=>{const a=out[i]/mx;d.style.background=a>0?`color-mix(in srgb, ${css("--accent")} ${Math.round(a*100)}%, ${css("--bg")})`:css("--bg");d.style.border="1px solid "+css("--line");d.title=out[i].toFixed(2)});
+  $("ckernel").textContent="필터 숫자: "+k.map(r=>"["+r.map(v=>(Math.round(v*100)/100)).join(", ")+"]").join(" ");
+}
+$("cf").onchange=drawCnn;$("c7").onclick=()=>preset("7");$("cbox").onclick=()=>preset("box");$("cx").onclick=()=>preset("x");$("cclr").onclick=()=>preset("none");
+preset("box");
+})();
+</script>
+
+</body>
+</html>

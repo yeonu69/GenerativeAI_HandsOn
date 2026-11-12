@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>1장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --warn:#b3332f;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--warn:#f08a85;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--warn:#f08a85;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:150px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.stat{display:flex;gap:16px;flex-wrap:wrap;font-size:14px} .stat b{font-family:var(--f-mono);font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}
+.chart{width:100%;overflow-x:auto} svg{display:block}
+.tl{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.tl button{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:110px;text-align:left}
+.tl button .y{font-family:var(--f-mono);font-size:12px;color:var(--muted)} .tl button.w{border-color:var(--cool)} .tl button.on{background:var(--accent);border-color:var(--accent);color:#fff} .tl button.on .y{color:#fff}
+.detail{display:flex;flex-direction:column;gap:8px} .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--ink);width:max-content}
+.tag.w{background:var(--cool-soft)}
+.race{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.race figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.race canvas{width:220px;height:220px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+</style>
+<div class="wrap">
+<header><h1>1장 실험실</h1><p class="sub">「4차 산업혁명과 인공지능」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#video" data-v="video"><span class="no">들어가며</span>오프닝 영상</a>
+  <a href="#loop" data-v="loop"><span class="no">1-A · 1.2절</span>데이터 순환 고리</a>
+  <a href="#timeline" data-v="timeline"><span class="no">1-B · 1.3절</span>AI 역사 탐험</a>
+  <a href="#gpu" data-v="gpu"><span class="no">1-C · 1.3절</span>CPU와 GPU 경주</a>
+</nav>
+
+<section id="v-video" class="panel" style="max-width:880px">
+  <h2>오프닝 영상: 컨베이어 벨트에서 기숙사 방까지, 그리고 지금</h2>
+  <video controls playsinline preload="metadata" poster="media/poster.jpg" style="width:100%;max-width:100%;border-radius:10px;background:#000" src="media/opening.mp4">이 브라우저는 영상을 재생할 수 없습니다.</video>
+  <p class="hint">약 10초 · Gemini로 생성한 영상입니다. 세 장면은 1장 '들어가며'의 장면 하나(공장), 장면 둘(기숙사 방), 그리고 지금(생성형 AI)과 이어집니다.</p>
+  <p class="note">보고 나서 생각해 보기: 세 장면에서 '무엇이 힘을 내는가'는 각각 무엇인가요? 이 영상 자체도 생성형 AI가 만든 것이라는 점을 떠올려 보세요. 오른쪽 아래의 반짝이 표시는 AI로 만든 영상임을 알리는 표식입니다(13장 워터마크).</p>
+</section>
+
+<section class="lab" id="v-loop" hidden>
+  <div class="panel">
+    <h2>데이터 순환 고리 실험</h2>
+    <p class="hint">두 회사가 같은 지도 앱 시장에서 경쟁합니다. 사용자가 많을수록 데이터가 쌓이고, 데이터가 쌓일수록 AI가 정확해지고, 정확한 앱으로 사용자가 몰립니다.</p>
+    <label for="la">A사 처음 사용자 <output id="lav">55</output></label><input id="la" type="range" min="10" max="90" value="55">
+    <label for="lk">데이터가 성능을 올리는 정도 <output id="lkv">보통</output></label><input id="lk" type="range" min="1" max="5" value="3">
+    <label for="lq">B사의 기술력 보너스 <output id="lqv">0</output></label><input id="lq" type="range" min="0" max="10" value="0">
+    <p class="hint">B사 처음 사용자 = 100 − A사. 기술력 보너스는 같은 데이터로 더 정확해지는 능력입니다.</p>
+    <div class="btns"><button class="pri" id="lrun">10년 돌려 보기</button></div>
+  </div>
+  <div class="panel">
+    <h3>시장 점유율 변화 (%)</h3>
+    <div class="chart"><svg id="lsvg" width="640" height="260" role="img" aria-label="연도별 두 회사 점유율"></svg></div>
+    <div class="stat"><span>10년 뒤 A사 <b id="lA">-</b></span><span>B사 <b id="lB">-</b></span><span>AI 정확도 A/B <b id="lacc">-</b></span></div>
+    <p class="note" id="lnote"></p>
+  </div>
+</section>
+
+<section class="lab" id="v-timeline" hidden>
+  <div class="panel">
+    <h2>AI 역사 탐험</h2>
+    <p class="hint">연도를 눌러 사건을 살펴보세요. 파란 테두리는 'AI의 겨울'과 관련된 사건입니다.</p>
+    <div class="detail" id="tdetail"></div>
+    <div class="btns"><button id="tprev">이전</button><button class="pri" id="tnext">다음</button></div>
+  </div>
+  <div class="panel">
+    <h3>연표</h3>
+    <div class="tl" id="tl"></div>
+    <div class="chart"><svg id="tsvg" width="640" height="200" role="img" aria-label="AI 관심의 흐름 개념도"></svg></div>
+    <p class="hint">곡선은 측정값이 아니라 시기별 기대와 투자의 흐름을 보여 주는 개념도입니다.</p>
+  </div>
+</section>
+
+<section class="lab" id="v-gpu" hidden>
+  <div class="panel">
+    <h2>CPU와 GPU 경주</h2>
+    <p class="hint">48 × 48 = 2,304개의 픽셀을 칠하는 경주입니다. CPU 코어는 빠르지만 수가 적고, GPU 코어는 느리지만 수가 많습니다.</p>
+    <label for="gc">CPU 코어 수 <output id="gcv">4</output></label><input id="gc" type="range" min="1" max="16" value="4">
+    <label for="gg">GPU 코어 수 <output id="ggv">256</output></label><input id="gg" type="range" min="16" max="1024" step="16" value="256">
+    <p class="hint">한 번에 CPU 코어 하나는 픽셀 4개, GPU 코어 하나는 픽셀 1개를 칠한다고 가정합니다.</p>
+    <div class="btns"><button class="pri" id="grun">경주 시작</button></div>
+  </div>
+  <div class="panel">
+    <div class="race">
+      <figure><canvas id="gcpu" width="48" height="48" aria-label="CPU가 칠하는 그림"></canvas><figcaption>CPU · <b id="gct">0</b> 단계</figcaption></figure>
+      <figure><canvas id="ggpu" width="48" height="48" aria-label="GPU가 칠하는 그림"></canvas><figcaption>GPU · <b id="ggt">0</b> 단계</figcaption></figure>
+    </div>
+    <p class="note" id="gnote">시작을 누르면 두 칩이 같은 그림을 칠합니다. 신경망의 계산도 이처럼 서로 독립적인 곱셈·덧셈이 엄청나게 많아서 GPU가 유리합니다.</p>
+  </div>
+</section>
+<footer>모든 수치는 원리를 보여 주기 위한 단순화한 모형입니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["video","loop","timeline","gpu"];
+function show(){let v=(location.hash||"#video").slice(1);if(!views.includes(v))v="video";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v))}
+addEventListener("hashchange",show);show();
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* 1-A loop */
+function simLoop(){
+  const a0=+$("la").value,k=+$("lk").value,q=+$("lq").value;
+  let uA=a0,uB=100-a0,dA=0,dB=0,res=[];
+  const scale=[0,900,600,400,260,170][k];
+  for(let y=0;y<=10;y++){
+    dA+=uA; dB+=uB;
+    const accA=0.95-0.45*Math.exp(-dA/scale), accB=Math.min(0.97,0.95-0.45*Math.exp(-dB/scale)+q*0.006);
+    res.push({y,uA,uB,accA,accB});
+    const p=6, sA=Math.pow(accA,p*8), sB=Math.pow(accB,p*8), target=100*sA/(sA+sB);
+    uA=uA+0.45*(target-uA); uB=100-uA;
+  }
+  return res;
+}
+function drawLoop(){
+  $("lav").textContent=$("la").value; $("lkv").textContent=["","아주 약함","약함","보통","강함","아주 강함"][+$("lk").value]; $("lqv").textContent=$("lq").value;
+  const r=simLoop(), W=640,H=260,L=40,R=16,T=12,B=30, x=i=>L+i*(W-L-R)/10, y=v=>T+(100-v)*(H-T-B)/100;
+  let s="";
+  [0,25,50,75,100].forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${css("--line")}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="${css("--muted")}">${v}</text>`});
+  for(let i=0;i<=10;i+=2)s+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="${css("--muted")}">${i}년</text>`;
+  const pa=r.map((d,i)=>`${x(i)},${y(d.uA)}`).join(" "), pb=r.map((d,i)=>`${x(i)},${y(d.uB)}`).join(" ");
+  s+=`<polyline points="${pa}" fill="none" stroke="${css("--accent")}" stroke-width="3"/><polyline points="${pb}" fill="none" stroke="${css("--cool")}" stroke-width="3"/>`;
+  const e=r[10]; s+=`<text x="${x(10)-4}" y="${e.uA>88?y(e.uA)+18:y(e.uA)-8}" text-anchor="end" font-size="12" font-weight="700" fill="${css("--accent")}">A사</text><text x="${x(10)-4}" y="${e.uB>88?y(e.uB)+18:y(e.uB)-8}" text-anchor="end" font-size="12" font-weight="700" fill="${css("--cool")}">B사</text>`;
+  $("lsvg").innerHTML=s;
+  $("lA").textContent=e.uA.toFixed(0)+"%"; $("lB").textContent=e.uB.toFixed(0)+"%"; $("lacc").textContent=(e.accA*100).toFixed(1)+" / "+(e.accB*100).toFixed(1);
+  const a0=+$("la").value;
+  $("lnote").textContent = Math.abs(e.uA-e.uB)>60 ? "작은 차이로 시작했는데 한쪽이 시장을 거의 차지했습니다. 데이터가 성능을, 성능이 사용자를, 사용자가 다시 데이터를 늘리는 고리가 한 방향으로 돌았기 때문입니다."
+    : "두 회사가 비슷하게 버티고 있습니다. 처음 사용자 차이를 키우거나 '데이터가 성능을 올리는 정도'를 높여 고리가 얼마나 빨리 한쪽으로 기우는지 보세요. B사의 기술력 보너스로 뒤집을 수 있을까요?";
+}
+["la","lk","lq"].forEach(id=>$(id).addEventListener("input",drawLoop)); $("lrun").onclick=drawLoop; drawLoop();
+new MutationObserver(()=>{drawLoop();drawTl()}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* 1-B timeline */
+const EV=[
+ [1950,"튜링의 질문","앨런 튜링이 논문 「계산 기계와 지능」에서 '기계는 생각할 수 있는가?'를 묻고, 흉내 게임(튜링 테스트)을 제안했습니다.",0],
+ [1956,"다트머스 회의","존 매카시, 마빈 민스키, 클로드 섀넌 등이 '인공지능'이라는 이름으로 연구를 시작했습니다.",0],
+ [1958,"퍼셉트론","프랭크 로젠블랫이 신경세포를 흉내 낸 학습 기계 퍼셉트론을 발표했습니다. 2장에서 직접 계산해 봅니다.",0],
+ [1966,"엘리자","요제프 바이첸바움의 챗봇 엘리자가 문장 틀로 상담사를 흉내 냈습니다. 3장의 출발점입니다.",0],
+ [1969,"퍼셉트론의 한계","민스키와 페퍼트가 단층 퍼셉트론으로는 간단한 문제도 풀 수 없음을 보였습니다.",1],
+ [1973,"첫 번째 겨울","기대만큼 성과가 나오지 않자 영국과 미국의 연구 지원이 크게 줄었습니다.",1],
+ [1980,"전문가 시스템","전문가의 지식을 규칙으로 담은 시스템이 기업에서 쓰이며 다시 관심이 높아졌습니다.",0],
+ [1986,"역전파","러멜하트, 힌턴, 윌리엄스가 여러 층의 신경망을 학습시키는 역전파를 널리 알렸습니다.",0],
+ [1988,"두 번째 겨울","규칙을 만들고 고치는 비용과 예외 상황에 약한 한계로 다시 관심이 식었습니다.",1],
+ [1997,"딥블루","IBM 딥블루가 체스 챔피언 카스파로프를 이겼습니다. 학습보다 계산의 힘이었습니다.",0],
+ [2012,"알렉스넷","GPU로 학습한 딥러닝 모델이 이미지넷 대회에서 큰 차이로 우승하며 딥러닝 시대가 열렸습니다.",0],
+ [2016,"알파고","알파고가 이세돌 9단을 4승 1패로 이겼습니다. 한국 사회에 '4차 산업혁명'이라는 말이 퍼졌습니다.",0],
+ [2017,"트랜스포머","구글 연구진이 트랜스포머를 발표했습니다. 오늘날 거대 언어 모델의 뼈대입니다(4장).",0],
+ [2022,"ChatGPT","대화형 생성형 AI가 공개되어 두 달 만에 사용자 1억 명을 넘었다는 추정이 나왔습니다.",0],
+ [2024,"멀티모달·추론","글·그림·소리를 함께 다루는 모델, 답하기 전에 오래 생각하는 추론 모델이 나왔습니다.",0]
+];
+let ti=0;
+const tl=$("tl");
+EV.forEach((e,i)=>{const b=document.createElement("button");b.innerHTML=`<span class="y">${e[0]}</span>${e[1]}`;if(e[3])b.classList.add("w");b.onclick=()=>{ti=i;drawTl()};tl.appendChild(b)});
+function drawTl(){
+  const e=EV[ti];
+  $("tdetail").innerHTML=`<span class="tag ${e[3]?"w":""}">${e[3]?"겨울":"봄·여름"} · ${e[0]}년</span><h2>${e[1]}</h2><p>${e[2]}</p>`;
+  [...tl.children].forEach((b,i)=>b.classList.toggle("on",i===ti));
+  tl.children[ti].scrollIntoView({block:"nearest",inline:"center"});
+  const yrs=[1950,1956,1965,1972,1976,1982,1987,1993,1997,2006,2012,2016,2020,2023,2026], lv=[1,2.2,3.4,1.6,1,2.6,3.2,1.2,1.6,2.2,4,6,7,9,9.6];
+  const W=640,H=200,L=10,R=10,T=10,B=24,x=v=>L+(v-1948)*(W-L-R)/80,y=v=>H-B-(v/10)*(H-T-B);
+  const interp=v=>{for(let i=0;i<yrs.length-1;i++)if(v<=yrs[i+1]){const t=(v-yrs[i])/(yrs[i+1]-yrs[i]);return lv[i]+t*(lv[i+1]-lv[i])}return lv[lv.length-1]};
+  let s="";[[1973,1980],[1988,1995]].forEach(([a,b])=>s+=`<rect x="${x(a)}" y="${T}" width="${x(b)-x(a)}" height="${H-T-B}" fill="${css("--cool")}" opacity="0.12"/>`);
+  let p=[];for(let v=1950;v<=2026;v++)p.push(`${x(v)},${y(interp(v))}`);
+  s+=`<polyline points="${p.join(" ")}" fill="none" stroke="${css("--accent")}" stroke-width="2.5"/>`;
+  [1960,1980,2000,2020].forEach(v=>s+=`<text x="${x(v)}" y="${H-6}" text-anchor="middle" font-size="11" fill="${css("--muted")}">${v}</text>`);
+  s+=`<circle cx="${x(e[0])}" cy="${y(interp(e[0]))}" r="7" fill="${css("--accent")}" stroke="${css("--panel")}" stroke-width="2"/>`;
+  $("tsvg").innerHTML=s;
+}
+$("tprev").onclick=()=>{ti=(ti+EV.length-1)%EV.length;drawTl()}; $("tnext").onclick=()=>{ti=(ti+1)%EV.length;drawTl()}; drawTl();
+
+/* 1-C gpu race */
+const N=48,TOT=N*N;
+function paint(ctx,done){
+  const id=ctx.createImageData(N,N);
+  for(let i=0;i<TOT;i++){
+    const x=i%N,y=(i/N)|0, on=i<done;
+    const r=on?Math.round(40+180*(x/N)):220, g=on?Math.round(90+120*(y/N)):224, b=on?Math.round(200-120*(x/N)):230;
+    id.data[i*4]=r;id.data[i*4+1]=g;id.data[i*4+2]=b;id.data[i*4+3]=on?255:60;
+  }
+  ctx.putImageData(id,0,0);
+}
+const cc=$("gcpu").getContext("2d"), gc=$("ggpu").getContext("2d"); paint(cc,0);paint(gc,0);
+let timer=null;
+function race(){
+  clearInterval(timer);
+  const cpuRate=(+$("gc").value)*4, gpuRate=+$("gg").value;
+  let t=0,dc=0,dg=0,ct=null,gt=null;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tick=()=>{t++; if(dc<TOT){dc=Math.min(TOT,dc+cpuRate); if(dc>=TOT)ct=t} if(dg<TOT){dg=Math.min(TOT,dg+gpuRate); if(dg>=TOT)gt=t}
+    paint(cc,dc);paint(gc,dg); $("gct").textContent=ct??t; $("ggt").textContent=gt??t;
+    if(dc>=TOT&&dg>=TOT){clearInterval(timer); $("gnote").textContent=`CPU는 ${ct}단계, GPU는 ${gt}단계 만에 끝났습니다. GPU가 약 ${(ct/gt).toFixed(1)}배 빨랐습니다. 코어 하나는 CPU가 4배 빠르지만, GPU는 코어 수로 이깁니다. 반대로 순서대로 해야만 하는 복잡한 일에서는 CPU가 유리합니다.`}};
+  if(reduce){while(dc<TOT||dg<TOT)tick();return}
+  timer=setInterval(tick,60);
+}
+["gc","gg"].forEach(id=>$(id).addEventListener("input",()=>{$("gcv").textContent=$("gc").value;$("ggv").textContent=$("gg").value}));
+$("grun").onclick=race;
+})();
+</script>
+
+</body>
+</html>
