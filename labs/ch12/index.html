@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>12장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,input[type=text],textarea{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+canvas{max-width:100%;height:auto;display:block;border-radius:8px;background:var(--bg)}
+.out{white-space:pre-wrap;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+.cue{display:grid;grid-template-columns:60px 1fr 150px 150px;gap:6px;align-items:center;margin:4px 0}
+@media (max-width:640px){.cue{grid-template-columns:50px 1fr}.cue select{grid-column:2}}
+</style>
+<div class="wrap">
+<header><h1>12장 실험실</h1><p class="sub">「음성과 음악 생성」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#wave" data-v="wave"><span class="no">12-A</span>소리는 숫자다</a>
+  <a href="#spec" data-v="spec"><span class="no">12-B</span>소리의 그림, 스펙트로그램</a>
+  <a href="#prosody" data-v="prosody"><span class="no">12-C</span>말의 높낮이와 빠르기</a>
+  <a href="#cue" data-v="cue"><span class="no">12-D</span>예고편 소리 설계표</a>
+</nav>
+
+<section class="lab" id="v-wave">
+  <div class="panel">
+    <h2>소리는 숫자다</h2>
+    <p class="hint">소리는 공기의 떨림이고, 컴퓨터는 이 떨림을 1초에 수만 번 재서 숫자로 적습니다. 높이(주파수)와 재는 횟수(표본 추출률)를 바꿔 보세요. '듣기'를 누르면 소리가 납니다(소리 크기에 주의하세요).</p>
+    <label>음높이 (Hz) <output id="ofr"></output></label><input type="range" id="fr" min="110" max="880" value="440">
+    <label>1초에 재는 횟수 (표본 추출률) <output id="osr"></output></label><input type="range" id="sr" min="0" max="4" value="4">
+    <div class="btns"><button class="pri" id="wplay">듣기 (1초)</button></div>
+    <p class="note" id="wnote"></p>
+  </div>
+  <div class="panel"><canvas id="wcv" width="800" height="320" aria-label="소리 파형"></canvas></div>
+</section>
+
+<section class="lab" id="v-spec" hidden>
+  <div class="panel">
+    <h2>소리의 그림, 스펙트로그램</h2>
+    <p class="hint">음성 AI는 소리를 파형 대신 '시간 × 높이' 그림으로 바꿔 다루는 일이 많습니다. 아래 소리를 골라 그림이 어떻게 다른지 보세요. 가로는 시간, 세로는 높이, 밝기는 세기입니다.</p>
+    <div class="chips" id="ssel"><button data-k="melody" class="on">멜로디 (도레미파솔)</button><button data-k="chord">화음</button><button data-k="vowel">모음 '아-이-우'</button><button data-k="noise">빗소리 같은 잡음</button><button data-k="chirp">점점 높아지는 소리</button></div>
+    <div class="btns"><button class="pri" id="splay">듣기</button></div>
+    <p class="note" id="snote"></p>
+  </div>
+  <div class="panel"><canvas id="scv" width="800" height="360" aria-label="스펙트로그램"></canvas></div>
+</section>
+
+<section class="lab" id="v-prosody" hidden>
+  <div class="panel">
+    <h2>말의 높낮이와 빠르기</h2>
+    <p class="hint">같은 문장도 빠르기와 높낮이, 쉼에 따라 전혀 다르게 들립니다. 이것을 운율이라고 합니다. 브라우저에 들어 있는 음성 합성기로 들어 봅니다(기기마다 목소리가 다릅니다).</p>
+    <label>문장</label><textarea id="ptext" rows="3">필름이 끊기기 전에, 너를 다시 보고 싶었다.</textarea>
+    <div class="chips" id="ppre"><button data-p="1,1">보통</button><button data-p="0.7,0.8">낮고 느리게 (진지함)</button><button data-p="1.3,1.3">높고 빠르게 (들뜸)</button><button data-p="0.85,1">조금 느리게 (예고편)</button></div>
+    <label>빠르기 <output id="orate"></output></label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="1">
+    <label>높낮이 <output id="opitch"></output></label><input type="range" id="pitch" min="0.5" max="1.6" step="0.05" value="1">
+    <div class="btns"><button class="pri" id="pplay">말하기</button><button id="pstop">멈춤</button></div>
+    <p class="note" id="pnote"></p>
+  </div>
+  <div class="panel"><h3>예고편 내레이션을 쓸 때</h3><div class="out" id="ptips">· 문장은 짧게, 한 숨에 읽을 길이로
+· 쉼표 자리에서 숨을 쉰다: 쉼표가 곧 연출
+· 첫 문장은 질문이나 상황 ("그해 겨울, 마지막 극장이 문을 닫았다.")
+· 마지막 문장은 제목으로 이어지게
+· 실제 인물의 목소리를 흉내 내지 않는다</div></div>
+</section>
+
+<section class="lab" id="v-cue" hidden>
+  <div class="panel" style="grid-column:1/-1">
+    <h2>예고편 소리 설계표</h2>
+    <p class="hint">11장의 샷 리스트 옆에 소리를 붙입니다. 내레이션, 음악, 효과음을 시간 순서로 적으면 음성·음악 생성 도구에 줄 프롬프트가 만들어집니다.</p>
+    <label>음악 전체의 분위기</label><input type="text" id="cmood" value="잔잔한 피아노로 시작해 현악기가 더해지며 점점 고조되는, 따뜻하고 쓸쓸한 영화 음악. 가사 없음.">
+    <div id="clist"></div>
+    <div class="btns"><button id="cadd">줄 추가</button></div>
+    <h3>도구에 줄 프롬프트</h3><div class="out" id="cout"></div>
+    <div class="btns"><button class="pri" id="ccopy">복사하기</button><span class="hint" id="cmsg"></span></div>
+  </div>
+</section>
+<footer>12-C는 브라우저의 기본 음성 합성 기능을 씁니다. 소리가 나지 않으면 다른 브라우저에서 열어 보세요.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["wave","spec","prosody","cue"];
+function show(){let v=(location.hash||"#wave").slice(1);if(!views.includes(v))v="wave";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({wave:wRun,spec:sRun,prosody:pRun,cue:cRun})[v]()}
+addEventListener("hashchange",show);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let ac=null;function actx(){if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();return ac}
+function playBuf(arr,rate){try{const a=actx();const b=a.createBuffer(1,arr.length,rate);b.getChannelData(0).set(arr);const s=a.createBufferSource();s.buffer=b;const g=a.createGain();g.gain.value=.25;s.connect(g).connect(a.destination);s.start()}catch(e){}}
+/* 12-A */
+const SR=[2000,4000,8000,16000,44100];
+function wRun(){const f=+$("fr").value,sr=SR[+$("sr").value];$("ofr").textContent=f+" Hz";$("osr").textContent=sr.toLocaleString()+"번/초";
+  const c=$("wcv").getContext("2d");c.fillStyle=css("--bg");c.fillRect(0,0,800,320);const dur=0.006;
+  c.strokeStyle=css("--line");c.beginPath();c.moveTo(0,160);c.lineTo(800,160);c.stroke();
+  c.strokeStyle=css("--cool");c.lineWidth=2;c.beginPath();for(let x=0;x<=800;x++){const t=x/800*dur;const y=160-Math.sin(2*Math.PI*f*t)*120;x?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();
+  const n=Math.floor(dur*sr);c.fillStyle=css("--accent");c.strokeStyle=css("--accent");c.lineWidth=1.5;
+  for(let i=0;i<=n;i++){const t=i/sr,x=t/dur*800,y=160-Math.sin(2*Math.PI*f*t)*120;c.beginPath();c.moveTo(x,160);c.lineTo(x,y);c.stroke();if(n<120){c.beginPath();c.arc(x,y,4,0,6.3);c.fill()}}
+  c.fillStyle=css("--muted");c.font="14px system-ui";c.fillText(`0.006초 동안: 떨림 ${ (f*dur).toFixed(1)}번, 잰 점 ${n}개`,12,24);
+  const ok=sr>2*f;$("wnote").textContent=ok?`1초에 ${sr.toLocaleString()}번 잽니다. 음악 CD는 44,100번, 16비트로 잽니다. 1분짜리 노래면 약 260만 개의 숫자(한 채널)입니다.`:`재는 횟수가 소리 높이의 두 배(${2*f}번)보다 적습니다. 이러면 원래 소리를 되살릴 수 없고 엉뚱한 낮은 소리로 들립니다(에일리어싱).`}
+["fr","sr"].forEach(id=>$(id).addEventListener("input",wRun));
+$("wplay").onclick=()=>{const f=+$("fr").value,sr=SR[+$("sr").value],rate=Math.max(sr,8000);const N=rate;const a=new Float32Array(N);
+  for(let i=0;i<N;i++){const t=Math.floor(i/(rate/sr))/sr;a[i]=Math.sin(2*Math.PI*f*t)*Math.min(1,i/400,(N-i)/400)}playBuf(a,rate)};
+/* 12-B */
+const R=16000;let sk="melody",sbuf=null;
+function synth(k){const N=R*2,a=new Float32Array(N);const notes=[262,294,330,349,392];
+  for(let i=0;i<N;i++){const t=i/R;let v=0;
+    if(k==="melody"){const j=Math.min(4,Math.floor(t/0.4));const f=notes[j];const lt=t-j*.4;v=Math.sin(2*Math.PI*f*t)*.6+Math.sin(4*Math.PI*f*t)*.25;v*=Math.min(1,lt*30)*Math.exp(-lt*2)}
+    else if(k==="chord"){v=[262,330,392].reduce((s,f)=>s+Math.sin(2*Math.PI*f*t)+.3*Math.sin(4*Math.PI*f*t),0)/3;v*=Math.min(1,t*10,(2-t)*10)}
+    else if(k==="vowel"){const seg=Math.min(2,Math.floor(t/0.67));const F=[[800,1200],[300,2300],[320,800]][seg];const f0=130;let s=0;for(let h=1;h<30;h++){const fh=f0*h;const amp=Math.exp(-(((fh-F[0])/150)**2))+.7*Math.exp(-(((fh-F[1])/200)**2))+.05;s+=amp*Math.sin(2*Math.PI*fh*t)}v=s*.25*Math.min(1,t*10,(2-t)*10)}
+    else if(k==="noise"){v=(Math.random()*2-1)*(.3+.2*Math.sin(t*7))*(Math.random()<.002?3:1)*.5}
+    else{const f=200+t*900;v=Math.sin(2*Math.PI*(200*t+450*t*t))*Math.min(1,t*10,(2-t)*10)*.7}
+    a[i]=v}return a}
+function stft(a){const W=512,H=256,cols=Math.floor((a.length-W)/H),bins=W/2;const out=[];
+  for(let c=0;c<cols;c++){const col=new Float32Array(bins);for(let k=0;k<bins;k+=2){let re=0,im=0;for(let n=0;n<W;n+=2){const w=.5-.5*Math.cos(2*Math.PI*n/W);const x=a[c*H+n]*w;const ang=2*Math.PI*k*n/W;re+=x*Math.cos(ang);im-=x*Math.sin(ang)}col[k]=col[k+1]=Math.log10(1e-4+Math.hypot(re,im))}out.push(col)}return out}
+function sRun(){sbuf=synth(sk);const S=stft(sbuf);const c=$("scv").getContext("2d");c.fillStyle="#000";c.fillRect(0,0,800,360);const cw=800/S.length,bins=S[0].length,maxb=Math.floor(bins*0.5);
+  for(let x=0;x<S.length;x++)for(let b=0;b<maxb;b++){const v=Math.max(0,Math.min(1,(S[x][b]+2.5)/3.5));c.fillStyle=`hsl(${40-v*40},${80}%,${v*60}%)`;c.fillRect(x*cw,360-(b+1)*360/maxb,cw+1,360/maxb+1)}
+  c.fillStyle="#fff";c.font="13px system-ui";c.fillText("높이 ↑ (0~4000Hz)",8,18);c.fillText("시간 → (2초)",700,350);
+  $("snote").textContent={melody:"음이 바뀔 때마다 밝은 줄이 계단처럼 올라갑니다. 위에 흐린 줄은 배음입니다.",chord:"세 음이 동시에 울려 가로줄 세 개(와 배음)가 나란히 갑니다.",vowel:"같은 목소리 높이(가는 줄들)인데 밝은 띠(포먼트)의 위치가 바뀌면서 '아-이-우'가 됩니다. 음성 합성은 이 띠를 만들어 내는 일입니다.",noise:"모든 높이에 고르게 흩어진 얼룩입니다. 박수, 빗소리, 숨소리 같은 소리입니다.",chirp:"한 줄이 비스듬히 올라갑니다. 높이가 계속 바뀌는 소리입니다."}[sk]}
+document.querySelectorAll("#ssel button").forEach(b=>b.onclick=()=>{sk=b.dataset.k;document.querySelectorAll("#ssel button").forEach(x=>x.classList.toggle("on",x===b));sRun()});
+$("splay").onclick=()=>{if(sbuf)playBuf(sbuf,R)};
+/* 12-C */
+function pRun(){$("orate").textContent=(+$("rate").value).toFixed(2)+"배";$("opitch").textContent=(+$("pitch").value).toFixed(2)+"배";
+  $("pnote").textContent=("speechSynthesis" in window)?"같은 문장을 프리셋마다 들어 보고 느낌을 비교하세요. AI 음성 도구에서는 '낮고 차분하게, 쉼표에서 잠시 멈추며'처럼 말로 지시합니다.":"이 브라우저는 음성 합성을 지원하지 않습니다. 다른 브라우저에서 열어 보세요."}
+["rate","pitch"].forEach(id=>$(id).addEventListener("input",pRun));
+document.querySelectorAll("#ppre button").forEach(b=>b.onclick=()=>{const[r,p]=b.dataset.p.split(",");$("rate").value=r;$("pitch").value=p;document.querySelectorAll("#ppre button").forEach(x=>x.classList.toggle("on",x===b));pRun();$("pplay").click()});
+$("pplay").onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($("ptext").value);u.lang="ko-KR";u.rate=+$("rate").value;u.pitch=+$("pitch").value;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ko"));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}};
+$("pstop").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}};
+/* 12-D */
+let cues=[["0:00","(내레이션 없음) 빗소리만","음악 없음","빗소리, 멀리 천둥"],["0:05","그해 겨울, 동네의 마지막 극장이 문을 닫기로 했다.","피아노 시작","젖은 발걸음"],["0:15","아무도 오지 않는 극장에, 작은 손님이 찾아왔다.","현악기 더해짐","영사기 돌아가는 소리"],["0:30","(대사 없음)","고조","필름 끊기는 소리"],["0:45","필름이 끊기기 전에, 너를 다시 보고 싶었다.","가장 크게, 그리고 멈춤","정적"],["0:55","마지막 상영.","여운 한 음","없음"]];
+const MU=["음악 없음","피아노 시작","현악기 더해짐","고조","가장 크게, 그리고 멈춤","여운 한 음","북소리처럼 긴장","밝게 바뀜"];
+function cRun(){const l=$("clist");l.innerHTML='<div class="cue hint"><span>시간</span><span>내레이션·대사</span><span>음악</span><span>효과음</span></div>';
+  cues.forEach(r=>{const d=document.createElement("div");d.className="cue";d.innerHTML=`<input type="text" value="${r[0]}"><input type="text" value="${r[1].replace(/"/g,"&quot;")}"><select>${MU.map(m=>`<option${m===r[2]?" selected":""}>${m}</option>`).join("")}</select><input type="text" value="${r[3]}">`;
+    const ins=d.querySelectorAll("input,select");ins[0].oninput=e=>{r[0]=e.target.value;cOut()};ins[1].oninput=e=>{r[1]=e.target.value;cOut()};ins[2].onchange=e=>{r[2]=e.target.value;cOut()};ins[3].oninput=e=>{r[3]=e.target.value;cOut()};l.appendChild(d)});cOut()}
+function cOut(){const nar=cues.filter(r=>!/^\(/.test(r[1])).map(r=>`[${r[0]}] ${r[1]}`).join("\n");
+  $("cout").textContent=`■ 내레이션 (음성 생성 도구에)\n낮고 차분한 목소리로, 쉼표에서 잠시 멈추며 천천히 읽어 줘. 영화 예고편 내레이션처럼.\n${nar}\n\n■ 음악 (음악 생성 도구에)\n약 1분 길이. ${$("cmood").value}\n흐름: ${cues.map(r=>`${r[0]} ${r[2]}`).join(" → ")}\n특정 가수나 작곡가를 흉내 내지 말 것.\n\n■ 효과음 목록\n${cues.map(r=>`${r[0]} ${r[3]}`).join("\n")}`}
+$("cmood").addEventListener("input",cOut);$("cadd").onclick=()=>{cues.push(["1:00","새 줄","음악 없음",""]);cRun()};
+$("ccopy").onclick=()=>{const t=$("cout").textContent;navigator.clipboard.writeText(t).then(()=>$("cmsg").textContent="복사했습니다.").catch(()=>{const r=document.createRange();r.selectNodeContents($("cout"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("cmsg").textContent="선택해 두었습니다. Ctrl+C(⌘+C)로 복사하세요."})};
+show();
+})();
+</script>
+
+</body>
+</html>
