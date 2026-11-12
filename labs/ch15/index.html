@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>15장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.checks label{display:flex;gap:8px;align-items:flex-start;text-align:left;justify-content:flex-start;font-size:14px;padding:7px 9px;border-radius:8px;background:var(--bg);margin:5px 0;font-weight:400}
+.checks input{width:auto;margin-top:3px}
+.meter{height:18px;border-radius:9px;background:var(--bg);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+.tl{display:flex;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.tl div{display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+.acts{display:flex;flex-direction:column;gap:8px}
+.act{border-left:5px solid var(--accent);background:var(--bg);border-radius:8px;padding:8px 12px;font-size:14px}
+.act b{display:block}
+.act .sec{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:start;background:var(--bg);border-radius:10px;padding:8px 10px}
+.step input{margin-top:4px}
+.step .tools{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.step .tools button{font-size:12.5px;padding:3px 9px}
+.step .tools button.on{border-color:var(--accent);background:var(--accent-soft)}
+.out{white-space:pre-wrap;font-size:14px;background:var(--bg);border-radius:10px;padding:12px;line-height:1.65;border:1px dashed var(--line)}
+.kpi{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.kpi b{display:block;font-size:22px;font-family:var(--f-mono)}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.clock{font-family:var(--f-mono);font-size:56px;text-align:center;font-weight:500;letter-spacing:.02em}
+.clock.warn{color:var(--warn)}
+.phase{font-size:14px;text-align:center;color:var(--muted)}
+</style>
+<div class="wrap">
+<header><h1>15장 실험실</h1><p class="sub">「기말 프로젝트: AI 영화 예고편」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#plan" data-v="plan"><span class="no">15-A</span>예고편 기획판</a>
+  <a href="#pipe" data-v="pipe"><span class="no">15-B</span>제작 파이프라인</a>
+  <a href="#credit" data-v="credit"><span class="no">15-C</span>크레딧과 AI 사용 표시</a>
+  <a href="#rubric" data-v="rubric"><span class="no">15-D</span>자기 점검과 발표 타이머</a>
+</nav>
+
+<section class="lab" id="v-plan">
+  <div class="panel">
+    <h2>예고편 기획판</h2>
+    <p class="hint">제목과 로그라인, 장르와 길이를 정하면 예고편의 세 막 구조와 막마다 들어갈 초 수, 샷 수를 제안합니다. 11장의 샷 리스트를 쓰기 전에 뼈대를 잡는 단계입니다.</p>
+    <label for="ptitle">가제</label><input type="text" id="ptitle" value="마지막 상영관">
+    <label for="plog">로그라인 (한 문장 줄거리)</label><textarea id="plog" rows="3">문을 닫는 동네 영화관의 마지막 밤, 영사기사는 필름 속 인물들이 스크린 밖으로 걸어 나오는 것을 본다.</textarea>
+    <label>장르</label><div class="chips" id="pgenre"></div>
+    <label>길이 <output id="olen"></output></label><input type="range" id="plen" min="30" max="90" step="15" value="60">
+  </div>
+  <div class="panel">
+    <h3 id="phead"></h3>
+    <div class="tl" id="ptl"></div>
+    <div class="acts" id="pacts"></div>
+    <div class="note" id="pnote"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-pipe" hidden>
+  <div class="panel">
+    <h2>제작 파이프라인</h2>
+    <p class="hint">예고편은 여러 도구를 잇는 작업입니다. 단계마다 쓸 도구를 고르고, 끝낸 단계에 표시하세요. 남은 기간과 단계 수로 하루 작업량을 계산합니다.</p>
+    <label>마감까지 남은 날 <output id="odays"></output></label><input type="range" id="days" min="3" max="21" value="14">
+    <div class="grid2"><div class="kpi"><b id="kdone">0/7</b><span>끝낸 단계</span></div><div class="kpi"><b id="kpace">-</b><span>남은 단계당 기간</span></div></div>
+    <div class="meter"><i id="pbar" style="width:0"></i></div>
+    <div class="note" id="pwarn"></div>
+  </div>
+  <div class="panel"><div class="steps" id="psteps"></div></div>
+</section>
+
+<section class="lab" id="v-credit" hidden>
+  <div class="panel">
+    <h2>크레딧과 AI 사용 표시</h2>
+    <p class="hint">조원과 역할, 요소마다 쓴 도구를 적으면 예고편 마지막 화면에 넣을 크레딧과 AI 사용 표시 문구를 만들어 줍니다. 14장 점검표의 '표시' 줄을 채우는 단계입니다.</p>
+    <label for="cteam">조 이름</label><input type="text" id="cteam" value="3조 필름클럽">
+    <label for="cpeople">조원과 역할 (한 줄에 한 명, "이름: 역할")</label>
+    <textarea id="cpeople" rows="4">김하늘: 기획·대본
+이준서: 이미지·영상 생성
+박서연: 소리·음악
+최도윤: 편집·발표</textarea>
+    <div id="ctools"></div>
+  </div>
+  <div class="panel">
+    <h3>마지막 화면 문구</h3>
+    <div class="out" id="cout"></div>
+    <div class="btns"><button class="pri" id="ccopy">문구 복사</button></div>
+    <div class="note" id="cnote"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-rubric" hidden>
+  <div class="panel">
+    <h2>자기 점검</h2>
+    <p class="hint">제출 전에 평가 기준을 스스로 확인하세요. 항목마다 배점이 다릅니다. 실제 점수는 담당 교수자가 정하며, 이 점검은 빠뜨린 것을 찾는 데 씁니다.</p>
+    <div class="checks" id="rlist"></div>
+    <div class="meter"><i id="rbar" style="width:0"></i></div>
+    <p id="rscore" style="font-weight:700"></p>
+  </div>
+  <div class="panel">
+    <h3>발표 타이머</h3>
+    <label>발표 시간 <output id="omin"></output></label><input type="range" id="rmin" min="3" max="10" value="5">
+    <div class="clock" id="clock">05:00</div>
+    <div class="phase" id="phase">시작을 누르세요</div>
+    <div class="btns"><button class="pri" id="tgo">시작</button><button id="treset">처음으로</button></div>
+    <div class="note">권장 순서: 예고편 상영 → 기획 의도 → 쓴 도구와 내가 한 일 → 검증과 권리 점검 → 배운 점과 한계.</div>
+  </div>
+</section>
+<footer>이 실험실의 구조 제안과 배점은 수업용 예시입니다. 담당 교수자의 안내를 우선하세요.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["plan","pipe","credit","rubric"];
+function show(){let v=(location.hash||"#plan").slice(1);if(!views.includes(v))v="plan";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({plan:aRun,pipe:bRun,credit:cRun,rubric:dRun})[v]()}
+addEventListener("hashchange",show);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+/* 15-A */
+const GEN={
+ "미스터리":{r:[.3,.45,.25],sh:2.2,c:["#3b5b8c","#5b3b8c","#1f2b44"],t:["질문 던지기","단서 쌓기","풀리지 않은 마지막 장면"],d:["평범한 일상에 이상한 일이 하나 끼어든다.","단서가 빠르게 이어지고 음악이 긴장을 쌓는다.","답 대신 더 큰 질문을 남기고 제목이 뜬다."]},
+ "가족·드라마":{r:[.35,.4,.25],sh:3,c:["#c2700f","#a0522d","#5a3d2b"],t:["인물 소개","갈등과 선택","여운"],d:["주인공과 그가 아끼는 것을 보여 준다.","무엇을 잃을 수 있는지 갈등을 보여 준다.","감정이 가장 큰 한 장면 뒤에 제목."]},
+ "SF":{r:[.25,.5,.25],sh:2,c:["#1f6f8b","#2c8b7a","#14323d"],t:["세계 열기","규칙이 깨지다","충돌 직전"],d:["낯선 세계를 넓은 샷으로 보여 준다.","그 세계의 규칙이 흔들리는 사건이 연달아 나온다.","빠른 편집 끝에 정적, 그리고 제목."]},
+ "코미디":{r:[.3,.5,.2],sh:2.5,c:["#d1a20f","#c2700f","#7a5a0f"],t:["엉뚱한 설정","꼬이는 상황","마지막 한 방"],d:["인물과 상황의 엉뚱함을 바로 보여 준다.","일이 점점 꼬이는 장면을 리듬 있게 잇는다.","제목 뒤에 웃음을 주는 짧은 장면 하나."]},
+ "다큐":{r:[.3,.45,.25],sh:3.5,c:["#4f7a3a","#3a6a5a","#2b3d2b"],t:["현장 보여 주기","목소리 듣기","남는 질문"],d:["실제 장소와 사람들의 모습을 보여 준다.","인터뷰나 내레이션으로 문제를 드러낸다.","관객에게 생각할 질문을 던지고 제목."]}};
+let genre="가족·드라마";
+function aRun(){const g=$("pgenre");if(!g.children.length){Object.keys(GEN).forEach(k=>{const b=document.createElement("button");b.textContent=k;b.onclick=()=>{genre=k;aRun()};g.appendChild(b)});["ptitle","plog","plen"].forEach(id=>$(id).addEventListener("input",aRun))}
+  g.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.textContent===genre));
+  const L=+$("plen").value,G=GEN[genre];$("olen").textContent=L+"초";
+  $("phead").textContent="「"+($("ptitle").value.trim()||"제목 없음")+"」 · "+genre+" · "+L+"초";
+  const secs=G.r.map(r=>Math.round(r*L));secs[2]=L-secs[0]-secs[1];
+  $("ptl").innerHTML=secs.map((s,i)=>`<div style="flex:${s};background:${G.c[i]}">${i+1}막 ${s}초</div>`).join("");
+  let t=0;$("pacts").innerHTML=secs.map((s,i)=>{const a=t;t+=s;const n=Math.max(1,Math.round(s/G.sh));return `<div class="act" style="border-color:${G.c[i]}"><span class="sec">${a}–${t}초 · 샷 약 ${n}개</span><b>${i+1}막 · ${G.t[i]}</b>${G.d[i]}</div>`}).join("");
+  const total=secs.reduce((a,s)=>a+Math.max(1,Math.round(s/G.sh)),0),log=$("plog").value.trim();
+  $("pnote").innerHTML=`샷은 모두 약 <b>${total}개</b>입니다. 영상 생성 한 번이 8~10초 안팎이므로, 생성한 클립을 잘라 쓴다고 생각하세요. `+(log.length<15?"로그라인을 한 문장으로 적어 보세요.":log.length>90?"로그라인이 깁니다. 누가, 무엇을, 왜를 한 문장 안에 줄여 보세요.":"로그라인 길이가 적당합니다. 1막의 첫 샷이 이 문장의 '누가'를 보여 주는지 확인하세요.")}
+/* 15-B */
+const ST=[["대본과 샷 리스트",["Claude","노트북LM","직접"]],["콘셉트 이미지·인물 시트",["나노바나나","Flow","직접 그림"]],["영상 클립 생성",["Flow","Veo","Gemini 앱"]],["내레이션·대사",["TTS 도구","직접 녹음"]],["음악·효과음",["Lyria","무료 음원","직접 녹음"]],["편집과 자막",["CapCut","Clipchamp","기타 편집기"]],["권리 점검과 AI 표시",["14장 점검표","15-C 생성기"]]];
+const pick={},done={};
+function bRun(){const w=$("psteps");if(!w.children.length){ST.forEach((s,i)=>{const d=document.createElement("div");d.className="step";d.innerHTML=`<input type="checkbox" id="st${i}" aria-label="${s[0]} 끝냄"><div><b>${i+1}. ${s[0]}</b><div class="tools">${s[1].map(t=>`<button>${t}</button>`).join("")}</div></div>`;d.querySelector("input").onchange=e=>{done[i]=e.target.checked;bRun()};d.querySelectorAll(".tools button").forEach(b=>b.onclick=()=>{pick[i]=b.textContent;bRun()});w.appendChild(d)});$("days").addEventListener("input",bRun)}
+  w.querySelectorAll(".step").forEach((d,i)=>d.querySelectorAll(".tools button").forEach(b=>b.classList.toggle("on",pick[i]===b.textContent)));
+  const days=+$("days").value;$("odays").textContent=days+"일";
+  const n=ST.filter((_,i)=>done[i]).length,left=ST.length-n;$("kdone").textContent=n+"/"+ST.length;$("pbar").style.width=(n/ST.length*100)+"%";
+  $("kpace").textContent=left?(days/left).toFixed(1)+"일":"완료";
+  const nopick=ST.map((s,i)=>pick[i]?null:s[0]).filter(Boolean),warn=[];
+  if(nopick.length)warn.push("도구를 아직 정하지 않은 단계: "+nopick.join(", "));
+  if(left&&days/left<1.5)warn.push("남은 단계에 비해 시간이 빠듯합니다. 영상 생성은 여러 번 다시 만들게 되니 하루 이상 여유를 두세요.");
+  if(!done[6]&&n>=5)warn.push("마지막 단계인 권리 점검과 AI 표시를 잊지 마세요.");
+  $("pwarn").textContent=warn.length?warn.join(" "):"좋습니다. 계획대로 진행하고 있습니다."}
+/* 15-C */
+const EL=[["대본",["Claude","직접"]],["이미지",["나노바나나","Flow","직접"]],["영상",["Flow(Veo)","Gemini 앱","직접 촬영"]],["목소리",["AI 음성","직접 녹음"]],["음악",["Lyria","무료 음원","직접"]]];
+const use={0:"Claude",1:"나노바나나",2:"Flow(Veo)",3:"직접 녹음",4:"Lyria"};
+function cRun(){const w=$("ctools");if(!w.children.length){EL.forEach((e,i)=>{const l=document.createElement("label");l.textContent=e[0];w.appendChild(l);const c=document.createElement("div");c.className="chips";e[1].forEach(t=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{use[i]=t;cRun()};c.appendChild(b)});w.appendChild(c)});["cteam","cpeople"].forEach(id=>$(id).addEventListener("input",cRun));
+   $("ccopy").onclick=()=>{const t=$("cout").textContent;navigator.clipboard.writeText(t).then(()=>{$("cnote").textContent="복사했습니다. 편집기의 마지막 자막에 붙여 넣으세요."},()=>{const r=document.createRange();r.selectNodeContents($("cout"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("cnote").textContent="문구를 선택해 두었습니다. 직접 복사하세요."})}}
+  w.querySelectorAll(".chips").forEach((c,i)=>c.querySelectorAll("button").forEach(b=>b.classList.toggle("on",use[i]===b.textContent)));
+  const ppl=$("cpeople").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const k=s.indexOf(":");return k>0?[s.slice(0,k).trim(),s.slice(k+1).trim()]:[s,""]});
+  const ai=EL.map((e,i)=>[e[0],use[i]]).filter(x=>!/직접|무료/.test(x[1])),me=EL.map((e,i)=>[e[0],use[i]]).filter(x=>/직접/.test(x[1]));
+  let o="제작 · "+($("cteam").value.trim()||"우리 조")+"\n"+ppl.map(p=>p[1]?p[1]+"  "+p[0]:p[0]).join("\n")+"\n\n";
+  o+=ai.length?"이 예고편은 생성형 AI를 사용해 만들었습니다.\n"+ai.map(x=>x[0]+": "+x[1]).join(" · ")+"\n":"이 예고편은 생성형 AI를 사용하지 않았습니다.\n";
+  if(me.length)o+="직접 만든 것: "+me.map(x=>x[0]).join(", ")+"\n";
+  if(use[4]==="무료 음원")o+="음악: (곡명 · 만든 사람 · 출처를 적으세요)\n";
+  o+="기획, 선택, 수정과 편집은 제작진이 직접 했습니다.\n등장인물과 사건은 모두 허구입니다.";
+  $("cout").textContent=o;
+  $("cnote").textContent=ppl.some(p=>!p[1])?"역할이 빠진 조원이 있습니다. \"이름: 역할\" 꼴로 적어 주세요.":"실존 인물의 얼굴이나 목소리를 쓰지 않았는지 마지막으로 확인하세요."}
+/* 15-D */
+const RB=[["예고편이 정해진 길이 안에 있고 세 막 구조가 보인다",15],["장면의 인물·장소가 샷마다 일관된다 (11장)",15],["소리(내레이션·음악·효과음)가 장면과 맞는다 (12장)",10],["AI에게 맡긴 일과 내가 한 일을 구분해 설명할 수 있다",15],["AI 결과의 오류나 이상한 점을 찾아 고친 기록이 있다",15],["14장 권리와 책임 점검표 일곱 줄을 모두 확인했다",15],["마지막 화면에 크레딧과 AI 사용 표시가 있다",10],["발표가 정해진 시간 안에 끝난다",5]];
+function dRun(){const l=$("rlist");if(!l.children.length){RB.forEach((r,i)=>{const lb=document.createElement("label");lb.innerHTML=`<input type="checkbox" id="rb${i}"><span>${r[0]} <span style="color:var(--muted)">(${r[1]}점)</span></span>`;lb.querySelector("input").onchange=dRun;l.appendChild(lb)});$("rmin").addEventListener("input",()=>{if(!run){left=+$("rmin").value*60;tick()}});$("tgo").onclick=toggle;$("treset").onclick=()=>{stop();left=+$("rmin").value*60;tick()};left=+$("rmin").value*60;tick()}
+  const s=RB.reduce((a,r,i)=>a+($("rb"+i).checked?r[1]:0),0);$("rbar").style.width=s+"%";
+  const miss=RB.filter((r,i)=>!$("rb"+i).checked);
+  $("rscore").textContent=`확인한 항목 ${s}점 / 100점`+(miss.length?` · 남은 항목 ${miss.length}개`:" · 모두 확인했습니다");$("omin").textContent=$("rmin").value+"분"}
+let left=300,run=null;
+function fmt(s){const m=Math.floor(Math.abs(s)/60),x=Math.abs(s)%60;return (s<0?"-":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0")}
+function tick(){const T=+$("rmin").value*60,used=T-left;$("clock").textContent=fmt(left);$("clock").classList.toggle("warn",left<=30);
+  const ph=["예고편 상영","기획 의도","도구와 내가 한 일","검증과 권리 점검","배운 점과 한계"],w=[.2,.2,.25,.2,.15];let acc=0,k=0;for(;k<ph.length;k++){acc+=w[k]*T;if(used<acc)break}
+  $("phase").textContent=left<0?"시간이 지났습니다. 마무리하세요.":run?"지금: "+ph[Math.min(k,ph.length-1)]:(used>0?"멈춤":"시작을 누르세요")}
+function stop(){clearInterval(run);run=null;$("tgo").textContent="시작"}
+function toggle(){if(run){stop();tick();return}run=setInterval(()=>{left--;tick()},1000);$("tgo").textContent="멈춤";tick()}
+show();
+})();
+</script>
+
+</body>
+</html>
