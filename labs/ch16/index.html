@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>16장 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 교재 장 실험실. 위 탭 → 왼쪽 조작부, 오른쪽 결과. 좁으면 세로. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2333; --muted:#5d6676; --line:#dfe3ea;
+  --accent:#c2700f; --accent-soft:#fbeedd; --cool:#1f6f8b; --cool-soft:#e2f0f5; --good:#2f7d4f; --good-soft:#e3f2e8; --warn:#b3332f; --warn-soft:#f9e3e2;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161f;--panel:#1a202c;--ink:#e8ebf1;--muted:#a2abbb;--line:#2c3445;--accent:#f0a24a;--accent-soft:#3a2a17;--cool:#6cc1dd;--cool-soft:#16313b;--good:#6fcf97;--good-soft:#173322;--warn:#f08a85;--warn-soft:#3b1f1f;color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:16px}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:14px;margin:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+nav a{display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:140px}
+nav a .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)} nav a.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+section.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px}
+@media (max-width:760px){section.lab{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+h2{font-size:18px;margin:0} h3{font-size:14px;margin:0;color:var(--muted);font-weight:500} p{margin:0}
+.hint{font-size:13.5px;color:var(--muted)}
+label{font-size:13.5px;font-weight:500;display:flex;justify-content:space-between;gap:8px} label output{font-family:var(--f-mono);color:var(--accent)}
+input[type=text]{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%;min-width:0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{white-space:nowrap;font:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff} button:hover{border-color:var(--accent)}
+.note{padding:10px 12px;border-radius:8px;background:var(--cool-soft);font-size:14px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
+.msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:14.5px}
+.msg.me{align-self:flex-end;background:var(--accent-soft)} .msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.msg .rule{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:8px}
+.gen{display:flex;flex-direction:column;gap:6px}
+.gen div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14.5px}
+.gen div.copy{background:var(--warn-soft)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:minmax(70px,110px) minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:14px}
+.bar .track{height:16px;background:var(--bg);border-radius:4px;overflow:hidden} .bar .fill{height:100%;background:var(--cool);display:block}
+.bar .pct{font-family:var(--f-mono);font-size:12px;text-align:right}
+.chart{width:100%;overflow-x:auto} svg{display:block;max-width:100%;height:auto}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{text-align:left;max-width:100%;white-space:normal}
+.cards button.picked{opacity:.45}
+.order{display:flex;flex-direction:column;gap:6px}
+.order div{padding:6px 10px;border-radius:8px;background:var(--bg);font-size:14px;display:flex;justify-content:space-between;gap:8px}
+.order div.ok{background:var(--good-soft)} .order div.ng{background:var(--warn-soft)}
+.mono{font-family:var(--f-mono)}
+footer{margin-top:20px;font-size:12.5px;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+canvas{max-width:100%;height:auto;display:block;border-radius:8px;background:var(--bg)}
+.checks label{display:flex;gap:8px;align-items:flex-start;text-align:left;justify-content:flex-start;font-size:14px;padding:7px 9px;border-radius:8px;background:var(--bg);margin:5px 0;font-weight:400}
+.checks input{width:auto;margin-top:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft)}
+.log{font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border-radius:8px;padding:10px;height:170px;overflow:auto;white-space:pre-wrap;line-height:1.55}
+.log b{color:var(--accent)}
+.kpi{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.kpi b{display:block;font-size:22px;font-family:var(--f-mono)}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:640px){.grid3{grid-template-columns:1fr}}
+.plan{display:flex;flex-direction:column;gap:6px}
+.plan div{background:var(--bg);border-radius:8px;padding:7px 10px;font-size:14px}
+.plan div.warn{background:var(--warn-soft)}
+.plan div.ok{background:var(--good-soft)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card{background:var(--bg);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.card .q{font-weight:700}
+.card .btns button{font-size:13px;padding:5px 9px}
+.card .ans{font-size:13.5px;color:var(--muted)}
+.card.right{border-color:var(--good)}
+.card.wrong{border-color:var(--warn)}
+</style>
+<div class="wrap">
+<header><h1>16장 실험실</h1><p class="sub">「피지컬 AI와 생성형 AI」 웹에서 해 보기</p></header>
+<nav aria-label="실험">
+  <a href="#loop" data-v="loop"><span class="no">16-A</span>감지·판단·행동</a>
+  <a href="#vla" data-v="vla"><span class="no">16-B</span>말로 로봇에게 시키기</a>
+  <a href="#sim" data-v="sim"><span class="no">16-C</span>시뮬레이션에서 현실로</a>
+  <a href="#moravec" data-v="moravec"><span class="no">16-D</span>모라벡의 역설</a>
+</nav>
+
+<section class="lab" id="v-loop">
+  <div class="panel">
+    <h2>감지·판단·행동</h2>
+    <p class="hint">배달 로봇이 상자(●)를 목적지(★)까지 옮깁니다. 로봇은 센서가 닿는 거리 안의 벽만 압니다. 한 걸음마다 감지하고, 아는 정보로 길을 다시 계획하고, 한 칸 움직입니다. 센서 거리와 센서 오차를 바꿔 보세요.</p>
+    <label>센서 거리 <output id="osr"></output></label><input type="range" id="sr" min="1" max="6" value="2">
+    <label>센서 오차 (벽을 못 볼 확률) <output id="onz"></output></label><input type="range" id="nz" min="0" max="40" step="5" value="0">
+    <div class="btns"><button class="pri" id="lgo">출발</button><button id="lstep">한 걸음</button><button id="lreset">처음으로</button><button id="lmap">새 지도</button></div>
+    <div class="grid3"><div class="kpi"><b id="ksteps">0</b><span>걸음 수</span></div><div class="kpi"><b id="kre">0</b><span>다시 계획</span></div><div class="kpi"><b id="kbump">0</b><span>벽에 부딪힘</span></div></div>
+  </div>
+  <div class="panel">
+    <canvas id="lcv" width="760" height="420" aria-label="격자 지도 위의 배달 로봇"></canvas>
+    <div class="log" id="llog"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-vla" hidden>
+  <div class="panel">
+    <h2>말로 로봇에게 시키기</h2>
+    <p class="hint">비전-언어-행동(VLA) 모델은 카메라 영상과 사람의 말을 받아 로봇 팔의 움직임을 만듭니다. 이 실험실은 그 과정을 단순하게 흉내 냅니다. 명령을 고르거나 직접 쓰고 '실행'을 누르세요. 모호하거나 위험한 명령에 로봇이 어떻게 반응하는지도 보세요.</p>
+    <div class="chips" id="vpre"></div>
+    <label for="vcmd">명령</label><input type="text" id="vcmd" value="빨간 블록을 파란 접시에 올려 줘">
+    <div class="btns"><button class="pri" id="vgo">실행</button><button id="vreset">탁자 정리</button></div>
+  </div>
+  <div class="panel">
+    <canvas id="vcv" width="760" height="330" aria-label="탁자 위 물건과 로봇 팔"></canvas>
+    <div class="plan" id="vplan"></div>
+  </div>
+</section>
+
+<section class="lab" id="v-sim" hidden>
+  <div class="panel">
+    <h2>시뮬레이션에서 현실로</h2>
+    <p class="hint">로봇이 시뮬레이션에서 상자를 밀어 목표선에 세우는 법을 배웠습니다. 그런데 실제 바닥은 미끄러운 정도(마찰)가 제각각입니다. 시뮬레이션에서 바닥 조건을 얼마나 다양하게 바꿔 가며 연습했는지(도메인 무작위화)에 따라 현실 성공률이 어떻게 달라질까요?</p>
+    <label>시뮬레이션 바닥 마찰 <output id="omu"></output></label><input type="range" id="mu" min="0.2" max="0.8" step="0.05" value="0.5">
+    <label>연습 때 바꾼 폭 (무작위화) <output id="orr"></output></label><input type="range" id="rr" min="0" max="0.3" step="0.02" value="0">
+    <label>실제 현장들의 마찰 범위 <output id="oreal"></output></label><input type="range" id="real" min="0.05" max="0.3" step="0.01" value="0.2">
+    <div class="grid2"><div class="kpi"><b id="ksucc">-</b><span>현실 성공률</span></div><div class="kpi"><b id="ktime">-</b><span>평균 밀기 횟수</span></div></div>
+    <div class="note" id="snote"></div>
+  </div>
+  <div class="panel"><canvas id="scv" width="760" height="380" aria-label="실제 바닥 마찰에 따른 성공률 그래프"></canvas></div>
+</section>
+
+<section class="lab" id="v-moravec" hidden>
+  <div class="panel" style="grid-column:1/-1">
+    <h2>모라벡의 역설: 로봇에게 어려운 일은?</h2>
+    <p class="hint">사람에게 쉬운 일이 로봇에게는 어렵고, 사람에게 어려운 일이 컴퓨터에게는 쉬운 경우가 많습니다. 카드마다 '로봇에게 쉽다/어렵다'를 골라 보세요. (2026년 기준의 일반적인 평가이며, 빠르게 바뀌고 있습니다.)</p>
+    <div class="cards" id="mcards"></div>
+    <p id="mscore" style="font-weight:700"></p>
+  </div>
+</section>
+<footer>이 실험실의 로봇과 수치는 원리를 보여 주기 위한 모형입니다. 실제 로봇과 AI 모델은 훨씬 복잡합니다.</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const views=["loop","vla","sim","moravec"];
+function show(){let v=(location.hash||"#loop").slice(1);if(!views.includes(v))v="loop";views.forEach(k=>$("v-"+k).hidden=k!==v);document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));({loop:lRun,vla:vRun,sim:sRun,moravec:mRun})[v]()}
+addEventListener("hashchange",show);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let seed=11;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+
+/* ---------- 16-A ---------- */
+const GW=19,GH=10;let walls,known,robot,goal,carrying,box,steps,replans,bumps,timer=null,lastPath=[],built=false,mapSeed=3;
+function genMap(){seed=mapSeed*7919+1;walls=Array.from({length:GH},()=>Array(GW).fill(false));
+  for(let i=0;i<46;i++){const x=1+Math.floor(rnd()*(GW-2)),y=Math.floor(rnd()*GH);walls[y][x]=true}
+  for(let y=2;y<GH-1;y++)walls[y][6]=true;walls[GH-2][6]=false;for(let y=0;y<GH-3;y++)walls[y][12]=true;
+  robot={x:0,y:0};box={x:4,y:GH-1};goal={x:GW-1,y:0};[robot,box,goal,{x:1,y:0},{x:GW-2,y:0}].forEach(p=>walls[p.y][p.x]=false)}
+function lReset(){if(timer){clearInterval(timer);timer=null;$("lgo").textContent="출발"}robot={x:0,y:0};box={x:4,y:GH-1};carrying=false;steps=0;replans=0;bumps=0;known=Array.from({length:GH},()=>Array(GW).fill(false));lastPath=[];$("llog").innerHTML="";sense();plan();draw();kp()}
+function kp(){$("ksteps").textContent=steps;$("kre").textContent=replans;$("kbump").textContent=bumps}
+function log(s){const l=$("llog");l.innerHTML+=s+"\n";l.scrollTop=l.scrollHeight}
+function sense(){const r=+$("sr").value,nz=+$("nz").value/100;let found=0;
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){if(Math.abs(x-robot.x)+Math.abs(y-robot.y)<=r&&walls[y][x]&&!known[y][x]){if(Math.random()>=nz){known[y][x]=true;found++}}}return found}
+function bfs(t){const q=[[robot.x,robot.y]],prev={},k=(x,y)=>x+","+y;prev[k(robot.x,robot.y)]=null;
+  while(q.length){const[x,y]=q.shift();if(x===t.x&&y===t.y)break;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=GW||ny>=GH||known[ny][nx])continue;const kk=k(nx,ny);if(kk in prev)continue;prev[kk]=[x,y];q.push([nx,ny])}}
+  if(!(k(t.x,t.y)in prev))return null;const path=[];let c=[t.x,t.y];while(c){path.unshift(c);c=prev[k(c[0],c[1])]}return path}
+function target(){return carrying?goal:box}
+function plan(){const p=bfs(target());lastPath=p||[];return p}
+function step(){if(!carrying&&robot.x===box.x&&robot.y===box.y){carrying=true;log("<b>[행동]</b> 상자를 집었다 → 목적지로 계획");plan();draw();return true}
+  if(carrying&&robot.x===goal.x&&robot.y===goal.y){log("<b>[완료]</b> 배달 성공! 걸음 "+steps+", 다시 계획 "+replans+", 부딪힘 "+bumps);return false}
+  const f=sense();if(f){log("<b>[감지]</b> 새 벽 "+f+"개 발견");const ok=lastPath.slice(1).some(([x,y])=>known[y][x]);if(ok||!lastPath.length){replans++;log("<b>[판단]</b> 길이 막혀 다시 계획")}}
+  let p=plan();if(!p||p.length<2){log("<b>[판단]</b> 갈 길이 없다. 멈춤");return false}
+  const[nx,ny]=p[1];steps++;
+  if(walls[ny][nx]){bumps++;known[ny][nx]=true;log("<b>[행동]</b> 쿵! 센서가 놓친 벽에 부딪힘 → 지도에 기록");replans++;plan()}
+  else{robot={x:nx,y:ny};if(carrying)box={x:nx,y:ny};if(steps%4===0)log("[행동] 한 칸 이동 ("+nx+","+ny+")")}
+  kp();draw();return true}
+function draw(){const c=$("lcv").getContext("2d"),cs=40,ox=0,oy=10;c.fillStyle=css("--bg");c.fillRect(0,0,760,420);
+  const r=+$("sr").value;
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const px=ox+x*cs,py=oy+y*cs;
+    const inR=Math.abs(x-robot.x)+Math.abs(y-robot.y)<=r;
+    c.fillStyle=walls[y][x]?(known[y][x]?css("--ink"):css("--line")):(inR?css("--cool-soft"):css("--panel"));c.fillRect(px+1,py+1,cs-2,cs-2);
+    if(walls[y][x]&&!known[y][x]){c.strokeStyle=css("--muted");c.setLineDash([3,3]);c.strokeRect(px+4,py+4,cs-8,cs-8);c.setLineDash([])}}
+  c.strokeStyle=css("--accent");c.lineWidth=3;c.beginPath();lastPath.forEach(([x,y],i)=>{const px=ox+x*cs+cs/2,py=oy+y*cs+cs/2;i?c.lineTo(px,py):c.moveTo(px,py)});c.stroke();c.lineWidth=1;
+  c.fillStyle=css("--good");c.font="26px system-ui";c.textAlign="center";c.textBaseline="middle";c.fillText("★",ox+goal.x*cs+cs/2,oy+goal.y*cs+cs/2+1);
+  if(!carrying){c.fillStyle=css("--accent");c.beginPath();c.arc(ox+box.x*cs+cs/2,oy+box.y*cs+cs/2,9,0,7);c.fill()}
+  const rx=ox+robot.x*cs+cs/2,ry=oy+robot.y*cs+cs/2;c.fillStyle=css("--cool");c.beginPath();c.roundRect?c.roundRect(rx-14,ry-14,28,28,6):c.rect(rx-14,ry-14,28,28);c.fill();
+  c.fillStyle="#fff";c.font="bold 13px system-ui";c.fillText(carrying?"●":"R",rx,ry+1);c.textAlign="left"}
+function lRun(){if(!built){built=true;genMap();lReset();["sr","nz"].forEach(id=>$(id).addEventListener("input",()=>{upd();draw()}));
+  $("lgo").onclick=()=>{if(timer){clearInterval(timer);timer=null;$("lgo").textContent="출발";return}$("lgo").textContent="멈춤";timer=setInterval(()=>{if(!step()){clearInterval(timer);timer=null;$("lgo").textContent="출발"}},180)};
+  $("lstep").onclick=()=>step();$("lreset").onclick=lReset;$("lmap").onclick=()=>{mapSeed++;genMap();lReset()}}
+  upd();draw()}
+function upd(){$("osr").textContent=$("sr").value+"칸";$("onz").textContent=$("nz").value+"%"}
+
+/* ---------- 16-B ---------- */
+const OBJ0=[{id:"rb",name:"빨간 블록",color:"#c8372d",x:120,shape:"block"},{id:"yb",name:"노란 블록",color:"#e3a51c",x:210,shape:"block"},{id:"rc1",name:"빨간 컵",color:"#c8372d",x:300,shape:"cup"},{id:"rc2",name:"빨간 컵",color:"#c8372d",x:380,shape:"cup"},{id:"kn",name:"칼",color:"#7a8597",x:470,shape:"knife"},{id:"bp",name:"파란 접시",color:"#2f6fb0",x:580,shape:"plate"},{id:"sp",name:"스펀지",color:"#4f9a5a",x:670,shape:"block"}];
+let objs,arm={x:380,y:60,hold:null},vbusy=false,vbuilt=false;
+const PRE=["빨간 블록을 파란 접시에 올려 줘","노란 블록을 집어서 빨간 블록 옆에 놔 줘","빨간 컵을 치워 줘","탁자를 깨끗하게 정리해 줘","칼을 아이에게 건네 줘","초록색 물건을 파란 접시에 올려 줘","보라색 공을 집어 줘"];
+function vReset(){objs=OBJ0.map(o=>({...o,y:250,on:null}));arm={x:380,y:60,hold:null};$("vplan").innerHTML="";vDraw()}
+function vDraw(){const c=$("vcv").getContext("2d");c.fillStyle=css("--bg");c.fillRect(0,0,760,330);
+  c.fillStyle="#b98a5a";c.fillRect(30,268,700,14);c.fillStyle=css("--muted");c.font="12px system-ui";c.fillText("탁자 (카메라 시점)",36,302);
+  for(const o of objs){if(arm.hold===o)continue;drawObj(c,o,o.x,o.on?o.on.y-14:o.y)}
+  c.strokeStyle=css("--ink");c.lineWidth=8;c.lineCap="round";c.beginPath();c.moveTo(380,0);c.lineTo(arm.x,arm.y-20);c.stroke();
+  c.lineWidth=4;c.beginPath();c.moveTo(arm.x-14,arm.y-20);c.lineTo(arm.x-14,arm.y);c.moveTo(arm.x+14,arm.y-20);c.lineTo(arm.x+14,arm.y);c.stroke();
+  if(arm.hold)drawObj(c,arm.hold,arm.x,arm.y+10)}
+function drawObj(c,o,x,y){c.fillStyle=o.color;c.strokeStyle=css("--ink");c.lineWidth=1;
+  if(o.shape==="block"){c.fillRect(x-16,y-16,32,32)}
+  else if(o.shape==="cup"){c.beginPath();c.moveTo(x-15,y-20);c.lineTo(x+15,y-20);c.lineTo(x+11,y+16);c.lineTo(x-11,y+16);c.closePath();c.fill()}
+  else if(o.shape==="knife"){c.fillRect(x-30,y+6,40,6);c.fillStyle="#3b2a1a";c.fillRect(x+10,y+4,22,10)}
+  else if(o.shape==="plate"){c.beginPath();c.ellipse(x,y+10,40,8,0,0,7);c.fill()}
+  if(!o.on){c.fillStyle=css("--ink");c.font="12px system-ui";c.textAlign="center";c.fillText(o.name,x,y+34);c.textAlign="left"}}
+function say(cls,t){const d=document.createElement("div");if(cls)d.className=cls;d.innerHTML=t;$("vplan").appendChild(d)}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function moveArm(tx,ty){const sx=arm.x,sy=arm.y;for(let i=1;i<=14;i++){arm.x=sx+(tx-sx)*i/14;arm.y=sy+(ty-sy)*i/14;vDraw();await sleep(28)}}
+async function pick(o){say("","<b>행동</b> "+o.name+" 위로 이동 → 내려가기 → 집게 닫기");await moveArm(o.x,60);await moveArm(o.x,o.on?o.on.y-30:o.y-30);arm.hold=o;o.on=null;await moveArm(o.x,60)}
+async function place(x,on){say("","<b>행동</b> 목표 위치로 이동 → 내려놓기");await moveArm(x,60);await moveArm(x,(on?on.y-30:220));const o=arm.hold;arm.hold=null;o.x=x;o.on=on||null;o.y=250;vDraw();await moveArm(x,60)}
+function find(words){const t=words;return objs.filter(o=>t.includes(o.name)||(o.name.split(" ")[0]&&t.includes(o.name.split(" ")[0]+" "+o.name.split(" ")[1])))}
+async function run(cmd){if(vbusy)return;vbusy=true;$("vplan").innerHTML="";
+  say("","<b>입력</b> 카메라 영상 + 명령 「"+cmd.replace(/[<>]/g,"")+"」");
+  say("","<b>인식</b> 탁자 위: "+objs.map(o=>o.name).join(", "));
+  try{
+  if(/칼|가위|뜨거운|불/.test(cmd)&&/아이|사람|건네|던져/.test(cmd)){say("warn","<b>안전 판단</b> 날카로운 물건을 사람에게 건네는 일은 다칠 위험이 있습니다. 실행하지 않고 사람에게 확인을 요청합니다: “칼날이 아닌 손잡이 쪽으로, 탁자 위에 내려놓을까요?”");return}
+  if(/보라|초록 공|공을/.test(cmd)&&!objs.some(o=>cmd.includes(o.name))){say("warn","<b>판단</b> 카메라에 그런 물건이 보이지 않습니다. 없는 물건을 지어내 움직이지 않고, “어떤 물건을 말씀하시는지 알려 주세요”라고 되묻습니다.");return}
+  if(/초록/.test(cmd)){say("","<b>추론</b> '초록색 물건' → 탁자 위 초록색은 스펀지 하나뿐 → 스펀지로 판단 (색과 사물을 연결하는 시각-언어 지식)")}
+  if(/정리/.test(cmd)){say("","<b>계획</b> '정리'는 여러 단계로 쪼갭니다: ① 흩어진 블록과 스펀지를 접시에 모으기 ② 컵은 제자리에 두기 ③ 칼은 위험하므로 사람이 치우도록 남기기");
+    const blocks=objs.filter(o=>o.shape==="block");const pl=objs.find(o=>o.id==="bp");for(let i=0;i<blocks.length;i++){await pick(blocks[i]);await place(pl.x-30+i*30,pl)}
+    vDraw();say("ok","<b>완료</b> 블록과 스펀지를 접시에 모았습니다. 칼은 사람이 치우도록 알렸습니다.");return}
+  if(/빨간 컵/.test(cmd)&&objs.filter(o=>o.name==="빨간 컵").length>1&&!/둘 다|모두|왼쪽|오른쪽/.test(cmd)){say("warn","<b>판단</b> 빨간 컵이 두 개 있습니다. 어느 컵인지 모호하므로 멋대로 고르지 않고 되묻습니다: “왼쪽 컵과 오른쪽 컵 중 어느 것을 치울까요?”");return}
+  // general: X를 Y에 올려 / X를 Y 옆에
+  let src=null,dst=null;const names=[...new Set(objs.map(o=>o.name))];
+  const m=cmd.match(/(.+?)(을|를)\s*(집어서\s*)?(.+?)(에|위에|옆에)\s/);
+  for(const n of names){if(cmd.startsWith(n)||(m&&m[1].includes(n)))src=objs.find(o=>o.name===n)}
+  if(/초록/.test(cmd))src=objs.find(o=>o.id==="sp");
+  if(m)for(const n of names){if(m[4].includes(n)&&(!src||n!==src.name))dst=objs.find(o=>o.name===n)}
+  if(!src){say("warn","<b>판단</b> 무엇을 움직일지 알아듣지 못했습니다. 물건 이름을 넣어 다시 말해 주세요.");return}
+  const beside=/옆/.test(cmd);
+  say("","<b>계획</b> ① "+src.name+" 집기 ② "+(dst?dst.name+(beside?" 옆으로":" 위로"):"빈자리로")+" 옮기기 ③ 내려놓기");
+  say("","<b>행동 토큰</b> 계획을 관절 각도와 집게 열고 닫기의 짧은 숫자 열로 바꿉니다 (예: [x=0.31, y=0.12, z=0.05, 집게=닫힘] …)");
+  await pick(src);
+  if(dst&&!beside){await place(dst.x,dst)}else if(dst){let nx=dst.x+50;if(nx>720)nx=dst.x-50;await place(nx,null)}else{await place(700,null)}
+  say("ok","<b>완료</b> 카메라로 결과를 다시 보고 목표가 이루어졌는지 확인했습니다.");
+  }finally{vbusy=false}}
+function vRun(){if(!vbuilt){vbuilt=true;vReset();const p=$("vpre");PRE.forEach(t=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{$("vcmd").value=t};p.appendChild(b)});$("vgo").onclick=()=>run($("vcmd").value.trim()+" ");$("vreset").onclick=vReset}vDraw()}
+
+/* ---------- 16-C ---------- */
+function sRun(){const mu=+$("mu").value,rr=+$("rr").value,real=+$("real").value;
+  $("omu").textContent=mu.toFixed(2);$("orr").textContent="±"+rr.toFixed(2);$("oreal").textContent=(0.5-real).toFixed(2)+" ~ "+(0.5+real).toFixed(2);
+  // policy: open-loop push tuned for mu, plus number of corrective pushes learned from randomization
+  const pushes=1+Math.round(rr*20);const tol=0.08;
+  function succ(m){ // relative error of first push
+    const e=Math.abs(mu/m-1); // overshoot/undershoot fraction
+    let err=e; for(let k=1;k<pushes;k++)err*=0.45; // each corrective push reduces error
+    return Math.max(0,Math.min(1,1-(err/tol-0.5)))}
+  const xs=[];for(let m=0.15;m<=0.851;m+=0.01)xs.push(m);
+  const c=$("scv").getContext("2d");c.fillStyle=css("--bg");c.fillRect(0,0,760,380);
+  const X=m=>60+(m-0.15)/0.7*660,Y=s=>330-s*280;
+  c.fillStyle=css("--accent-soft");c.fillRect(X(Math.max(0.15,0.5-real)),40,X(Math.min(0.85,0.5+real))-X(Math.max(0.15,0.5-real)),290);
+  c.fillStyle=css("--cool-soft");c.fillRect(X(Math.max(0.15,mu-rr)),40,Math.max(2,X(Math.min(0.85,mu+rr))-X(Math.max(0.15,mu-rr))),290);
+  c.strokeStyle=css("--line");c.beginPath();for(let s=0;s<=1;s+=0.25){c.moveTo(60,Y(s));c.lineTo(720,Y(s))}c.stroke();
+  c.fillStyle=css("--muted");c.font="12px system-ui";for(let s=0;s<=1;s+=0.25)c.fillText(Math.round(s*100)+"%",20,Y(s)+4);
+  for(let m=0.2;m<=0.81;m+=0.1)c.fillText(m.toFixed(1),X(m)-8,350);c.fillText("실제 바닥 마찰 →",620,370);
+  c.strokeStyle=css("--cool");c.lineWidth=3;c.beginPath();xs.forEach((m,i)=>{const y=Y(succ(m));i?c.lineTo(X(m),y):c.moveTo(X(m),y)});c.stroke();c.lineWidth=1;
+  c.fillStyle=css("--ink");c.font="13px system-ui";c.fillText("파란 띠: 시뮬레이션에서 연습한 범위   주황 띠: 실제 현장들의 범위",62,28);
+  let tot=0,n=0;for(let m=Math.max(0.15,0.5-real);m<=Math.min(0.85,0.5+real)+1e-9;m+=0.005){tot+=succ(m);n++}
+  const sr=tot/n;$("ksucc").textContent=Math.round(sr*100)+"%";$("ktime").textContent=pushes+"번";
+  $("snote").textContent=rr===0?"한 가지 바닥에서만 연습하면 그 바닥과 비슷한 현장에서만 잘 됩니다. 시뮬레이션과 현실의 차이(sim-to-real gap) 때문입니다.":(sr>0.9?"여러 바닥에서 연습한 로봇은 조금씩 밀며 결과를 보고 고치는 법을 배워, 처음 보는 현장에서도 잘 해냅니다. 대신 밀기 횟수(시간)가 늘었습니다.":"연습 범위를 더 넓혀 보세요. 실제 현장의 다양함을 연습이 덮어야 합니다.")}
+["mu","rr","real"].forEach(id=>$(id).addEventListener("input",sRun));
+
+/* ---------- 16-D ---------- */
+const CARDS=[["체스에서 세계 챔피언 이기기","easy","1997년 딥블루가 이겼습니다. 규칙이 분명하고 계산으로 풀리는 일은 컴퓨터에게 쉽습니다."],
+["처음 보는 부엌에서 컵 꺼내기","hard","찬장 위치, 컵 모양, 무게가 모두 다릅니다. 처음 보는 환경에서 손으로 다루는 일은 지금도 어렵습니다."],
+["수천 쪽 문서를 1분 만에 요약하기","easy","언어 모델이 잘하는 일입니다. 다만 사실 확인은 사람 몫입니다(6장)."],
+["빨래 개기","hard","천은 모양이 계속 바뀌는 '말랑한 물체'라 로봇이 특히 어려워합니다. 2025~2026년에 시연이 늘었지만 아직 느립니다."],
+["울퉁불퉁한 계단 오르기","hard","다리 로봇은 크게 발전했지만, 균형과 발 디딤을 매 순간 맞추는 일은 여전히 까다롭습니다."],
+["사진 속 고양이 찾기","easy","2010년대 딥러닝 이후 이미지 인식은 매우 정확해졌습니다(2장)."],
+["달걀을 깨지 않고 집기","hard","힘 조절과 촉감이 필요합니다. 사람 손의 감각을 따라가기는 아직 어렵습니다."],
+["복잡한 수식 계산하기","easy","계산은 컴퓨터가 처음부터 가장 잘하던 일입니다."]];
+let mbuilt=false,ans={};
+function mRun(){if(mbuilt)return;mbuilt=true;const w=$("mcards");CARDS.forEach((cd,i)=>{const d=document.createElement("div");d.className="card";
+  d.innerHTML=`<span class="q">${cd[0]}</span><div class="btns"><button data-a="easy">로봇·AI에게 쉽다</button><button data-a="hard">로봇·AI에게 어렵다</button></div><div class="ans" hidden></div>`;
+  d.querySelectorAll("button").forEach(b=>b.onclick=()=>{ans[i]=b.dataset.a===cd[1];d.classList.toggle("right",ans[i]);d.classList.toggle("wrong",!ans[i]);const a=d.querySelector(".ans");a.hidden=false;a.textContent=(ans[i]?"✓ ":"✗ ")+(cd[1]==="easy"?"쉽다. ":"어렵다. ")+cd[2];mScore()});w.appendChild(d)})}
+function mScore(){const k=Object.keys(ans).length,r=Object.values(ans).filter(Boolean).length;$("mscore").textContent=`${k}개 중 ${r}개 맞힘`+(k===CARDS.length?" · 몸을 쓰는 일이 왜 어려운지, 본문 16.1절의 모라벡의 역설을 다시 읽어 보세요.":"")}
+show();
+})();
+</script>
+
+</body>
+</html>
