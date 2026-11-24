@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별빛 추천 도우미</title>
+<style>
+[hidden]{display:none!important}body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.chat{max-width:760px;margin:0 auto;padding:16px;background:#F7F8FC;border-radius:14px;min-height:300px}.u{margin-left:auto;max-width:72%;background:#E3E8F7;border-radius:16px;padding:10px 14px;margin-bottom:10px;width:fit-content}
+.a{max-width:80%;background:#fff;border:2px solid #E3E6F2;border-radius:16px;padding:10px 14px;margin-bottom:10px;white-space:pre-wrap}.cp{font-size:13px;color:#4A55A2;margin-top:4px}
+.bar{max-width:760px;margin:10px auto;display:flex;gap:8px}.bar input{flex:1}.warn{max-width:760px;margin:0 auto 10px;background:#FFF4CC;border-radius:10px;padding:8px 12px;font-size:15px}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch12.html">★ 별빛극장</a><nav class="nav"><a href="../ch12.html">홈</a><a href="recommend.html" class="on" aria-current="page">추천 도우미</a></nav></header><main class="wrap"><h2>별빛 추천 도우미</h2>
+<div class="warn">AI가 답합니다. 상영 정보는 매표소에서 한 번 더 확인해 주세요. 전화번호·주소 같은 개인정보는 입력하지 마세요.</div>
+<div class="chat" id="chat" aria-live="polite"></div><form class="bar" id="f"><input id="q" maxlength="300" placeholder="예: 초등학생 딸이랑 주말에 볼 따뜻한 영화 있어요?" aria-label="질문"><button>보내기</button></form>
+<p style="max-width:760px;margin:0 auto;font-size:13px;color:#888" id="left"></p></main>
+<script>
+// 서버 함수 주소를 넣으면 진짜 AI가 답합니다. 비워 두면 '연습 모드'(상영작 목록에서만 고르는 간단한 규칙)로 동작합니다.
+// API 키는 절대 이 파일에 넣지 않습니다. 키는 서버 함수의 환경 변수(AI_API_KEY)에만 둡니다.
+const SERVER_URL = "";
+const SHOWS = [ {title: "코코", rating: "전체관람가", times: ["10:30", "13:00", "15:40"], tags: ["가족", "음악", "따뜻"]},
+  {title: "리틀 포레스트", rating: "12세", times: ["11:00", "14:20", "19:10"], tags: ["위로", "혼자", "잔잔"]},
+  {title: "인사이드 아웃 2", rating: "전체관람가", times: ["10:00", "16:30", "18:50"], tags: ["가족", "웃음", "감정"]} ];
+const LIMIT = 20; let used = 0; try { const d = JSON.parse(localStorage.getItem("rec_used") || "{}"); if (d.day === new Date().toDateString()) used = d.n; } catch (e) {}
+const chat = document.getElementById("chat");
+function say(cls, text, cite) { const d = document.createElement("div"); d.className = cls; d.textContent = text; if (cite) { const c = document.createElement("div"); c.className = "cp"; c.textContent = cite; d.appendChild(c); } chat.appendChild(d); return d; }
+function josa(w, a, b) { const c = (w.replace(/[^가-힣0-9A-Za-z]+$/g, "").replace(/\([^)]*\)$/, "").replace(/[^가-힣0-9A-Za-z]+$/g, "")).slice(-1), k = c.charCodeAt(0); if (k >= 0xAC00 && k <= 0xD7A3) return w + ((k - 0xAC00) % 28 ? a : b); return w + ("013678".includes(c) ? a : b); }
+function practice(q) {           // 연습 모드: 목록 안에서만 고르고, 모르면 모른다고 한다
+  if (/(010|\d{3,4}-\d{4})/.test(q)) return "개인정보는 받지 않아요. 예매는 좌석 예매 페이지를 이용해 주세요.";
+  if (/(무시|관리자|규칙 없는|시스템 프롬프트|쿠폰)/.test(q)) return "저는 이번 주 상영작을 추천해 드리는 도우미라 그 요청은 도와드릴 수 없어요. 대신 오늘 볼 만한 영화를 골라 드릴까요?";
+  const named = SHOWS.find(s => q.includes(s.title)); if (named) return josa("「" + named.title + "」(" + named.rating + ")", "은", "는") + " " + named.times.join(", ") + "에 상영합니다.";
+  const other = q.match(/「?([가-힣A-Za-z0-9 ]+?)」?\s*(은|는)?\s*(몇 시|상영)/); if (other && !SHOWS.some(s => other[1].includes(s.title))) return josa("「" + other[1].trim() + "」", "은", "는") + " 이번 주 별빛극장 상영작에 없어요. 이번 주에는 " + SHOWS.map(s => "「" + s.title + "」").join(", ") + "를 상영합니다.";
+  const kid = /(아이|초등|딸|아들|가족)/.test(q), calm = /(혼자|위로|잔잔|힘들)/.test(q);
+  const pick = SHOWS.filter(s => (kid ? s.rating === "전체관람가" : true) && (calm ? s.tags.includes("위로") || s.tags.includes("잔잔") : true))[0] || SHOWS[0];
+  return josa("「" + pick.title + "」", "을", "를") + " 추천해요. " + pick.rating + "이고, " + pick.tags.slice(0, 2).join("·") + " 분위기의 영화예요. 상영 시간은 " + pick.times.join(", ") + "입니다.";
+}
+document.getElementById("f").onsubmit = async e => {
+  e.preventDefault(); const q = document.getElementById("q").value.trim(); if (!q) return;
+  if (used >= LIMIT) { say("a", "오늘 질문 " + LIMIT + "번을 모두 썼어요. 내일 다시 이용해 주세요."); return; }
+  used++; try { localStorage.setItem("rec_used", JSON.stringify({day: new Date().toDateString(), n: used})); } catch (x) {}
+  document.getElementById("left").textContent = "오늘 남은 질문 " + (LIMIT - used) + " / " + LIMIT; say("u", q); document.getElementById("q").value = "";
+  const box = say("a", "생각 중…");
+  try {
+    if (!SERVER_URL) { box.textContent = practice(q); const c = document.createElement("div"); c.className = "cp"; c.textContent = "근거: 이번 주 상영작 목록 · 연습 모드"; box.appendChild(c); return; }
+    const r = await fetch(SERVER_URL, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({question: q})});
+    const d = await r.json(); box.textContent = d.answer || d.error || "답을 받지 못했어요.";
+  } catch (err) { box.textContent = "잠시 뒤 다시 시도해 주세요."; }
+};
+say("a", "안녕하세요! 이번 주 별빛극장 상영작 가운데서 골라 드릴게요. 누구와, 어떤 기분으로 보실 건가요?");
+</script>
+</body>
+</html>

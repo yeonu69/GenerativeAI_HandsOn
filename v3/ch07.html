@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7장 실습 자료</title>
+<style>
+:root{--bg:#FBFBFE;--fg:#1D2233;--mut:#5B6178;--card:#FFFFFF;--line:#E1E4F0;--ind:#1E2A5A;--ac:#FFC83D;--lnk:#3445A8;--chip:#EEF0FA}
+@media (prefers-color-scheme:dark){:root{--bg:#12152A;--fg:#E8EAF4;--mut:#A3A8C3;--card:#1B1F3A;--line:#2E3458;--ind:#0B1033;--ac:#FFC83D;--lnk:#9FB0FF;--chip:#262C52;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:17px;line-height:1.65}
+header{background:var(--ind);color:#fff;padding:22px 16px}header .in,main{max-width:960px;margin:0 auto}header b{color:var(--ac)}header a{color:#fff}
+main{padding:20px 16px 50px}h1{font-size:26px;margin:4px 0 2px;text-wrap:balance}h2{font-size:20px;margin:28px 0 10px}.sub{opacity:.85;font-size:15px}
+a{color:var(--lnk)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--fg);display:block}
+.card:hover{border-color:var(--lnk)}.no{font-weight:800;color:var(--lnk);font-size:14px;letter-spacing:.04em}.ct{font-weight:800;font-size:18px;margin:2px 0}.cd{color:var(--mut);font-size:15px}
+.part{font-weight:800;color:var(--mut);font-size:14px;letter-spacing:.05em;margin:26px 0 8px}
+ul.f{list-style:none;padding:0;margin:0;display:grid;gap:8px}ul.f li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:800;border-radius:6px;padding:2px 7px;background:var(--chip);color:var(--lnk);white-space:nowrap}.tag.c{background:#FFF4CC;color:#7A5A00}
+.fn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;color:var(--mut);word-break:break-all}.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips a{background:var(--chip);border-radius:999px;padding:6px 12px;text-decoration:none;font-size:15px}.note{background:var(--chip);border-radius:12px;padding:12px 14px;font-size:15px}
+.pn{display:flex;justify-content:space-between;margin-top:30px;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header><div class="in"><div class="sub"><a href="index.html">「영화관으로 간 생성형 AI 실습」 3판 · 바이브 코딩</a></div><h1><b>7장</b> 믿을 수 있게 만들기: 환각·버그·테스트</h1><div class="sub">주인공 서윤 · 버그 있는 관람료 계산기를 테스트로 잡는다.</div></div></header>
+<main>
+<h2>예시 코드와 완성 화면</h2><p class="note">책의 실습은 AI에게 직접 요청해 만드는 것이 먼저입니다. 이 파일들은 막혔을 때 비교해 보는 <b>예시 답안</b>입니다. 결과는 AI마다 다를 수 있습니다.</p><ul class="f"><li><span class="tag">열어 보기</span><div><a href="ch07/fee-buggy.html">버그가 숨은 관람료 계산기(찾기 연습)</a><div class="fn">v3/ch07/fee-buggy.html</div></div></li><li><span class="tag">열어 보기</span><div><a href="ch07/fee.html">고친 계산기 + 자동 테스트</a><div class="fn">v3/ch07/fee.html</div></div></li><li><span class="tag c">코드·자료</span><div><a href="ch07/average.js">짧은 실습: 평균 함수(버그 있음)</a><div class="fn">v3/ch07/average.js</div></div></li><li><span class="tag c">코드·자료</span><div><a href="ch07/average-answer.js">짧은 실습 답안</a><div class="fn">v3/ch07/average-answer.js</div></div></li></ul><h2>코딩 없이 해 보는 체험실</h2><div class="chips"><a href="../labs/ch06/#hallu">환각 체험</a><a href="../labs/ch06/#fact">사실 확인 체험</a><a href="../labs/ch06/#rag">RAG 체험</a><a href="../labs/ch08/#bug">버그 찾기 체험</a></div><div class="pn"><a href="ch06.html">← 6장</a><a href="ch08.html">8장 →</a></div>
+</main>
+</body>
+</html>

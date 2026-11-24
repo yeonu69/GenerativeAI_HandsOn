@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관람료 계산기</title>
+<style>
+[hidden]{display:none!important}body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.fee{max-width:620px}.res{margin-top:16px;background:#F4F6FB;border-radius:12px;padding:16px 18px;font-size:19px}.res b{font-size:26px;color:#1E2A5A}
+.tests{margin-top:18px;width:100%;border-collapse:collapse;font-size:15px}.tests td,.tests th{border-bottom:1px solid #E3E6F2;padding:6px 8px;text-align:left}.pass{color:#2E7D52;font-weight:800}.fail{color:#C0392B;font-weight:800}.sm{color:#666}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch07.html">★ 별빛극장</a><nav class="nav"><a href="fee.html" class="on" aria-current="page">관람료 계산기</a><a href="fee-buggy.html">버그 있는 첫 버전</a></nav></header><main class="wrap fee"><h2>관람료 계산기</h2>
+<p class="sm">만 19세 이하 6,000원 · 만 65세 이상 5,000원 · 그 밖 8,000원 · 인원 1~10명</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label>나이 <input id="age" inputmode="numeric" style="width:100px"></label><label>인원 <input id="cnt" value="1" inputmode="numeric" style="width:80px"></label><button id="calc">계산</button></div>
+<div class="res" id="out" aria-live="polite">나이와 인원을 넣고 [계산]을 누르세요.</div>
+<h2>테스트 결과</h2><div id="sum" style="font-weight:800"></div><table class="tests" id="tests"></table></main><script>
+// 요구 사항: 만 19세 이하 6,000원, 만 65세 이상 5,000원, 나머지 8,000원, 인원 1~10명
+function fee(ageText, countText) {
+  const age = Number(ageText), count = Number(countText);
+  if (ageText === "" || !Number.isInteger(age) || age < 0 || age > 120) return {error: "나이를 0~120 사이의 숫자로 넣어 주세요"};
+  if (countText === "" || !Number.isInteger(count) || count < 1 || count > 10) return {error: "인원은 1~10명"};
+  const unit = age <= 19 ? 6000 : age >= 65 ? 5000 : 8000;   // 경계: 19 '이하', 65 '이상'
+  return {unit: unit, total: unit * count};
+}
+// 테스트 표: 기대 결과는 코드가 아니라 요구 사항에서 정했다
+const TESTS = [
+  ["정상", "30", "2", 16000], ["정상", "15", "1", 6000], ["정상", "70", "3", 15000],
+  ["경계", "19", "1", 6000], ["경계", "20", "1", 8000], ["경계", "64", "1", 8000], ["경계", "65", "1", 5000], ["경계", "30", "10", 80000],
+  ["예외", "", "1", "나이를 0~120 사이의 숫자로 넣어 주세요"], ["예외", "열살", "1", "나이를 0~120 사이의 숫자로 넣어 주세요"], ["예외", "-3", "1", "나이를 0~120 사이의 숫자로 넣어 주세요"],
+  ["예외", "30", "0", "인원은 1~10명"], ["예외", "30", "11", "인원은 1~10명"]
+];
+function runTests() {
+  let pass = 0;
+  const rows = TESTS.map(([kind, a, c, expect]) => {
+    const r = fee(a, c), got = r.error || r.total, ok = got === expect; if (ok) pass++;
+    return "<tr><td>" + kind + "</td><td>" + (a || "(빈칸)") + "세 · " + c + "명</td><td>" + expect + "</td><td>" + got + '</td><td class="' + (ok ? "pass" : "fail") + '">' + (ok ? "통과" : "실패") + "</td></tr>";
+  });
+  document.getElementById("tests").innerHTML = "<tr><th>종류</th><th>입력</th><th>기대</th><th>실제</th><th>판정</th></tr>" + rows.join("");
+  document.getElementById("sum").textContent = (pass === TESTS.length ? "✔ " : "✖ ") + "테스트 " + TESTS.length + "개 중 " + pass + "개 통과";
+}
+document.getElementById("calc").onclick = () => {
+  const r = fee(document.getElementById("age").value.trim(), document.getElementById("cnt").value.trim());
+  document.getElementById("out").innerHTML = r.error ? '<span class="fail">' + r.error + "</span>" : r.unit.toLocaleString() + "원 × " + document.getElementById("cnt").value + "명 = <b>" + r.total.toLocaleString() + "원</b>";
+};
+runTests();
+</script>
+</body>
+</html>

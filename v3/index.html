@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3판 바이브 코딩 실습 자료</title>
+<style>
+:root{--bg:#FBFBFE;--fg:#1D2233;--mut:#5B6178;--card:#FFFFFF;--line:#E1E4F0;--ind:#1E2A5A;--ac:#FFC83D;--lnk:#3445A8;--chip:#EEF0FA}
+@media (prefers-color-scheme:dark){:root{--bg:#12152A;--fg:#E8EAF4;--mut:#A3A8C3;--card:#1B1F3A;--line:#2E3458;--ind:#0B1033;--ac:#FFC83D;--lnk:#9FB0FF;--chip:#262C52;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:17px;line-height:1.65}
+header{background:var(--ind);color:#fff;padding:22px 16px}header .in,main{max-width:960px;margin:0 auto}header b{color:var(--ac)}header a{color:#fff}
+main{padding:20px 16px 50px}h1{font-size:26px;margin:4px 0 2px;text-wrap:balance}h2{font-size:20px;margin:28px 0 10px}.sub{opacity:.85;font-size:15px}
+a{color:var(--lnk)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--fg);display:block}
+.card:hover{border-color:var(--lnk)}.no{font-weight:800;color:var(--lnk);font-size:14px;letter-spacing:.04em}.ct{font-weight:800;font-size:18px;margin:2px 0}.cd{color:var(--mut);font-size:15px}
+.part{font-weight:800;color:var(--mut);font-size:14px;letter-spacing:.05em;margin:26px 0 8px}
+ul.f{list-style:none;padding:0;margin:0;display:grid;gap:8px}ul.f li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:800;border-radius:6px;padding:2px 7px;background:var(--chip);color:var(--lnk);white-space:nowrap}.tag.c{background:#FFF4CC;color:#7A5A00}
+.fn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;color:var(--mut);word-break:break-all}.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips a{background:var(--chip);border-radius:999px;padding:6px 12px;text-decoration:none;font-size:15px}.note{background:var(--chip);border-radius:12px;padding:12px 14px;font-size:15px}
+.pn{display:flex;justify-content:space-between;margin-top:30px;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header><div class="in"><div class="sub">영화관으로 간 생성형 AI 실습 · 3판</div><h1>바이브 코딩 <b>실습 자료</b></h1><div class="sub">말로 만들고, 확인하고, 고치는 14장 + 기말 프로젝트</div></div></header>
+<main>
+<p class="note">장마다 <b>예시 코드</b>(막혔을 때 비교하는 답안)와 <b>체험실</b>(코딩 없이 원리를 만져 보는 페이지) 연결을 모았습니다. 책의 QR 코드도 이 페이지들로 연결됩니다.</p><div class="part">1부 · 상상을 화면으로</div><div class="grid"><a class="card" href="ch01.html"><div class="no">1장 · 하린</div><div class="ct">바이브 코딩이란?</div><div class="cd">말로 요청해 「내 인생 영화」 소개 페이지를 만든다.</div></a><a class="card" href="ch02.html"><div class="no">2장 · 준서</div><div class="ct">AI에게 요구 사항 말하기</div><div class="cd">요구 사항 카드로 별빛극장 첫 화면을 요청한다.</div></a><a class="card" href="ch03.html"><div class="no">3장 · 소은</div><div class="ct">정적 웹페이지: 우리 영화관 소개</div><div class="cd">HTML 뼈대와 CSS 옷으로 소개 페이지를 완성한다.</div></a><a class="card" href="ch04.html"><div class="no">4장 · 태오</div><div class="ct">움직이는 웹페이지</div><div class="cd">단추·퀴즈·게임으로 자바스크립트를 맛본다.</div></a><a class="card" href="ch05.html"><div class="no">5장 · 미라</div><div class="ct">기억하는 웹앱</div><div class="cd">localStorage로 기록이 남는 관람 기록장을 만든다.</div></a><a class="card" href="ch06.html"><div class="no">6장 · 도현</div><div class="ct">여러 페이지와 배포</div><div class="cd">공통 메뉴와 style.css로 묶어 GitHub Pages에 공개한다.</div></a><a class="card" href="ch07.html"><div class="no">7장 · 서윤</div><div class="ct">믿을 수 있게 만들기: 환각·버그·테스트</div><div class="cd">버그 있는 관람료 계산기를 테스트로 잡는다.</div></a></div><div class="part">2부 · 데이터와 미디어로 넓히기</div><div class="grid"><a class="card" href="ch08.html"><div class="no">8장 · 리안</div><div class="ct">시뮬레이터 만들기</div><div class="cd">상태와 규칙을 정해 SIR 감염병 시뮬레이터를 만든다.</div></a><a class="card" href="ch09.html"><div class="no">9장 · 건우</div><div class="ct">관객 데이터 분석</div><div class="cd">1년 치 가상 관객 데이터로 상영 계획을 세운다.</div></a><a class="card" href="ch10.html"><div class="no">10장 · 나래</div><div class="ct">소리와 영상이 있는 웹: 예고편 상영관</div><div class="cd">AI로 만든 예고편을 자막과 함께 웹에 올린다.</div></a></div><div class="part">3부 · 서비스와 책임</div><div class="grid"><a class="card" href="ch11.html"><div class="no">11장 · 민재</div><div class="ct">서버와 데이터: 예매와 매점 주문</div><div class="cd">여러 사람이 함께 쓰는 예매·주문·랭킹을 만든다.</div></a><a class="card" href="ch12.html"><div class="no">12장 · 유나</div><div class="ct">AI를 품은 웹앱</div><div class="cd">상영작 목록 안에서만 답하는 추천 챗봇을 만든다.</div></a><a class="card" href="ch13.html"><div class="no">13장 · 지호</div><div class="ct">세상에 내놓기 전에</div><div class="cd">출처·저작권·개인정보·보안·접근성을 점검하고 밝힌다.</div></a><a class="card" href="ch14.html"><div class="no">14장 · 아린</div><div class="ct">에이전트와 함께 만들기</div><div class="cd">작업 지시서로 에이전트에게 안내 로봇 시뮬레이터를 맡긴다.</div></a></div><div class="part">마무리</div><div class="grid"><a class="card" href="final.html"><div class="no">16주</div><div class="ct">기말 프로젝트</div><div class="cd">「우리 동네 영화관」 완성과 상영회</div></a><a class="card" href="../"><div class="no">2판 자료</div><div class="ct">기존 실험실 모음</div><div class="cd">1~16장 체험실과 생성형 AI 실험실</div></a></div>
+</main>
+</body>
+</html>

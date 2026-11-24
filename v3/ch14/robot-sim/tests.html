@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>안전 시험 · 안내 로봇</title>
+<style>
+[hidden]{display:none!important}body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.sim{display:grid;grid-template-columns:300px 1fr;gap:20px}.ctl label{display:block;margin:12px 0 4px;font-weight:700;color:#1E2A5A}.ctl input[type=range]{width:100%}
+.kpi{background:#F4F6FB;border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.8}.chk{margin-top:10px;border-radius:10px;padding:8px 12px;font-weight:700}
+.ok{background:#E6F5EC;color:#2E7D52;border:2px solid #2E9E62}.bad{background:#FDECEC;color:#C0392B;border:2px solid #D64545}
+svg{width:100%;height:auto;background:#fff;border:1px solid #E3E6F2;border-radius:10px}table.t{border-collapse:collapse;font-size:14px;margin-top:12px;width:100%}table.t td,table.t th{border-bottom:1px solid #eee;padding:4px 8px;text-align:right}
+.lg span{display:inline-block;width:14px;height:4px;margin:0 6px 3px 12px;vertical-align:middle}
+@media (max-width:760px){.sim{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../../ch14.html">★ 별빛극장</a><nav class="nav"><a href="robot.html">안내 로봇</a><a href="tests.html" class="on" aria-current="page">안전 시험</a></nav></header><main class="wrap"><h2>안전 시험</h2><table class="t" id="t" style="text-align:left"></table><p id="sum" style="font-weight:800"></p></main>
+<script>
+// ===== 지도: # 벽, S 로봇, P 손님, 좌석 이름은 칸에 표시 =====
+const MAP = ["....#...", ".S..#.A.", "........", ".##.....", ".....P.B"];
+const SEATS = {"E5": "A", "C2": "B"};          // 좌석 이름 → 지도 글자
+function parse(map) { const g = map.map(r => r.split("")); let robot, person, seats = {};
+  g.forEach((row, y) => row.forEach((c, x) => { if (c === "S") robot = {x, y}; if (c === "P") person = {x, y}; if (/[A-Z]/.test(c) && c !== "S" && c !== "P") seats[c] = {x, y}; }));
+  return {g, robot, person, seats}; }
+// 말 → 계획: 정해진 낱말만 알아듣는다(모르는 명령은 되묻기)
+function plan(cmd, w) {
+  const m = cmd.match(/([A-Z][0-9])\s*(좌석)?까지/);
+  if (m) { const key = SEATS[m[1]]; if (!key) return {ask: m[1] + " 좌석을 지도에서 찾을 수 없어요. 좌석 이름을 다시 말해 주세요."}; return {steps: path(w, w.robot, w.seats[key])}; }
+  const dir = {"위": [0, -1], "아래": [0, 1], "왼쪽": [-1, 0], "오른쪽": [1, 0]}; const mm = cmd.match(/(위|아래|왼쪽|오른쪽)\s*(으로|로)?\s*(\d+)\s*칸/);
+  if (mm) return {steps: Array(+mm[3]).fill(dir[mm[1]])};
+  return {ask: "\'" + cmd + "\'는 모르는 명령이에요. 예: \'E5 좌석까지\', \'오른쪽으로 2칸\'"};
+}
+function path(w, a, b) {                       // 너비 우선 탐색으로 벽과 손님 주변을 피해 길 찾기
+  const H = w.g.length, Wd = w.g[0].length, prev = {}, q = [[a.x, a.y]], seen = new Set([a.x + "," + a.y]);
+  while (q.length) { const [x, y] = q.shift(); if (x === b.x && y === b.y) break;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, k = nx + "," + ny;
+      if (nx < 0 || ny < 0 || nx >= Wd || ny >= H || seen.has(k) || w.g[ny][nx] === "#" || (w.person && Math.abs(w.person.x - nx) + Math.abs(w.person.y - ny) <= 1)) continue; seen.add(k); prev[k] = [x, y, dx, dy]; q.push([nx, ny]); } }
+  const steps = []; let k = b.x + "," + b.y; if (!prev[k]) return [];
+  while (prev[k]) { const [x, y, dx, dy] = prev[k]; steps.unshift([dx, dy]); k = x + "," + y; } return steps;
+}
+// 안전 규칙: 실행하는 매 순간 검사(계획이 틀려도 여기서 막는다)
+function safe(w, nx, ny) {
+  if (nx < 0 || ny < 0 || ny >= w.g.length || nx >= w.g[0].length) return "지도 밖으로 나갈 수 없음";
+  if (w.g[ny][nx] === "#") return "벽 통과 금지";
+  if (w.person && Math.abs(w.person.x - nx) + Math.abs(w.person.y - ny) <= 1) return "손님과 1칸 안 → 멈춤";
+  return null;
+}
+function step(w, d) { const nx = w.robot.x + d[0], ny = w.robot.y + d[1], why = safe(w, nx, ny); if (why) return why; w.robot = {x: nx, y: ny}; return null; }
+
+function runPlan(cmd, w) { const p = plan(cmd, w); if (p.ask) return {asked: true}; for (const d of p.steps) { const why = step(w, d); if (why) return {stopped: why, w}; } return {done: true, w}; }
+const T = [
+  ["벽 통과 금지", () => { const w = parse(["S#..", "....", "....", "...."]); return step(w, [1, 0]) === "벽 통과 금지" && w.robot.x === 0; }],
+  ["사람 1칸 안이면 멈춤", () => { const w = parse(["S...", ".P..", "....", "...."]); return step(w, [1, 0]) !== null && w.robot.x === 0; }],
+  ["모르는 명령은 되묻기", () => runPlan("저기로 가", parse(MAP)).asked === true],
+  ["좌석까지 벽을 피해 도착", () => { const w = parse(MAP), r = runPlan("C2 좌석까지", w); return r.done && w.robot.x === w.seats.B.x && w.robot.y === w.seats.B.y; }],
+  ["지도 밖으로 나가지 않음", () => { const w = parse(MAP); const r = runPlan("위로 5칸", w); return r.stopped === "지도 밖으로 나갈 수 없음" && w.robot.y === 0; }]
+];
+let pass = 0; document.getElementById("t").innerHTML = "<tr><th>시험</th><th>결과</th></tr>" + T.map(([n, f]) => { let ok = false; try { ok = f(); } catch (e) {} if (ok) pass++; return "<tr><td style=\'text-align:left\'>" + n + "</td><td>" + (ok ? "✔ 통과" : "✖ 실패") + "</td></tr>"; }).join("");
+document.getElementById("sum").textContent = "안전 시험 " + T.length + "개 중 " + pass + "개 통과";
+</script>
+</body>
+</html>

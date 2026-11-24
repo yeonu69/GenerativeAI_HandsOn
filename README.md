@@ -5,6 +5,8 @@
 
 **바로 열기:** https://yeonu69.github.io/GenerativeAI_HandsOn/
 
+**3판(바이브 코딩) 실습 자료:** [`v3/`](v3/) · https://yeonu69.github.io/GenerativeAI_HandsOn/v3/ — 장별 예시 코드와 체험실 연결 ([v3/README.md](v3/README.md))
+
 | 실험실 | 주소 | 실험 |
 | --- | --- | --- |
 | 생성형 AI 실험실 (공통) | [`labs/genai/`](labs/genai/) | S1 다음 단어 예측 · S2 어텐션 · S3 디퓨전 |

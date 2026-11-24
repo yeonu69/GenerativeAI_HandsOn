@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>팝콘 게임 랭킹 · 별빛극장</title>
+<style>
+[hidden]{display:none!important}body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.sc{text-align:center;background:#333;color:#ddd;border-radius:6px;padding:4px;margin:0 auto 14px;width:70%;font-size:14px}.rw{display:flex;justify-content:center;gap:6px;margin:5px 0}
+.st{width:34px;height:32px;border-radius:6px 6px 3px 3px;background:#E3E6F2;font-size:11px;border:0;padding:0;min-height:auto;font-weight:500}.st.tk{background:#9AA0B8;color:#fff;cursor:not-allowed}.st.my{background:#FFC83D;font-weight:800}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}.side{background:#F4F6FB;border-radius:12px;padding:14px 16px}.side input{width:100%;margin:4px 0 8px}
+.msg{margin-top:10px;font-weight:700}.okm{color:#2E7D52}.ngm{color:#C0392B}.note{font-size:14px;color:#666;background:#FFF8E1;border-radius:10px;padding:8px 12px;margin-top:14px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.col{border-radius:12px;padding:10px 12px;min-height:200px}.o{background:#fff;border-radius:8px;padding:8px 10px;margin-top:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);cursor:pointer}
+@media (max-width:700px){.two,.cols{grid-template-columns:1fr}}@media (max-width:480px){.st{width:28px;height:28px;font-size:9px}.rw{gap:3px}}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch11.html">★ 별빛극장</a><nav class="nav"><a href="booking.html">좌석 예매</a><a href="snack.html">매점 주문</a><a href="board.html">주문 현황판(직원)</a><a href="ranking.html" class="on" aria-current="page">게임 랭킹</a></nav></header><main class="wrap"><h2>팝콘 받기 · 이번 주 랭킹</h2><div class="two"><div class="side"><p>4장 팝콘 게임이 끝나면 점수를 여기에 올립니다(실명 대신 별명만, 하루 5번까지).</p>
+<label>별명(10자)<input id="nick" maxlength="10"></label><label>점수<input id="score" inputmode="numeric"></label><button id="up">랭킹에 올리기</button><div class="msg" id="msg"></div></div>
+<div><b style="color:#1E2A5A;font-size:19px">TOP 5</b><ol id="top" style="line-height:2"></ol></div></div><div class="note">연습용 가짜 서버로 동작합니다(같은 브라우저의 탭끼리만 공유). 창을 두 개 열어 동시 예매를 시험해 보세요. 실제 서비스는 schema.sql로 백엔드 서비스를 만들어 바꿉니다.</div></main><script>
+/* ===== 연습용 가짜 서버 =====
+   실제 서버 대신 이 브라우저의 저장소를 '모두가 함께 쓰는 장부'처럼 흉내 냅니다.
+   같은 브라우저의 탭끼리만 공유되며, 실제 서비스에서는 schema.sql로 만든 백엔드 서비스로 바꿉니다.
+   규칙(유일 제약, 권한)은 화면이 아니라 이 '서버' 함수 안에서 지킵니다. */
+const FakeServer = (() => {
+  const ch = ("BroadcastChannel" in window) ? new BroadcastChannel("byeolbit") : null;
+  const read = k => { try { return JSON.parse(localStorage.getItem("srv_" + k) || "[]"); } catch (e) { return []; } };
+  const write = (k, v) => { localStorage.setItem("srv_" + k, JSON.stringify(v)); ch && ch.postMessage(k); };
+  const listeners = {};
+  ch && (ch.onmessage = e => (listeners[e.data] || []).forEach(f => f()));
+  window.addEventListener("storage", e => { const k = (e.key || "").replace("srv_", ""); (listeners[k] || []).forEach(f => f()); });
+  return {
+    // 좌석 표: 손님에게는 좌석 칸만 보여 준다(이름·전화는 직원만)
+    seats: show => read("bookings").filter(b => b.show === show).map(b => b.seat),
+    book(show, seat, name, phone4) {
+      if (!name || !/^\d{4}$/.test(phone4)) return {ok: false, error: "이름과 전화 끝 4자리를 넣어 주세요"};
+      const all = read("bookings");
+      if (all.some(b => b.show === show && b.seat === seat)) return {ok: false, error: "방금 다른 분이 예매했어요. 다른 좌석을 골라 주세요."};   // 유일 제약
+      const id = "A-" + (1000 + all.length + 1); all.push({id, show, seat, name, phone4}); write("bookings", all); return {ok: true, bookingId: id, seat};
+    },
+    order(items) { const all = read("orders"); const no = all.length ? all[all.length - 1].no + 1 : 1; all.push({no, items, state: "새 주문", at: Date.now()}); write("orders", all); return {ok: true, no}; },
+    orders: () => read("orders"),
+    setState(no, state, staffPin) { if (staffPin !== "1234") return {ok: false, error: "직원만 바꿀 수 있어요"}; const all = read("orders"); const o = all.find(x => x.no === no); if (o) o.state = state; write("orders", all); return {ok: true}; },
+    addScore(nick, score) { nick = String(nick).trim().slice(0, 10); if (!nick || !(score >= 0 && score <= 500)) return {ok: false, error: "별명과 점수를 확인해 주세요"};
+      const all = read("scores"); const today = new Date().toISOString().slice(0, 10); if (all.filter(s => s.nick === nick && s.day === today).length >= 5) return {ok: false, error: "하루 5번까지 올릴 수 있어요"};
+      all.push({nick, score, day: today}); write("scores", all); return {ok: true}; },
+    top5: () => read("scores").sort((a, b) => b.score - a.score).slice(0, 5),
+    on(k, f) { (listeners[k] = listeners[k] || []).push(f); },
+    resetAll() { ["bookings", "orders", "scores"].forEach(k => write(k, [])); }
+  };
+})();
+</script>
+<script>
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c])); }
+function draw() { document.getElementById("top").innerHTML = FakeServer.top5().map(s => "<li>" + esc(s.nick) + " · " + s.score + "</li>").join("") || "<li>아직 기록이 없어요</li>"; }
+document.getElementById("up").onclick = () => { const r = FakeServer.addScore(document.getElementById("nick").value, +document.getElementById("score").value); const m = document.getElementById("msg"); m.className = "msg " + (r.ok ? "okm" : "ngm"); m.textContent = r.ok ? "올렸어요!" : r.error; draw(); };
+FakeServer.on("scores", draw); draw();
+</script>
+</body>
+</html>

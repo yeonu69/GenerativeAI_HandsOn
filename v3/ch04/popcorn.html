@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>팝콘 받기 · 별빛극장</title>
+<style>
+[hidden]{display:none!important}body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+#stage{position:relative;max-width:900px;margin:0 auto}canvas{display:block;width:100%;background:linear-gradient(#2B3F86,#0E1A44);border-radius:0 0 12px 12px;touch-action:none}
+.bar2{max-width:900px;margin:12px auto 0;display:flex;justify-content:space-between;align-items:center;background:#1E2A5A;color:#fff;padding:10px 16px;border-radius:12px 12px 0 0;font-weight:700}
+#msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:22px;text-align:center;gap:12px}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="index.html">★ 별빛극장</a><nav class="nav"><a href="index.html">홈</a><a href="quiz.html">퀴즈</a><a href="popcorn.html" class="on" aria-current="page">팝콘 게임</a></nav></header><div class="wrap"><div class="bar2"><span>★ 팝콘 받기</span><span id="hud">점수 0 · ♥♥♥</span></div>
+<div id="stage"><canvas id="cv" width="900" height="500"></canvas><div id="msg"><div>← → 방향키(휴대폰은 화면 왼쪽·오른쪽 누르기)로 바구니를 움직여 팝콘을 받으세요</div><button id="go">시작</button></div></div></div>
+<script>
+// ===== 난이도를 정하는 숫자(직접 바꿔 보세요) =====
+const START_SPEED = 2.2;      // 팝콘이 처음 떨어지는 속도(1번 그릴 때 내려가는 칸 수)
+const SPAWN_EVERY = 900;      // 팝콘이 새로 나오는 간격(밀리초, 작을수록 자주)
+const SPEED_UP_EVERY = 10;    // 몇 점마다 빨라질지
+// ================================================
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+let basket, pops, score, lives, speed, lastSpawn, keys = {}, running = false, best = 0;
+try { best = +localStorage.getItem("best") || 0; } catch (e) {}
+function reset() { basket = {x: 400, w: 120}; pops = []; score = 0; lives = 3; speed = START_SPEED; lastSpawn = 0; }
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+cv.addEventListener("pointerdown", e => { const r = cv.getBoundingClientRect(); keys.touch = (e.clientX - r.left) < r.width / 2 ? -1 : 1; });
+cv.addEventListener("pointerup", () => keys.touch = 0);
+function loop(t) {
+  if (!running) return;
+  // ① 입력 읽기
+  const dir = (keys.ArrowLeft ? -1 : 0) + (keys.ArrowRight ? 1 : 0) + (keys.touch || 0);
+  basket.x = Math.max(0, Math.min(cv.width - basket.w, basket.x + dir * 9));
+  // ② 움직이기
+  if (t - lastSpawn > SPAWN_EVERY) { pops.push({x: 20 + Math.random() * (cv.width - 40), y: -20}); lastSpawn = t; }
+  pops.forEach(p => p.y += speed);
+  // ③ 부딪힘 확인
+  pops = pops.filter(p => {
+    if (p.y > cv.height - 70 && p.y < cv.height - 30 && p.x > basket.x && p.x < basket.x + basket.w) { score++; if (score % SPEED_UP_EVERY === 0) speed += 0.6; return false; }
+    if (p.y > cv.height) { lives--; return false; }
+    return true;
+  });
+  // ④ 다시 그리기
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = "#FFF6D8"; pops.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fill(); });
+  for (let i = 0; i < 6; i++) { ctx.fillStyle = i % 2 ? "#fff" : "#E53935"; ctx.fillRect(basket.x + i * basket.w / 6, cv.height - 60, basket.w / 6, 50); }
+  document.getElementById("hud").textContent = "점수 " + score + " · " + "♥".repeat(Math.max(lives, 0)) + "♡".repeat(3 - Math.max(lives, 0)) + " · 최고 " + best;
+  if (lives <= 0) return end();
+  requestAnimationFrame(loop);
+}
+function end() {
+  running = false;
+  if (score > best) { best = score; try { localStorage.setItem("best", best); } catch (e) {} }
+  const m = document.getElementById("msg"); m.hidden = false;
+  m.innerHTML = '<div>게임 끝! 점수 ' + score + ' · 최고 ' + best + '</div><button id="go">다시 하기</button>';
+  document.getElementById("go").onclick = start;
+}
+function start() { reset(); running = true; document.getElementById("msg").hidden = true; requestAnimationFrame(loop); }
+document.getElementById("go").onclick = start;
+</script>
+<footer class="ft">이 사이트는 수업 「영화관으로 간 생성형 AI 실습」에서 AI와 함께 만든 가상의 동네 영화관입니다 · 주소·전화번호는 가상 · 포스터 그림: CSS로 그린 예시(실습에서는 이미지 생성 AI로 바꿔 넣기)</footer>
+</body>
+</html>

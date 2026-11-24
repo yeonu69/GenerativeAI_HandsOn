@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 관람 기록장 · 별빛극장</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hd"><a class="logo" href="index.html">★ 별빛극장</a><nav class="nav"><a href="index.html">홈</a><a href="quiz.html">퀴즈</a><a href="popcorn.html">팝콘 게임</a><a href="diary.html" class="on" aria-current="page">관람 기록장</a><a href="fee.html">관람료</a><a href="about.html">안내</a></nav></header><main class="wrap"><h2>나의 관람 기록장</h2><div class="ap">
+<form class="fm" id="form"><b id="formTitle">새 기록</b>
+<label for="title">영화 제목</label><input id="title" maxlength="40" placeholder="예: 코코">
+<label for="date">본 날</label><input id="date" type="date">
+<label>별점</label><div class="stars" id="stars"></div>
+<label for="with">함께 본 사람</label><select id="with"><option>혼자</option><option>가족</option><option>친구</option></select>
+<label for="memo">한 줄 평 (50자)</label><input id="memo" maxlength="50">
+<div class="err" id="err" aria-live="polite"></div><button type="submit" id="save">기록 추가</button> <button type="button" class="ghost" id="cancel" hidden>고치기 취소</button></form>
+<section><div class="tools"><input id="q" placeholder="제목 검색" aria-label="제목 검색"><select id="sort" aria-label="정렬"><option value="date">최근 본 순</option><option value="stars">별점 높은 순</option></select>
+<label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="good">별점 4개 이상만</label></div>
+<div id="list"></div><div class="stat" id="stat"></div>
+<div class="tools" style="margin-top:14px"><button type="button" class="ghost" id="exp">백업 파일 받기</button><label class="btn" style="background:#fff;border:2px solid #1E2A5A">백업 불러오기<input type="file" id="imp" accept=".json,application/json" hidden></label></div></section></div></main>
+<div class="dlg" id="dlg" hidden><div><p id="dlgMsg"></p><button id="dlgYes">예</button> <button class="ghost" id="dlgNo">취소</button></div></div>
+<script>
+const KEY = "diary";
+let records = load();           // 데이터(배열): 기록 목록
+let stars = 5, editing = null;  // 상태: 고른 별점, 고치는 중인 기록 id
+
+function load() {               // 서랍(localStorage)에서 꺼내기. 망가져 있으면 빈 목록
+  try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+}
+function save() {               // 배열을 글자(JSON)로 바꿔 서랍에 넣기
+  try { localStorage.setItem(KEY, JSON.stringify(records)); } catch (e) { alertBox("저장하지 못했어요. 브라우저 설정을 확인해 주세요."); }
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c])); }
+function confirmBox(msg, yes) { const d = document.getElementById("dlg"); document.getElementById("dlgMsg").textContent = msg; document.getElementById("dlgYes").hidden = false; d.hidden = false;
+  document.getElementById("dlgYes").onclick = () => { d.hidden = true; yes(); }; document.getElementById("dlgNo").onclick = () => d.hidden = true; }
+function alertBox(msg) { confirmBox(msg, () => {}); document.getElementById("dlgYes").hidden = true; }
+
+function renderStars() {
+  const box = document.getElementById("stars"); box.innerHTML = "";
+  for (let i = 1; i <= 5; i++) { const b = document.createElement("button"); b.type = "button"; b.textContent = "★"; b.className = i <= stars ? "on" : ""; b.setAttribute("aria-label", "별점 " + i); b.onclick = () => { stars = i; renderStars(); }; box.appendChild(b); }
+}
+function render() {             // 데이터가 바뀌면 화면 전체를 다시 그린다
+  const q = document.getElementById("q").value.trim(), by = document.getElementById("sort").value, good = document.getElementById("good").checked;
+  let view = records.filter(r => r.title.includes(q) && (!good || r.stars >= 4));
+  view.sort((a, b) => by === "stars" ? b.stars - a.stars || b.date.localeCompare(a.date) : b.date.localeCompare(a.date));
+  document.getElementById("list").innerHTML = view.length ? view.map(r => '<div class="it"><div><b>' + esc(r.title) + '</b> <span class="st">' + "★".repeat(r.stars) + "☆".repeat(5 - r.stars) +
+    '</span><br><span class="sm">' + r.date + ' · ' + esc(r.with) + (r.memo ? ' · ' + esc(r.memo) : '') + '</span></div><div class="ac"><button class="ghost" data-e="' + r.id + '">고치기</button><button class="ghost" data-d="' + r.id + '">지우기</button></div></div>').join("")
+    : '<p class="sm">아직 기록이 없어요.</p>';
+  document.querySelectorAll("[data-d]").forEach(b => b.onclick = () => confirmBox("정말 지울까요?", () => { records = records.filter(r => r.id !== b.dataset.d); save(); render(); }));
+  document.querySelectorAll("[data-e]").forEach(b => b.onclick = () => startEdit(b.dataset.e));
+  // 통계: 기록이 없으면 "-"(NaN 막기)
+  const n = records.length, avg = n ? (records.reduce((s, r) => s + r.stars, 0) / n).toFixed(1) : "-";
+  const months = {}; records.forEach(r => { const m = +r.date.slice(5, 7) + "월"; months[m] = (months[m] || 0) + 1; });
+  const top = Object.entries(months).sort((a, b) => b[1] - a[1])[0];
+  document.getElementById("stat").innerHTML = '<div><b>' + n + '</b>본 영화</div><div><b>' + avg + '</b>평균 별점</div><div><b>' + (top ? top[0] : "-") + '</b>가장 많이 본 달</div>';
+}
+function startEdit(id) {
+  const r = records.find(x => x.id === id); editing = id;
+  ["title", "date", "with", "memo"].forEach(k => document.getElementById(k).value = r[k]); stars = r.stars; renderStars();
+  document.getElementById("formTitle").textContent = "기록 고치기"; document.getElementById("save").textContent = "고친 내용 저장"; document.getElementById("cancel").hidden = false;
+}
+function resetForm() { editing = null; document.getElementById("form").reset(); document.getElementById("date").value = new Date().toISOString().slice(0, 10); stars = 5; renderStars();
+  document.getElementById("formTitle").textContent = "새 기록"; document.getElementById("save").textContent = "기록 추가"; document.getElementById("cancel").hidden = true; }
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const r = {title: document.getElementById("title").value.trim(), date: document.getElementById("date").value, stars: stars, with: document.getElementById("with").value, memo: document.getElementById("memo").value.trim()};
+  const err = document.getElementById("err");
+  if (!r.title) { err.textContent = "영화 제목을 입력해 주세요."; return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(r.date)) { err.textContent = "본 날을 골라 주세요."; return; }
+  err.textContent = "";
+  if (editing) { Object.assign(records.find(x => x.id === editing), r); } else { r.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6); records.push(r); }
+  save(); resetForm(); render();     // 데이터 먼저 바꾸고 → 저장 → 화면 다시 그리기
+});
+document.getElementById("cancel").onclick = resetForm;
+["q", "sort", "good"].forEach(id => document.getElementById(id).addEventListener("input", render));
+document.getElementById("exp").onclick = () => {   // 내보내기
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(records, null, 2)], {type: "application/json"})); a.download = "diary.json"; a.click();
+};
+document.getElementById("imp").onchange = e => {    // 가져오기
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { let data; try { data = JSON.parse(t); if (!Array.isArray(data)) throw 0; } catch (x) { alertBox("백업 파일을 읽을 수 없어요."); return; }
+    confirmBox("지금 기록에 합칠까요? [취소]를 누르면 아무것도 바뀌지 않습니다.", () => { const ids = new Set(records.map(r => r.id)); data.forEach(r => { if (r && r.title && !ids.has(r.id)) records.push(r); }); save(); render(); }); });
+  e.target.value = "";
+};
+resetForm(); render();
+</script>
+<footer class="ft">이 사이트는 수업 「영화관으로 간 생성형 AI 실습」에서 AI와 함께 만든 가상의 동네 영화관입니다 · 주소·전화번호는 가상 · 포스터 그림: CSS로 그린 예시(실습에서는 이미지 생성 AI로 바꿔 넣기) · <a href="about.html">안내</a></footer>
+</body>
+</html>
