@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 영화관 입소문 시뮬레이터</title>
+<style>
+body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.sim{display:grid;grid-template-columns:300px 1fr;gap:20px}.ctl label{display:block;margin:12px 0 4px;font-weight:700;color:#1E2A5A}.ctl input[type=range]{width:100%}
+.kpi{background:#F4F6FB;border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.8}.chk{margin-top:10px;border-radius:10px;padding:8px 12px;font-weight:700}
+.ok{background:#E6F5EC;color:#2E7D52;border:2px solid #2E9E62}.bad{background:#FDECEC;color:#C0392B;border:2px solid #D64545}
+svg{width:100%;height:auto;background:#fff;border:1px solid #E3E6F2;border-radius:10px}table.t{border-collapse:collapse;font-size:14px;margin-top:12px;width:100%}table.t td,table.t th{border-bottom:1px solid #eee;padding:4px 8px;text-align:right}
+.lg span{display:inline-block;width:14px;height:4px;margin:0 6px 3px 12px;vertical-align:middle}
+@media (max-width:760px){.sim{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch08.html">★ 별빛극장</a><nav class="nav"><a href="sir.html">SIR 감염병</a><a href="buzz.html" class="on" aria-current="page">영화 입소문</a><a href="perceptron.html">퍼셉트론</a></nav></header><main class="wrap"><h2>우리 영화관 입소문 시뮬레이터</h2><div class="sim"><div class="ctl"><label for="n">동네 주민 <span id="vn"></span>명</label><input type="range" id="n" min="5000" max="50000" step="1000" value="20000">
+<label for="i0">첫 관객(시사회 등) <span id="vi"></span>명</label><input type="range" id="i0" min="1" max="500" step="1" value="30">
+<label for="beta">하루 입소문 전파율 <span id="vb"></span></label><input type="range" id="beta" min="0" max="1" step="0.01" value="0.45">
+<label for="gamma">관심이 식는 비율 <span id="vg"></span></label><input type="range" id="gamma" min="0.02" max="0.5" step="0.01" value="0.15">
+<div class="kpi" id="kpi"></div><p style="font-size:14px;color:#666">이 모형이 버린 것: 영화의 재미, 경쟁작, 날씨, 상영 횟수…</p></div><div><svg id="cv" role="img" aria-label="우리 영화관 입소문 시뮬레이터 그래프"></svg><div class="lg"><span style="background:#4A55A2"></span>아직 모르는 주민<span style="background:#D64545"></span>입소문 내는 관객<span style="background:#2E9E62"></span>관심이 식은 주민</div></div></div></main>
+<script>
+function chart(svg, days, series, yMax) {      // 외부 라이브러리 없이 SVG로 꺾은선 그리기
+  const W = 700, H = 360, L = 60, B = 34, T = 14, R = 14;
+  const x = d => L + d / days * (W - L - R), y = v => T + (1 - v / yMax) * (H - T - B);
+  let s = '';
+  for (let k = 0; k <= 4; k++) { const v = yMax * k / 4; s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#eee"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" font-size="12" text-anchor="end" fill="#666">' + Math.round(v).toLocaleString() + '</text>'; }
+  for (let k = 0; k <= 4; k++) { const d = Math.round(days * k / 4); s += '<text x="' + x(d) + '" y="' + (H - 12) + '" font-size="12" text-anchor="middle" fill="#666">' + d + '일</text>'; }
+  series.forEach(([vals, color]) => { s += '<polyline fill="none" stroke="' + color + '" stroke-width="3" points="' + vals.map((v, d) => x(d).toFixed(1) + ',' + y(v).toFixed(1)).join(' ') + '"/>'; });
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = s;
+}
+
+const DAYS = 60;
+function update() {
+  const N = +n.value, i0 = +document.getElementById("i0").value, beta = +document.getElementById("beta").value, gamma = +document.getElementById("gamma").value;
+  vn.textContent = N.toLocaleString(); vi.textContent = i0; vb.textContent = beta.toFixed(2); vg.textContent = gamma.toFixed(2);
+  let S = N - i0, I = i0, R = 0, total = i0; const rows = [[S, I, R]];
+  for (let d = 1; d <= DAYS; d++) { const ni = Math.min(beta * S * I / N, S), nr = gamma * I; S -= ni; I += ni - nr; R += nr; total += ni; rows.push([S, I, R]); }
+  chart(document.getElementById("cv"), DAYS, [[rows.map(r => r[0]), "#4A55A2"], [rows.map(r => r[1]), "#D64545"], [rows.map(r => r[2]), "#2E9E62"]], N);
+  let pk = 0, pd = 0; rows.forEach((r, d) => { if (r[1] > pk) { pk = r[1]; pd = d; } });
+  document.getElementById("kpi").innerHTML = "입소문이 가장 뜨거운 날 <b>" + pd + "일째</b><br>그날 입소문 내는 관객 <b>" + Math.round(pk).toLocaleString() + "명</b><br>60일 동안 영화를 알게 된 주민 <b>" + Math.round(total).toLocaleString() + "명</b>";
+}
+document.querySelectorAll("input").forEach(e => e.addEventListener("input", update)); update();</script>
+</body>
+</html>

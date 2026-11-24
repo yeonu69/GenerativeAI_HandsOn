@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>별빛극장</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hd"><a class="logo" href="index.html">★ 별빛극장</a><nav class="nav"><a href="index.html" class="on" aria-current="page">홈</a><a href="quiz.html">퀴즈</a><a href="popcorn.html">팝콘 게임</a><a href="diary.html">관람 기록장</a><a href="fee.html">관람료</a><a href="about.html">안내</a></nav></header><main class="wrap"><div class="poster" role="img" aria-label="밤하늘 아래 노란 간판 불이 켜진 작은 동네 극장 포스터"><div class="moon"></div><div class="stars"></div>
+<div class="bld"><div class="mq">별빛극장</div><div class="door"></div><div class="wn w1"></div><div class="wn w2"></div></div>
+<div class="ptxt">이번 주말, 동네 극장에서 만나요</div></div><h2 id="movies">이번 주 상영작</h2><div class="mv"><div class="card"><b>코코</b>전체관람가<div class="tm"><span>10:30</span><span>13:00</span><span>15:40</span></div></div><div class="card"><b>리틀 포레스트</b>12세<div class="tm"><span>11:00</span><span>14:20</span><span>19:10</span></div></div><div class="card"><b>인사이드 아웃 2</b>전체관람가<div class="tm"><span>10:00</span><span>16:30</span><span>18:50</span></div></div></div><h2>오늘의 영화 뽑기</h2><button id="pickBtn">오늘의 영화 뽑기</button><div class="pick" id="pickResult" aria-live="polite">버튼을 눌러 보세요</div>
+<h2 id="way">오시는 길 · 관람료</h2><div class="info"><div class="box"><b>주소</b><br>목포시 별빛로 12 (가상 주소)<br>☎ 061-000-0000 (가상)</div><div class="box"><b>관람료</b><br>일반 8,000원 · 만 19세 이하 6,000원<br>만 65세 이상 5,000원</div></div></main><script>
+// 사건(누르기) → 확인(바로 전과 같은가?) → 바꾸기(글자 바꾸기)
+const movies = ["코코", "리틀 포레스트", "인사이드 아웃 2"];
+let last = -1;                                   // 변수: 바로 전에 뽑힌 영화 번호
+document.getElementById("pickBtn").addEventListener("click", function () {   // 사건
+  let i;
+  do { i = Math.floor(Math.random() * movies.length); } while (i === last);   // 조건+반복: 같은 영화 연속 금지
+  last = i;
+  document.getElementById("pickResult").textContent = "오늘의 추천: " + movies[i];   // 바꾸기
+});
+</script>
+<footer class="ft">이 사이트는 수업 「영화관으로 간 생성형 AI 실습」에서 AI와 함께 만든 가상의 동네 영화관입니다 · 주소·전화번호는 가상 · 포스터 그림: CSS로 그린 예시(실습에서는 이미지 생성 AI로 바꿔 넣기) · <a href="about.html">만든 사람들과 AI 사용 안내</a></footer>
+</body>
+</html>

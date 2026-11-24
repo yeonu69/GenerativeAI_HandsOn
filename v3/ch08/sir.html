@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIR 감염병 시뮬레이터</title>
+<style>
+body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.sim{display:grid;grid-template-columns:300px 1fr;gap:20px}.ctl label{display:block;margin:12px 0 4px;font-weight:700;color:#1E2A5A}.ctl input[type=range]{width:100%}
+.kpi{background:#F4F6FB;border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.8}.chk{margin-top:10px;border-radius:10px;padding:8px 12px;font-weight:700}
+.ok{background:#E6F5EC;color:#2E7D52;border:2px solid #2E9E62}.bad{background:#FDECEC;color:#C0392B;border:2px solid #D64545}
+svg{width:100%;height:auto;background:#fff;border:1px solid #E3E6F2;border-radius:10px}table.t{border-collapse:collapse;font-size:14px;margin-top:12px;width:100%}table.t td,table.t th{border-bottom:1px solid #eee;padding:4px 8px;text-align:right}
+.lg span{display:inline-block;width:14px;height:4px;margin:0 6px 3px 12px;vertical-align:middle}
+@media (max-width:760px){.sim{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch08.html">★ 별빛극장</a><nav class="nav"><a href="sir.html" class="on" aria-current="page">SIR 감염병</a><a href="buzz.html">영화 입소문</a><a href="perceptron.html">퍼셉트론</a></nav></header><main class="wrap"><h2>SIR 감염병 시뮬레이터</h2><div class="sim"><div class="ctl"><label for="beta">전파율 β <span id="vb"></span></label><input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
+<label for="gamma">회복률 γ <span id="vg"></span></label><input type="range" id="gamma" min="0.01" max="0.5" step="0.01" value="0.1">
+<label for="i0">처음 감염자 <span id="vi"></span>명</label><input type="range" id="i0" min="0" max="200" step="1" value="10">
+<label for="vac">백신 접종률 <span id="vv"></span>%</label><input type="range" id="vac" min="0" max="95" step="1" value="0">
+<div class="kpi" id="kpi"></div><div class="chk" id="c1"></div><div class="chk" id="c2"></div></div><div><svg id="cv" role="img" aria-label="SIR 감염병 시뮬레이터 그래프"></svg><div class="lg"><span style="background:#4A55A2"></span>감염될 수 있는 사람 S<span style="background:#D64545"></span>감염된 사람 I<span style="background:#2E9E62"></span>회복한 사람 R</div><p style="font-size:14px;color:#666">처음 5일(손계산과 비교하세요)</p><table class="t" id="tbl"></table></div></div></main>
+<script>
+function chart(svg, days, series, yMax) {      // 외부 라이브러리 없이 SVG로 꺾은선 그리기
+  const W = 700, H = 360, L = 60, B = 34, T = 14, R = 14;
+  const x = d => L + d / days * (W - L - R), y = v => T + (1 - v / yMax) * (H - T - B);
+  let s = '';
+  for (let k = 0; k <= 4; k++) { const v = yMax * k / 4; s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#eee"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" font-size="12" text-anchor="end" fill="#666">' + Math.round(v).toLocaleString() + '</text>'; }
+  for (let k = 0; k <= 4; k++) { const d = Math.round(days * k / 4); s += '<text x="' + x(d) + '" y="' + (H - 12) + '" font-size="12" text-anchor="middle" fill="#666">' + d + '일</text>'; }
+  series.forEach(([vals, color]) => { s += '<polyline fill="none" stroke="' + color + '" stroke-width="3" points="' + vals.map((v, d) => x(d).toFixed(1) + ',' + y(v).toFixed(1)).join(' ') + '"/>'; });
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = s;
+}
+
+const N = 10000, DAYS = 200;
+function run(beta, gamma, i0, vac) {            // 규칙: 새 감염 = β×S×I÷N, 새 회복 = γ×I
+  let S = (N - i0) * (1 - vac), I = i0, R = (N - i0) * vac; const rows = [[S, I, R]];
+  for (let d = 1; d <= DAYS; d++) {
+    const ni = Math.min(beta * S * I / N, S), nr = gamma * I;   // 음수 막기: S보다 많이 감염될 수 없음
+    S -= ni; I += ni - nr; R += nr; rows.push([S, I, R]);
+  }
+  return rows;
+}
+function update() {
+  const beta = +document.getElementById("beta").value, gamma = +document.getElementById("gamma").value, i0 = +document.getElementById("i0").value, vac = +document.getElementById("vac").value / 100;
+  ["vb", "vg", "vi", "vv"].forEach((id, k) => document.getElementById(id).textContent = [beta.toFixed(2), gamma.toFixed(2), i0, Math.round(vac * 100)][k]);
+  const rows = run(beta, gamma, i0, vac);
+  chart(document.getElementById("cv"), DAYS, [[rows.map(r => r[0]), "#4A55A2"], [rows.map(r => r[1]), "#D64545"], [rows.map(r => r[2]), "#2E9E62"]], N);
+  let pk = 0, pd = 0; rows.forEach((r, d) => { if (r[1] > pk) { pk = r[1]; pd = d; } });
+  document.getElementById("kpi").innerHTML = "R₀ = β ÷ γ = <b>" + (beta / gamma).toFixed(2) + "</b><br>최고 감염자 <b>" + Math.round(pk).toLocaleString() + "명</b> (" + pd + "일째)";
+  // 불변량 점검: 합계 유지, 음수 없음
+  const sumOk = rows.every(r => Math.abs(r[0] + r[1] + r[2] - N) < 1e-6), negOk = rows.every(r => r.every(v => v >= -1e-9));
+  const c1 = document.getElementById("c1"), c2 = document.getElementById("c2");
+  c1.className = "chk " + (sumOk ? "ok" : "bad"); c1.textContent = (sumOk ? "✔" : "✖") + " 합계 S+I+R = " + N.toLocaleString() + " 유지";
+  c2.className = "chk " + (negOk ? "ok" : "bad"); c2.textContent = (negOk ? "✔" : "✖") + " 음수 없음";
+  document.getElementById("tbl").innerHTML = "<tr><th>날짜</th><th>S</th><th>I</th><th>R</th><th>합계</th></tr>" + [0, 1, 2, 3, 4, 5].map(d => "<tr><td>" + d + "</td>" + rows[d].map(v => "<td>" + v.toFixed(1) + "</td>").join("") + "<td>" + Math.round(rows[d][0] + rows[d][1] + rows[d][2]).toLocaleString() + "</td></tr>").join("");
+}
+document.querySelectorAll("input").forEach(e => e.addEventListener("input", update)); update();</script>
+</body>
+</html>

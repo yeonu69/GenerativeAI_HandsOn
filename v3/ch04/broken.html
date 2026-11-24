@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"><title>망가진 코드 고치기</title></head>
+<body>
+<!-- 일부러 오류 두 개를 넣은 코드입니다. F12 → Console(콘솔)을 열고 버튼을 눌러 보세요. -->
+<button id="pickBtn">오늘의 영화 뽑기</button>
+<p id="result"></p>
+<script>
+const movies = ["코코", "리틀 포레스트", "인사이드 아웃 2"];
+document.getElementById("pick").addEventListener("click", function () {
+  const i = Math.floor(Math.random() * movies.length);
+  document.getElementById("result").textContent = "오늘의 추천: " + movie[i];
+});
+</script>
+</body>
+</html>

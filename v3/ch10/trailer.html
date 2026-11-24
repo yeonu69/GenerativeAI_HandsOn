@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>예고편 상영관 · 별빛극장</title>
+<style>
+body{margin:0;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d2233;background:#fff;font-size:17px;line-height:1.6}
+.hd{background:#1E2A5A;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 20px}
+.logo{font-weight:900;font-size:24px;color:#FFD84D;text-decoration:none}
+.nav a{color:#fff;margin-left:16px;text-decoration:none;font-size:16px;padding-bottom:3px}
+.nav a.on{color:#FFD84D;border-bottom:3px solid #FFD84D}
+.nav a:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #2B8AD6;outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h2{font-size:22px;color:#1E2A5A;border-left:6px solid #FFC83D;padding-left:10px;margin:24px 0 12px}
+button,.btn{font:inherit;background:#FFC83D;border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;min-height:44px;color:#1d2233}
+button.ghost{background:#fff;border:2px solid #1E2A5A}
+input,select,textarea{font:inherit;border:2px solid #D7DBEA;border-radius:8px;padding:8px 10px;min-height:44px;box-sizing:border-box}
+.ft{background:#EEF0F6;color:#555;padding:12px 20px;font-size:14px;margin-top:30px}
+.ft a{color:#1E2A5A}
+@media (max-width:600px){.nav a{margin-left:10px;font-size:15px}.wrap{padding:14px}}
+.th{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.cr{background:#F4F6FB;border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.8}
+video{width:100%;border-radius:12px;background:#000}.tag{background:#FFF4CC;border-radius:6px;padding:2px 6px}.miss{background:#FDECEC;color:#C0392B;border-radius:10px;padding:10px;margin-top:8px;font-size:15px}
+@media (max-width:700px){.th{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hd"><a class="logo" href="../ch10.html">★ 별빛극장</a><nav class="nav"><a href="../ch10.html">홈</a><a href="trailer.html" class="on" aria-current="page">예고편 상영관</a></nav></header><main class="wrap"><h2>예고편 상영관</h2><div class="th"><div>
+<!-- 재생 단추(controls) · 자동 재생하지 않음 · 한국어 자막 기본 켜짐 -->
+<video controls preload="metadata" poster="images/trailer-poster.jpg" id="v">
+  <source src="video/trailer.mp4" type="video/mp4">
+  <track kind="subtitles" src="video/trailer.ko.vtt" srclang="ko" label="한국어" default>
+  이 브라우저에서는 영상을 재생할 수 없습니다.
+</video>
+<div class="miss" id="miss" hidden>video/trailer.mp4 파일이 아직 없습니다. 10장 메인 실습에서 만든 예고편을 video 폴더에 넣으세요.</div>
+<p><b style="font-size:20px">「다시, 불을 켜다」</b> 예고편 · 32초</p></div>
+<div class="cr"><b style="color:#1E2A5A;font-size:17px">만든 사람들과 도구</b><br>기획·편집: (이름)<br>영상: 영상 생성 AI(6샷)<br>내레이션: 음성 합성 AI<br>음악: 음악 생성 AI<br>효과음: 무료 효과음 모음(출처 표기)<br><br><span class="tag">이 예고편의 영상·소리는 AI로 만들었습니다</span></div></div></main>
+<script>document.getElementById("v").addEventListener("error", () => document.getElementById("miss").hidden = false, true);
+document.querySelector("#v source").addEventListener("error", () => document.getElementById("miss").hidden = false);</script>
+<footer class="ft">이 사이트는 수업 「영화관으로 간 생성형 AI 실습」에서 AI와 함께 만든 가상의 동네 영화관입니다 · 주소·전화번호는 가상 · 포스터 그림: CSS로 그린 예시(실습에서는 이미지 생성 AI로 바꿔 넣기)</footer>
+</body>
+</html>
